@@ -17,7 +17,9 @@ Advantages:
 - Very fast
 - Wide bandwidth
 - Low CPU usage
+
 Disadvantages:
+
 - Parts of the sweep may not complete before signal is gone, leaving gaps in the output
 
 Sample Method:
@@ -25,7 +27,9 @@ Sample Method:
 Advantages:
 - Very precise
 - Shows all frequencies at given sample time
+
 Disadvantages:
+
 - High CPU usage
 - Slower
 - Limited to device bandwidth (20MHz for HackRF, 2MHz for RTL-SDR)
