@@ -12,6 +12,7 @@ The other more common method to get frequency data is to get samples from the de
 There are advantages and disadvantages to each method.
 
 Sweep Method:
+
 Advantages:
 - Very fast
 - Wide bandwidth
@@ -20,6 +21,7 @@ Disadvantages:
 - Parts of the sweep may not complete before signal is gone, leaving gaps in the output
 
 Sample Method:
+
 Advantages:
 - Very precise
 - Shows all frequencies at given sample time
