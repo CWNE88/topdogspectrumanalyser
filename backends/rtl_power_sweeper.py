@@ -15,7 +15,7 @@ class Sweep(QtCore.QThread):
         self.last_timestamp = ""
         self.lnb_lo = 0  # Assuming lnb_lo needs to be managed; adjust if necessary
 
-    def setup(self, start_freq=2400, stop_freq=2450, bin_size=1000000, gain=10, interval=1):
+    def setup(self, start_freq=88, stop_freq=108, bin_size=1000, gain=10, interval=1):
         """Set up the sweep parameters."""
         self.params = {
             "start_freq": start_freq,  # MHz
