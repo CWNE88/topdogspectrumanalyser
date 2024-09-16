@@ -1,30 +1,24 @@
-from backends import hackrf_sweeper
+# main.py
+
+from backends.hackrf_sweep import HackRFSweep
 import time
 
-def main():
-    # Prompt user for input
-    start_freq = float(input("Enter the start frequency (MHz): "))
-    stop_freq = float(input("Enter the stop frequency (MHz): "))
-    bin_size = int(input("Enter the bin size (kHz): "))
+# Create an instance of HackRFSweep
+sweep = HackRFSweep()
 
-    # Create a Sweep instance
-    sweeper = hackrf_sweeper.Sweep()
+# Set up the sweep parameters
+sweep.setup(start_freq=2400, stop_freq=2500, bin_size=5000)
 
-    # Set up the sweeper with user-provided parameters
-    sweeper.setup(start_freq=start_freq, stop_freq=stop_freq, bin_size=bin_size)
+# Start the sweep in a non-blocking way
+sweep.run()
 
-    # Start the sweeper
-    sweeper.start()
-    
-    # Allow the sweeper to run for a short duration (e.g., 3 seconds)
-    time.sleep(3)
-    
-    # Stop the sweeper
-    sweeper.stop()
+# Main loop to periodically check the status
+while not sweep.is_sweep_complete():
+    print("Sweep is running...")
+    print(sweep.get_data())
+    time.sleep(1)  # Adjust the sleep duration as needed
 
-    # Optionally, print or process the data
-    data = sweeper.get_data()
-    print("Sweep data:", data)
-
-if __name__ == "__main__":
-    main()
+print("Sweep complete. Retrieving data...")
+data = sweep.get_data()
+print(f"Number of data points: {sweep.get_number_of_points()}")
+print(f"Data: {data}")
