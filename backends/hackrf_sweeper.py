@@ -1,103 +1,114 @@
 import struct
 import subprocess
-import threading
-from pyqtgraph.Qt import QtCore
 import numpy as np
+import threading
 
-class Sweep(QtCore.QThread):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+class HackRFSweep:
+    def __init__(self):
         self.is_running = False
+        self.sweep_complete = False
         self.process = None
-        self.params = None
-        self._shutdown_lock = threading.Lock()
-        self.full_frequency_array = np.array([])
         self.full_power_array = np.array([])
-        self.is_buffer_available = False
-
-    def setup(self, start_freq=2400, stop_freq=2450, bin_size=500):
-        """Set up the sweep parameters."""
-        self.params = {
-            "start_freq": start_freq,  # MHz
-            "stop_freq": stop_freq,    # MHz
-            "bin_size": bin_size       # kHz
-        }
         self.sweep_data = {
             "x": [],
             "y": []
         }
+        self.lock = threading.Lock()
+        self.thread = None
+
+    def setup(self, start_freq=2400, stop_freq=2500, bin_size=5000):
+        """Set up the sweep parameters."""
+        if start_freq >= stop_freq:
+            raise ValueError("Start frequency must be less than stop frequency.")
+        self.start_freq = start_freq
+        self.stop_freq = stop_freq
+        self.bin_size = bin_size
 
     def run(self):
-        """Start the sweep process."""
-        if self.process is None and self.params:
+        """Start the hackrf_sweep subprocess and process its output."""
+        if self.process is None:
             cmdline = [
                 "hackrf_sweep",
-                "-f", f"{int(self.params['start_freq'])}:{int(self.params['stop_freq'])}",
+                "-f", f"{self.start_freq}:{self.stop_freq}",
                 "-B",
-                "-w", str(int(self.params['bin_size'] * 1000))
+                "-w", str(self.bin_size)
             ]
-            print(cmdline)
-
-            self.process = subprocess.Popen(cmdline, stdout=subprocess.PIPE, bufsize=1, universal_newlines=False)
+            print(f"Running command: {' '.join(cmdline)}")
+            self.process = subprocess.Popen(
+                cmdline, 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
             self.is_running = True
-            
-            while self.is_running:
-                self.is_buffer_available = False
-                hackrf_buffer = self.process.stdout.read(4)
+            self.sweep_complete = False
+            self.thread = threading.Thread(target=self._sweep_loop)
+            self.thread.start()
 
-                if hackrf_buffer:
-                    self.is_buffer_available = True
-                    record_length, = struct.unpack('I', hackrf_buffer)
-                    hackrf_buffer = self.process.stdout.read(record_length)
-                    if hackrf_buffer:
-                        self.parse(hackrf_buffer)
-                    else:
-                        break
+    def _sweep_loop(self):
+        """Loop to read and process sweep data."""
+        try:
+            while self.is_running:
+                hackrf_buffer_header = self.process.stdout.read(4)
+                if hackrf_buffer_header:
+                    record_length, = struct.unpack('I', hackrf_buffer_header)
+                    hackrf_buffer_data = self.process.stdout.read(record_length)
+                    self.parse(hackrf_buffer_data)
                 else:
                     break
-
+        finally:
             self.stop()
-            self.is_running = False
-
-    def stop(self):
-        """Terminate the sweep process."""
-        with self._shutdown_lock:
-            if self.process:
-                try:
-                    self.process.terminate()
-                except ProcessLookupError:
-                    pass
-                self.process.wait()
-                self.process = None
-        self.is_running = False
-        self.wait()
+            self.sweep_complete = True
 
     def parse(self, hackrf_data):
-        """Parse the data from the HackRF sweep."""
-        step_low_frequency, step_high_frequency = struct.unpack('QQ', hackrf_data[:16])
-        step_data = np.frombuffer(hackrf_data[16:], dtype='<f4')
-        step_bandwidth = (step_high_frequency - step_low_frequency) / len(step_data)
-        
-        if step_low_frequency / 1e6 <= self.params["start_freq"]:
-            self.sweep_data = {"x": [], "y": []}
+        """Parse the data and store it in full_power_array."""
+        try:
+            step_low_frequency, step_high_frequency = struct.unpack('QQ', hackrf_data[:16])
+            step_data = np.frombuffer(hackrf_data[16:], dtype='<f4')
+        except (struct.error, ValueError) as e:
+            print(f"Data parsing error: {e}")
+            return
 
-        step_frequency_bins = np.arange(
-            step_low_frequency + step_bandwidth / 2,
-            step_high_frequency,
-            step_bandwidth
-        )
-        
-        self.sweep_data["x"].extend(step_frequency_bins)
-        self.sweep_data["y"].extend(step_data)
+        with self.lock:
+            if step_low_frequency / 1e6 <= self.start_freq:
+                self.sweep_data = {"x": [], "y": []}
 
-        if step_high_frequency / 1e6 >= self.params["stop_freq"]:
-            sorted_indices = np.argsort(self.sweep_data["x"])
-            self.full_frequency_array = np.array(self.sweep_data["x"])[sorted_indices]
-            self.full_power_array = np.array(self.sweep_data["y"])[sorted_indices]
-        
-        print(self.full_frequency_array)
-        print(self.full_power_array)
+            step_bandwidth = (step_high_frequency - step_low_frequency) / len(step_data)
+            step_frequency_bins = np.arange(
+                step_low_frequency + step_bandwidth / 2,
+                step_high_frequency,
+                step_bandwidth
+            )
+
+            self.sweep_data["x"].extend(step_frequency_bins)
+            self.sweep_data["y"].extend(step_data)
+
+            if step_high_frequency / 1e6 >= self.stop_freq:
+                sorted_indices = np.argsort(self.sweep_data["x"])
+                self.full_power_array = np.array(self.sweep_data["y"])[sorted_indices]
+            #print(self.full_power_array)
+
+    def stop(self):
+        """Stop the subprocess."""
+        if self.process:
+            try:
+                print("Terminating subprocess...")
+                self.process.terminate()
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                print("Process did not terminate in time. Killing...")
+                self.process.kill()
+            finally:
+                self.process = None
+        self.is_running = False
 
     def get_data(self):
         """Return the full sweep data."""
-        return np.array(self.full_power_array)
+        with self.lock:
+            return np.array(self.full_power_array)
+    
+    def get_number_of_points(self):
+        return len(self.full_power_array)
+
+    def is_sweep_complete(self):
+        """Check if the sweep has completed."""
+        return self.sweep_complete
