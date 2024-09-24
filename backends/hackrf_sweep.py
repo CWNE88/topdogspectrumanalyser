@@ -34,6 +34,7 @@ class HackRFSweep:
                 "-w", str(self.bin_size)
             ]
             print(f"Running command: {' '.join(cmdline)}")
+            print()
             self.process = subprocess.Popen(
                 cmdline, 
                 stdout=subprocess.PIPE,
@@ -112,3 +113,4 @@ class HackRFSweep:
     def is_sweep_complete(self):
         """Check if the sweep has completed."""
         return self.sweep_complete
+
