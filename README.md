@@ -3,6 +3,10 @@ Python Spectrum Analyser using HackRF or RTL-SDR
 
 ** PROJECT IS STILL EXTREMELY EXPERIMENTAL **
 
+Required installs
+numpy pyqtgraph PyQt6 pyopengl pyrtlsdr 
+
+
 The aim is to provide data for a spectrum analyser, using the HackRF or RTL-SDR, and possibly others.
 
 For the purpose of high speed, the spectrum data is obtained using hackrf_sweep for the HackRF, and rtl_power for the RTL-SDR. These programs provide power level data over a wide bandwidth.
