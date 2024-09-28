@@ -1,6 +1,0 @@
-import hackrf_sweep
-object=hackrf_sweep.HackRFSweep()
-object.setup()
-object.run()
-print (object.get_data())
-object.stop()
