@@ -1,4 +1,4 @@
-# spectrumanalyser
+# Top Dog Spectrum Analyser
 Python Spectrum Analyser using HackRF or RTL-SDR
 
 ** PROJECT IS STILL EXTREMELY EXPERIMENTAL **
