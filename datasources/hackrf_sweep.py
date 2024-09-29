@@ -7,47 +7,45 @@ import threading
 from . import SweepDataSource
 
 class HackRFSweepDataSourceOld(SweepDataSource):
-    def __init__(self, on_sweep_callback, start_freq=2400, stop_freq=2500, bin_size=5000):
+    def __init__(self, on_sweep_callback, start_freq=2.4e9, stop_freq=2.5e9, bin_size=500e3):
         super().__init__(on_sweep_callback)
 
-        self.setup(start_freq, stop_freq, bin_size)
+        self.start_freq = start_freq
+        self.stop_freq = stop_freq
+        self.bin_size = bin_size
 
         self.is_running = False
-        self.sweep_complete = False
         self.process = None
-        self.full_power_array = np.array([])
-        self.sweep_data = {
-            "x": [],
-            "y": []
-        }
-        self.lock = threading.Lock()
+
+        self.bins = np.arange(start_freq, stop_freq, bin_size)
+        self.pwr = np.zeros(len(self.bins))
+
         self.thread = None
-        self.sweep_signal.connect(lambda: self.on_sweep(self.sweep_data))
+        self.sweep_signal.connect(self.on_full_sweep)
         self.run()
 
     def cleanup(self):
         self.stop()
-        
 
-    def setup(self, start_freq=2400, stop_freq=2500, bin_size=5000):
-        """Set up the sweep parameters."""
-        if start_freq >= stop_freq:
-            raise ValueError("Start frequency must be less than stop frequency.")
-        self.start_freq = start_freq
-        self.stop_freq = stop_freq
-        self.bin_size = bin_size
+    def on_full_sweep(self):
+        copy = {
+            "x": np.array(self.bins),
+            "y": np.array(self.pwr)
+        }
+
+        self.on_sweep(copy)
 
     def run(self):
         """Start the hackrf_sweep subprocess and process its output."""
         if self.process is None:
             cmdline = [
                 "hackrf_sweep",
-                "-f", f"{self.start_freq}:{self.stop_freq}",
+                "-f", f"{int(self.start_freq / 1e6)}:{int(self.stop_freq / 1e6)}",
                 "-B",
                 "-a 1",
                 "-g 20",
                 "-l 20",
-                "-w", str(self.bin_size)
+                "-w", str(int(self.bin_size))
             ]
             print(f"Running command: {' '.join(cmdline)}")
             print()
@@ -59,6 +57,7 @@ class HackRFSweepDataSourceOld(SweepDataSource):
             self.is_running = True
             self.sweep_complete = False
             self.thread = threading.Thread(target=self._sweep_loop)
+            self.thread.daemon = True
             self.thread.start()
 
     def _sweep_loop(self):
@@ -82,35 +81,21 @@ class HackRFSweepDataSourceOld(SweepDataSource):
         """Parse the data and store it in full_power_array."""
         try:
             step_low_frequency, step_high_frequency = struct.unpack('QQ', hackrf_data[:16])
-            step_data = np.frombuffer(hackrf_data[16:], dtype='<f4')
-            # print(f"freq {step_low_frequency} {step_high_frequency}")
+            index = self.bins.searchsorted(step_low_frequency, side='left')
+
+            for sample in struct.iter_unpack('<f', hackrf_data[16:]):
+                if index >= len(self.pwr):
+                    break # HACK: figure out the off by one problem
+                self.pwr[index] = sample[0]
+                index += 1
+
+            if step_high_frequency >= self.stop_freq:
+                self.sweep_signal.emit();
+
 
         except (struct.error, ValueError) as e:
             print(f"Data parsing error: {e}")
             return
-
-        with self.lock:
-            if step_low_frequency / 1e6 <= self.start_freq:
-                # self.sweep_data = {"x": [], "y": []}
-                self.sweep_data["x"].clear()
-                self.sweep_data["y"].clear()
-
-            step_bandwidth = (step_high_frequency - step_low_frequency) / len(step_data)
-            step_frequency_bins = np.arange(
-                step_low_frequency + step_bandwidth / 2,
-                step_high_frequency,
-                step_bandwidth
-            )
-
-            self.sweep_data["x"].extend(step_frequency_bins)
-            self.sweep_data["y"].extend(step_data)
-
-            if step_high_frequency / 1e6 >= self.stop_freq:
-                # print("end")
-                # sorted_indices = np.argsort(self.sweep_data["x"])
-                # full_power_array = np.array(self.sweep_data["y"])[sorted_indices]
-                
-                self.sweep_signal.emit();
 
     def stop(self):
         """Stop the subprocess."""
@@ -126,16 +111,5 @@ class HackRFSweepDataSourceOld(SweepDataSource):
                 self.process = None
         self.is_running = False
 
-    def get_data(self):
-        """Return the full sweep data."""
-        with self.lock:
-            return np.array(self.full_power_array)
-    
-    def get_number_of_points(self):
-        return len(self.full_power_array)
-
-    def is_sweep_complete(self):
-        """Check if the sweep has completed."""
-        return self.sweep_complete()
 
 

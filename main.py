@@ -26,15 +26,10 @@ class MainWindow(QtWidgets.QMainWindow):
     LNA_GAIN = 10
     VGA_GAIN = 10
 
+    sweep_data = None
+
     def __init__(self):
         super().__init__()
-        # for klass in datasources:
-        #     print("trying {}", klass)
-        #     devices = klass.find_devices()
-            
-        #     if devices is not None:
-        #         print("hackrf: {}", devices)
-        #     # print(devices)
 
         # Load the UI file
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
@@ -117,38 +112,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget.plot(x_vals, y_vals, pen=None, symbol='o', symbolBrush='b')  # Plot points in red
 
     def update_plot(self):
-        if self.data_source and not self.is_paused and isinstance(self.data_source, DataSource):  # Only update if data source is selected and not paused
-            try:
+        if self.data_source and not self.is_paused:
+            if isinstance(self.data_source, DataSource):  # Only update if data source is selected and not paused
+                try:
 
-                samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
-                if samples is not None and len(samples) > 0:
-                    power_level = self.perform_fft(samples)
+                    samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
+                    if samples is not None and len(samples) > 0:
+                        power_level = self.perform_fft(samples)
 
-                    # Update frequency bins based on the current sample rate
-                    frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_level))
-                    frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)  # Center the frequency
+                        # Update frequency bins based on the current sample rate
+                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_level))
+                        frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)  # Center the frequency
 
-                    # Update the plot
+                        # Update the plot
+                        self.plot_widget.clear()
+                        self.plot_widget.plot(frequency_bins / 1e6, power_level, pen='g')  # Frequency in MHz
+
+                        # Adjust the X axis range to centre around the centre frequency
+                        self.plot_widget.setXRange(self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
+                                                    self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6))
+                except Exception as e:
+                    print(f"Error reading samples: {e}")
+            elif isinstance(self.data_source, SweepDataSource):
+                if self.sweep_data is not None:
                     self.plot_widget.clear()
-                    self.plot_widget.plot(frequency_bins / 1e6, power_level, pen='g')  # Frequency in MHz
-
-                    # Adjust the X axis range to centre around the centre frequency
-                    self.plot_widget.setXRange(self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
-                                                self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6))
-            except Exception as e:
-                print(f"Error reading samples: {e}")
-
-    def draw_plot(self, data):
-        
-        # frequency_bins = np.linspace(2.4e6, 2.5e6, len(data['x']))
-
-        # Update the plot
-        self.plot_widget.clear()
-        self.plot_widget.plot(data['x'], data['y'], pen='g')
-
-        # # Adjust the X axis range to centre around the centre frequency
-        # self.plot_widget.setXRange(self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
-        #                             self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6))
+                    self.plot_widget.plot(self.sweep_data['x'], self.sweep_data['y'], pen='g')
 
     def perform_fft(self, samples):
         window = np.hamming(len(samples))
@@ -205,8 +193,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.menu_level=="frequency1":
             print("Centre Frequency")
             self.inputtext.setText('Centre Frequency:')
-
-
  
 
     def toggle_pause(self):
@@ -270,9 +256,10 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         elif issubclass(source_class, HackRFSweepDataSourceOld):
             self.data_source = source_class(
-                on_sweep_callback=lambda data: self.on_sweep(data),
-                start_freq=2400,
-                stop_freq=2500,
+                on_sweep_callback=self.on_sweep,
+                start_freq=2.4e9,
+                stop_freq=2.5e9,
+                bin_size=10e3
             )
         else:
             print(f"Unsupported data source: {source_class.__name__}")
@@ -286,17 +273,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reset_plot()
 
     def on_sweep(self, data):
-        self.draw_plot(data)
-        # print("shit has arrived")
+        self.sweep_data = data
 
     def reset_plot(self):
         """Reset the plot and start updating with the new data source."""
         self.plot_widget.clear()  # Clear the current plot
         self.timer.start(20)  # Restart the timer (if it was stopped)
-
-
-
-
 
 
 if __name__ == '__main__':
