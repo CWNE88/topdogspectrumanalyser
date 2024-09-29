@@ -46,7 +46,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Initially, no data source
         self.data_source = None
-
+     
+        # Menu level
+        self.menu_level = None
+     
         # Start the timer for updating the plot, but don't start yet
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_plot)
@@ -58,6 +61,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_pause)
+         
+        self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
+        self.buttonfrequency.pressed.connect(self.menu_frequency1)
+
+        self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
+        self.buttonspan.pressed.connect(self.menu_span1)
+        
+        self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
+        self.buttonamplitude.pressed.connect(self.menu_amplitude1)
+        
+        self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
+        self.buttonsoft1.pressed.connect(self.softbutton1)
+
+        self.inputtext = self.findChild(QtWidgets.QLabel, 'inputtext')
+        self.outputtext = self.findChild(QtWidgets.QLabel, 'outputtext')
 
         # Connect buttons to switch data source
         
@@ -140,6 +158,56 @@ class MainWindow(QtWidgets.QMainWindow):
         magnitude = np.abs(centred_fft)
         log_magnitude = np.log10(magnitude + 1e-12)
         return log_magnitude
+
+    def menu_frequency1(self):
+        self.buttonsoft1.setText("Centre\nFrequency")
+        self.buttonsoft2.setText("Start\nFrequency")
+        self.buttonsoft3.setText("Stop\nFrequency")
+        self.buttonsoft4.setText("CF Step\nAuto/Man")
+        self.buttonsoft5.setText("Frequency\nOffset")
+        self.buttonsoft6.setText("Centre Freq /2\n to Centre Freq")
+        self.buttonsoft7.setText("Centre Freq x2\n to Centre Freq")
+        self.buttonsoft8.setText("")
+        self.menu_level="frequency1"
+
+    def menu_span1(self):
+        self.buttonsoft1.setText("Span")
+        self.buttonsoft2.setText("Span Zoom")        
+        self.buttonsoft3.setText("Full Span")
+        self.buttonsoft4.setText("Zero Span")
+        self.buttonsoft5.setText("Last Span")
+        self.buttonsoft6.setText("")
+        self.buttonsoft7.setText("")
+        self.buttonsoft8.setText("")
+        
+    def menu_amplitude1(self):
+        self.buttonsoft1.setText("Reference\nLevel")
+        self.buttonsoft2.setText("Attenuation\nAuto/Man")        
+        self.buttonsoft3.setText("Log\ndB/Division")
+        self.buttonsoft4.setText("Zero Span")
+        self.buttonsoft5.setText("Linear")
+        self.buttonsoft6.setText("Range\nLevel")
+        self.buttonsoft7.setText("Ref Level\nOffset")
+        self.buttonsoft8.setText("More\n1 of 2")
+    
+    def menu_amplitude2(self):
+        self.buttonsoft1.setText("Max MXR\nLevel")
+        self.buttonsoft2.setText("Amplitude\nUnits")
+        self.buttonsoft3.setText("Coupling\nAC/DC")
+        self.buttonsoft4.setText("Norm Ref\nPosition")
+        self.buttonsoft5.setText("Preselect\nAuto Peak")
+        self.buttonsoft6.setText("Preselect\nManual Adj")
+        self.buttonsoft7.setText("")
+        self.buttonsoft8.setText("More\n2 of 2")
+    
+    def softbutton1(self):
+        print("Soft button 1 pressed")
+        if self.menu_level=="frequency1":
+            print("Centre Frequency")
+            self.inputtext.setText('Centre Frequency:')
+
+
+ 
 
     def toggle_pause(self):
         self.is_paused = not self.is_paused
