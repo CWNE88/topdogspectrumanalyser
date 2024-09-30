@@ -6,6 +6,9 @@ import signal
  
 from numpy.fft import fft
 from logo import points  
+import matplotlib as mpl
+from matplotlib.ticker import EngFormatter
+
 
 from datasources.rtlsdr_fft import RtlSdrDataSource
 from datasources.hackrf_fft import HackRFDataSource
@@ -41,6 +44,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Initially, no data source
         self.data_source = None
+
+        self.engformat = mpl.ticker.EngFormatter(places=3) 
+
      
         # Menu level
         self.menu_level = None
@@ -71,6 +77,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.inputtext = self.findChild(QtWidgets.QLabel, 'inputtext')
         self.outputtext = self.findChild(QtWidgets.QLabel, 'outputtext')
+        self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
+        self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
 
         # Connect buttons to switch data source
         
@@ -116,7 +124,16 @@ class MainWindow(QtWidgets.QMainWindow):
             if isinstance(self.data_source, DataSource):  # Only update if data source is selected and not paused
                 try:
 
+
+           #print ("Centre frequency: " + self.engformat(self.sdr.center_freq)+"Hz")
+
+
+
+                    self.output_centre_freq.setText(self.engformat(self.data_source.sdr.center_freq)+"Hz")
+                    self.output_res_bw.setText(self.engformat(self.data_source.sdr.sample_rate/self.INITIAL_SAMPLE_SIZE)+"Hz")
+                    
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
+
                     if samples is not None and len(samples) > 0:
                         power_level = self.perform_fft(samples)
 
@@ -216,6 +233,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.menu_level=="frequency1":
             print("Centre Frequency")
             self.inputtext.setText('Centre Frequency:')
+
+    
  
 
     def toggle_pause(self):
