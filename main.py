@@ -131,12 +131,35 @@ class MainWindow(QtWidgets.QMainWindow):
                         # Adjust the X axis range to centre around the centre frequency
                         self.plot_widget.setXRange(self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
                                                     self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6))
+                        
+
+                        ## Peak search for fft plots
+                        index_of_peak = np.argmax(power_level)  
+                        peak_y_value = power_level[index_of_peak]  
+                        corresponding_x_value = frequency_bins[index_of_peak] 
+                        print ("peak value is " + str(peak_y_value))
+                        print ("at frequency  " + str(corresponding_x_value))
+
+
+
                 except Exception as e:
                     print(f"Error reading samples: {e}")
+                    
+
             elif isinstance(self.data_source, SweepDataSource):
                 if self.sweep_data is not None:
                     self.plot_widget.clear()
                     self.plot_widget.plot(self.sweep_data['x'], self.sweep_data['y'], pen='g')
+
+                    ## Peak search for sweep plots
+                    index_of_peak = np.argmax(self.sweep_data['y'])  
+                    peak_y_value = self.sweep_data['y'][index_of_peak]  
+                    corresponding_x_value = self.sweep_data['x'][index_of_peak] 
+                    print ("peak value is " + str(peak_y_value))
+                    print ("at frequency  " + str(corresponding_x_value))
+                           
+
+
 
     def perform_fft(self, samples):
         window = np.hamming(len(samples))
