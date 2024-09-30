@@ -135,15 +135,22 @@ class MainWindow(QtWidgets.QMainWindow):
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
 
                     if samples is not None and len(samples) > 0:
-                        power_level = self.perform_fft(samples)
+                        # Perform FFT
+                        X = self.perform_fft(samples)   # Capital X is commonly used for FFT array
+                        # Calculate magnitude
+                        magnitude = np.abs(X)
+                        # Calculate power spectrum
+                        power_spectrum = magnitude ** 2
+                        # Convert to decibels
+                        power_db = 10 * np.log10(power_spectrum)
 
                         # Update frequency bins based on the current sample rate
-                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_level))
+                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)  # Center the frequency
 
                         # Update the plot
                         self.plot_widget.clear()
-                        self.plot_widget.plot(frequency_bins / 1e6, power_level, pen='g')  # Frequency in MHz
+                        self.plot_widget.plot(frequency_bins / 1e6, power_db, pen='g')  # Frequency in MHz
 
                         # Adjust the X axis range to centre around the centre frequency
                         self.plot_widget.setXRange(self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
@@ -151,8 +158,8 @@ class MainWindow(QtWidgets.QMainWindow):
                         
 
                         ## Peak search for fft plots
-                        index_of_peak = np.argmax(power_level)  
-                        peak_y_value = power_level[index_of_peak]  
+                        index_of_peak = np.argmax(power_db)  
+                        peak_y_value = power_db[index_of_peak]  
                         corresponding_x_value = frequency_bins[index_of_peak] 
                         print ("peak value is " + str(peak_y_value))
                         print ("at frequency  " + str(corresponding_x_value))
