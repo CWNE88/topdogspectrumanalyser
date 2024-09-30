@@ -23,7 +23,7 @@ datasources = [
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
-    INITIAL_SAMPLE_SIZE = 2048
+    INITIAL_SAMPLE_SIZE = 4096
     GAIN = 30
     AMPLIFIER = True
     LNA_GAIN = 10
@@ -136,13 +136,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     if samples is not None and len(samples) > 0:
                         # Perform FFT
-                        X = self.perform_fft(samples)   # Capital X is commonly used for FFT array
-                        # Calculate magnitude
-                        magnitude = np.abs(X)
-                        # Calculate power spectrum
-                        power_spectrum = magnitude ** 2
-                        # Convert to decibels
-                        power_db = 10 * np.log10(power_spectrum)
+                        power_db = self.perform_fft(samples)   # Capital X is commonly used for FFT array
+                     
+                        
 
                         # Update frequency bins based on the current sample rate
                         frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_db))
@@ -191,7 +187,8 @@ class MainWindow(QtWidgets.QMainWindow):
         raw_fft = fft(windowed_samples)
         centred_fft = np.fft.fftshift(raw_fft)
         magnitude = np.abs(centred_fft)
-        log_magnitude = np.log10(magnitude + 1e-12)
+        power_spectrum = magnitude ** 2
+        log_magnitude = 10 * np.log10(power_spectrum + 1e-12)
         return log_magnitude
 
     def menu_frequency1(self):
