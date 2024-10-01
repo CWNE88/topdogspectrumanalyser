@@ -95,13 +95,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def connect_main_buttons(self):
         """Connect main buttons to their respective submenu functions."""
         self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
-        self.buttonfrequency.pressed.connect(lambda: self.show_submenu('frequency1'))
-
+        self.buttonfrequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
+        
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
-        self.buttonspan.pressed.connect(lambda: self.show_submenu('span1'))
+        self.buttonspan.pressed.connect(lambda: self.handle_menu_button('span1'))
 
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
-        self.buttonamplitude.pressed.connect(lambda: self.show_submenu('amplitude1'))
+        self.buttonamplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
 
         # Connect soft buttons
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
@@ -206,6 +206,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_submenu(self, menu_name):
         self.menu_manager.show_submenu(menu_name)
         self.update_button_labels()
+
+    def print_current_menu(self, menu_name):
+        print(f"Current menu level: {menu_name}")
+
+    def handle_menu_button(self, menu_name):
+        """Handle menu button press and print the current menu level."""
+        self.show_submenu(menu_name)
+        self.print_current_menu(menu_name)
 
     def update_button_labels(self):
         labels = self.menu_manager.get_button_labels()

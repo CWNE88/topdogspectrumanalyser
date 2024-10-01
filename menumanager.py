@@ -83,7 +83,7 @@ class MenuManager:
                  'Presel\nAuto Peak', 'Presel\nMan Adj', 'More (2 of 2)'],
                 'submenus': {
                     'Amplitude\nUnits': {
-                        'options': ['Set Ref', 'Ref Info'],
+                        'options': ['dBm', 'dBµV', 'dBmV', 'Volts', 'Watts'],
                     },
                     'Coupling\nAC/DC': {
                         'options': ['Set Attenuation', 'Attenuation Info'],
