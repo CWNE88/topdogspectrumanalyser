@@ -3,7 +3,7 @@ class MenuManager:
         self.current_menu = None
         self.current_submenu = None
         self.current_sub_submenu = None
-        
+
         # Define submenu options
         self.submenus = {
             'frequency1': {
@@ -129,10 +129,10 @@ class MenuManager:
         """Get the current button labels based on the menu state."""
         if self.current_menu is None:
             return ['', '', '']
-        
+
         menu_data = self.submenus[self.current_menu]
         options = menu_data['options']
-        
+
         if self.current_submenu is None:
             return options + [''] * (3 - len(options))
         else:
