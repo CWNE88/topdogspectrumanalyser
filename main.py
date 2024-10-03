@@ -37,10 +37,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget = pg.PlotWidget()
         self.setup_layout()
 
-        # Initialize MenuManager
+        # Initialise MenuManager
         self.menu_manager = MenuManager()
 
-        # Initialize data source
+        # Initialise data source
         self.data_source = None
 
         # Matplotlib formatter
@@ -58,9 +58,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_hold)
 
-        # Initialize labels and buttons
-        self.initialize_labels()
-        self.initialize_buttons()
+        # Initialise labels and buttons
+        self.initialise_labels()
+        self.initialise_buttons()
 
         # Set focus policy for all buttons
         self.setFocusPolicyForButtons(self)
@@ -71,15 +71,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # Set initial button labels
         self.update_button_labels()
 
-    def initialize_labels(self):
-        """Initialize labels in the UI."""
+    def initialise_labels(self):
+        """Initialise labels in the UI."""
         self.inputtext = self.findChild(QtWidgets.QLabel, 'inputtext')
         self.outputtext = self.findChild(QtWidgets.QLabel, 'outputtext')
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
 
-    def initialize_buttons(self):
-        """Initialize soft buttons."""
+    def initialise_buttons(self):
+        """Initialise soft buttons."""
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
         self.buttonsoft2 = self.findChild(QtWidgets.QPushButton, 'buttonsoft2')
         self.buttonsoft3 = self.findChild(QtWidgets.QPushButton, 'buttonsoft3')
