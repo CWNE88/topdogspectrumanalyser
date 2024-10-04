@@ -42,10 +42,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget = pg.PlotWidget()
         self.setup_layout()
 
-        # Initialize MenuManager
+        # Initialise MenuManager
         self.menu_manager = MenuManager()
 
-        # Initialize data source
+        # Initialise data source
         self.data_source = None
 
         # Matplotlib formatter
