@@ -595,7 +595,7 @@ Sweep</string>
            </rect>
           </property>
           <property name="text">
-           <string>Recall</string>
+           <string>Audio</string>
           </property>
          </widget>
          <widget class="QPushButton" name="buttoninstrument6">
