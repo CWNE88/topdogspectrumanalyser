@@ -1,12 +1,11 @@
+import sys
 import numpy as np
 import pyqtgraph as pg
 from PyQt6 import QtWidgets, uic, QtCore
 from PyQt6.QtCore import Qt
 from numpy.fft import fft
-from logo import points
+from logo import points  
 import matplotlib as mpl
-from logging import basicConfig, info, INFO, error
-from sys import exit, argv
 from matplotlib.ticker import EngFormatter
 from menumanager import MenuManager
 from datasources.rtlsdr_fft import RtlSdrDataSource
@@ -15,7 +14,6 @@ from datasources.hackrf_sweep import HackRFSweepDataSourceOld
 from datasources.rtlsdr_sweep import RtlSweepDataSource
 from datasources import DataSource, SweepDataSource
 import SignalProcessing
-
 
 
 
@@ -44,10 +42,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget = pg.PlotWidget()
         self.setup_layout()
 
-        # Initialise MenuManager
+        # Initialize MenuManager
         self.menu_manager = MenuManager()
 
-        # Initialise data source
+        # Initialize data source
         self.data_source = None
 
         # Matplotlib formatter
@@ -68,6 +66,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Initialise labels and buttons
         self.initialise_labels()
         self.initialise_buttons()
+        # Initialise labels and buttons
+        self.initialise_labels()
+        self.initialise_buttons()
 
         # Set focus policy for all buttons
         self.setFocusPolicyForButtons(self)
@@ -80,11 +81,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def initialise_labels(self):
         """Initialise labels in the UI."""
+    def initialise_labels(self):
+        """Initialise labels in the UI."""
         self.inputtext = self.findChild(QtWidgets.QLabel, 'inputtext')
         self.outputtext = self.findChild(QtWidgets.QLabel, 'outputtext')
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
 
+    def initialise_buttons(self):
+        """Initialise soft buttons."""
     def initialise_buttons(self):
         """Initialise soft buttons."""
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
@@ -105,7 +110,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Connect main buttons to their respective submenu functions."""
         self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
         self.buttonfrequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
-
+        
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
         self.buttonspan.pressed.connect(lambda: self.handle_menu_button('span1'))
 
@@ -138,22 +143,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F:
-            info("Menu level: frequency1")
-            self.show_submenu('frequency1')
+            print("Menu level: frequency1")
+            self.show_submenu('frequency1')    
         elif event.key() == Qt.Key.Key_S:
-            info("Menu level: span1")
+            print("Menu level: span1")
             self.show_submenu('span1')
         elif event.key() == Qt.Key.Key_A:
-            info("Menu level: amplitude1")
-            self.show_submenu('amplitude1')
+            print("Menu level: amplitude1")
+            self.show_submenu('amplitude1')     
         elif event.key() == Qt.Key.Key_Space:
-            info("Toggle hold")
+            print("Toggle hold")
             self.toggle_hold()
         event.accept()
 
         # Display the logo as a static plot on startup
         self.display_logo()
-        info("Waiting for user to select data source...")
+        print("Waiting for user to select data source...")
 
     def setup_layout(self):
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display').layout()
@@ -201,15 +206,10 @@ class MainWindow(QtWidgets.QMainWindow):
                         index_of_peak = np.argmax(power_db)
                         peak_y_value = power_db[index_of_peak]
                         corresponding_x_value = frequency_bins[index_of_peak]
-<<<<<<< HEAD
                         
-=======
-                        info("Peak value is " + str(peak_y_value))
-                        info("At frequency  " + str(corresponding_x_value))
->>>>>>> a0476a9aa9aaa0d6b1ed09fee4ebba6aa3bf677a
 
                 except Exception as e:
-                    error(f"Error reading samples: {e}")
+                    print(f"Error reading samples: {e}")
 
             elif isinstance(self.data_source, SweepDataSource):
                 if self.sweep_data is not None:
@@ -219,15 +219,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     index_of_peak = np.argmax(self.sweep_data['y'])
                     peak_y_value = self.sweep_data['y'][index_of_peak]
                     corresponding_x_value = self.sweep_data['x'][index_of_peak]
-                    info("Peak value is " + str(peak_y_value))
-                    info("At frequency  " + str(corresponding_x_value))
+                    print("Peak value is " + str(peak_y_value))
+                    print("At frequency  " + str(corresponding_x_value))
 
     def show_submenu(self, menu_name):
         self.menu_manager.show_submenu(menu_name)
         self.update_button_labels()
 
     def print_current_menu(self, menu_name):
-        info(f"Current menu level: {menu_name}")
+        print(f"Current menu level: {menu_name}")
 
     def handle_menu_button(self, menu_name):
         """Handle menu button press and print the current menu level."""
@@ -238,7 +238,7 @@ class MainWindow(QtWidgets.QMainWindow):
         labels = self.menu_manager.get_button_labels()
         buttons = [self.buttonsoft1, self.buttonsoft2, self.buttonsoft3, self.buttonsoft4,
                    self.buttonsoft5, self.buttonsoft6, self.buttonsoft7, self.buttonsoft8]
-
+        
         for i, button in enumerate(buttons):
             if i < len(labels):
                 button.setText(labels[i])
@@ -252,36 +252,35 @@ class MainWindow(QtWidgets.QMainWindow):
     def toggle_hold(self):
         self.is_paused = not self.is_paused
         if self.is_paused:
-            info("Animation paused")
+            print("Animation paused")
             self.buttonhold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
         else:
-            info("Animation resumed")
+            print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
 
     def use_rtl_source(self):
-        info("Using RTL-SDR data source")
+        print("Using RTL-SDR data source")
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
 
     def use_hackrf_source(self):
-        info("Using HackRF data source")
+        print("Using HackRF data source")
         self.data_source = HackRFDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
 
     def use_rtl_sweep_source(self):
-        info("Using RTL-SDR sweep data source")
+        print("Using RTL-SDR sweep data source")
         self.data_source = RtlSweepDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
 
     def use_hackrf_sweep_source(self):
-        info("Using HackRF sweep data source")
-        self.data_source = HackRFSweepDataSourceOld(start_freq=self.CENTRE_FREQUENCY - 1e6,
+        print("Using HackRF sweep data source")
+        self.data_source = HackRFSweepDataSourceOld(start_freq=self.CENTRE_FREQUENCY - 1e6, 
                                                      stop_freq=self.CENTRE_FREQUENCY + 1e6)
         self.timer.start(20)
 
 if __name__ == '__main__':
-    basicConfig(format="%(levelname)s: %(message)s", level=INFO)
-    app = QtWidgets.QApplication(argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    exit(app.exec())
+    sys.exit(app.exec())
