@@ -13,6 +13,9 @@ from datasources.hackrf_fft import HackRFDataSource
 from datasources.hackrf_sweep import HackRFSweepDataSourceOld
 from datasources.rtlsdr_sweep import RtlSweepDataSource
 from datasources import DataSource, SweepDataSource
+import SignalProcessing
+
+
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
@@ -24,12 +27,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     sweep_data = None
 
+    dsp=SignalProcessing.process()
+
     def __init__(self):
         super().__init__()
 
         # Load the UI file
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+
+        self.window=self.dsp.create_window(2097152), 'hamming'  # Don't know how to make this sample rate the one in use
 
         # Create a PyQtGraph PlotWidget
         self.plot_widget = pg.PlotWidget()
@@ -56,9 +63,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_hold)
 
-        # Initialize labels and buttons
-        self.initialize_labels()
-        self.initialize_buttons()
+        # Initialise labels and buttons
+        self.initialise_labels()
+        self.initialise_buttons()
 
         # Set focus policy for all buttons
         self.setFocusPolicyForButtons(self)
@@ -69,15 +76,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # Set initial button labels
         self.update_button_labels()
 
-    def initialize_labels(self):
-        """Initialize labels in the UI."""
+    def initialise_labels(self):
+        """Initialise labels in the UI."""
         self.inputtext = self.findChild(QtWidgets.QLabel, 'inputtext')
         self.outputtext = self.findChild(QtWidgets.QLabel, 'outputtext')
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
 
-    def initialize_buttons(self):
-        """Initialize soft buttons."""
+    def initialise_buttons(self):
+        """Initialise soft buttons."""
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
         self.buttonsoft2 = self.findChild(QtWidgets.QPushButton, 'buttonsoft2')
         self.buttonsoft3 = self.findChild(QtWidgets.QPushButton, 'buttonsoft3')
@@ -165,13 +172,19 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.data_source and not self.is_paused:
             if isinstance(self.data_source, DataSource):
                 try:
-                    self.output_centre_freq.setText(self.engformat(self.data_source.sdr.center_freq) + " Hz")
-                    self.output_res_bw.setText(self.engformat(self.data_source.sdr.sample_rate / self.INITIAL_SAMPLE_SIZE) + " Hz")
+                    self.output_centre_freq.setText(self.engformat(self.data_source.sdr.center_freq) + "Hz")
+                    self.output_res_bw.setText(self.engformat(self.data_source.sdr.sample_rate / self.INITIAL_SAMPLE_SIZE) + "Hz")
 
-                    samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
-
+                    samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)  #*self.window  Doesn't work
+                    
                     if samples is not None and len(samples) > 0:
-                        power_db = self.perform_fft(samples)
+                        fft=self.dsp.do_fft(samples)
+                        centrefft=self.dsp.do_centre_fft(fft)
+                        magnitude=self.dsp.get_magnitude(centrefft)
+                        power_db=self.dsp.get_log_magnitude(magnitude)
+
+                        
+
                         frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
@@ -186,8 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         index_of_peak = np.argmax(power_db)
                         peak_y_value = power_db[index_of_peak]
                         corresponding_x_value = frequency_bins[index_of_peak]
-                        print("Peak value is " + str(peak_y_value))
-                        print("At frequency  " + str(corresponding_x_value))
+                        
 
                 except Exception as e:
                     print(f"Error reading samples: {e}")
@@ -229,17 +241,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_soft_button(self, button_index):
         self.menu_manager.handle_button_press(button_index)
         self.update_button_labels()
-
-    def perform_fft(self, samples):
-        window = np.hamming(len(samples))
-        windowed_samples = samples * window
-        raw_fft = fft(windowed_samples)
-        centred_fft = np.fft.fftshift(raw_fft)
-
-        magnitude = np.abs(centred_fft)
-        power_spectrum = magnitude ** 2
-        log_magnitude = 10 * np.log10(power_spectrum + 1e-12)
-        return log_magnitude
 
     def toggle_hold(self):
         self.is_paused = not self.is_paused

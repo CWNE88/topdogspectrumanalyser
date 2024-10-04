@@ -1,7 +1,7 @@
 from . import DataSource
 
 class RtlSweepDataSource(DataSource):
-    def __init__(self, centre_frequency, sample_rate=2e6, gain=30):
+    def __init__(self, centre_frequency, sample_rate=2097152, gain=30):
         # Initialise RTL Sweep specific parameters
         pass
 

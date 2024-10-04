@@ -7,7 +7,7 @@ class RtlSdrDataSource(DataSource):
     def find_devices():
         pass
 
-    def __init__(self, centre_frequency, sample_rate=2e6, gain=30):
+    def __init__(self, centre_frequency, sample_rate=2097152, gain=30):
         self.sdr = RtlSdr()
         self.sdr.center_freq = centre_frequency
         self.sdr.sample_rate = sample_rate
