@@ -12,6 +12,7 @@ from datasources.rtlsdr_fft import RtlSdrDataSource
 from datasources.hackrf_fft import HackRFDataSource
 from datasources.hackrf_sweep import HackRFSweepDataSourceOld
 from datasources.rtlsdr_sweep import RtlSweepDataSource
+from datasources.audio_fft import AudioDataSource
 from datasources import DataSource, SweepDataSource
 import SignalProcessing
 
@@ -92,11 +93,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_start_freq = self.findChild(QtWidgets.QLabel, 'output_start_freq')
         self.output_stop_freq = self.findChild(QtWidgets.QLabel, 'output_stop_freq')
         self.output_gain = self.findChild(QtWidgets.QLabel, 'output_gain')
-        
+        self.input_label = self.findChild(QtWidgets.QLabel, 'input_label')
+        self.input_value = self.findChild(QtWidgets.QLabel, 'input_value')
+
+        self.input_label.setText('Select data source')
+
     def initialise_buttons(self):
-        """Initialise soft buttons."""
-    def initialise_buttons(self):
-        """Initialise soft buttons."""
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
         self.buttonsoft2 = self.findChild(QtWidgets.QPushButton, 'buttonsoft2')
         self.buttonsoft3 = self.findChild(QtWidgets.QPushButton, 'buttonsoft3')
@@ -121,6 +123,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
         self.buttonamplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
+ 
 
         # Connect soft buttons
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
@@ -133,12 +136,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def connect_data_source_buttons(self):
         """Connect buttons to switch data source."""
         self.button_instrument4 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument4')
+        self.button_instrument8 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument8')
         self.button_instrument9 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument9')
         self.button_instrument5 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument5')
         self.button_instrument10 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument10')
 
         if self.button_instrument4:
             self.button_instrument4.pressed.connect(self.use_rtl_source)
+        if self.button_instrument8:
+            self.button_instrument8.pressed.connect(self.use_audio_source)
         if self.button_instrument9:
             self.button_instrument9.pressed.connect(self.use_hackrf_source)
         if self.button_instrument5:
@@ -149,7 +155,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F:
             print("Menu level: frequency1")
-            self.show_submenu('frequency1')    
+            self.show_submenu('frequency1')
+            
         elif event.key() == Qt.Key.Key_S:
             print("Menu level: span1")
             self.show_submenu('span1')
@@ -240,9 +247,18 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"Current menu level: {menu_name}")
 
     def handle_menu_button(self, menu_name):
-        """Handle menu button press and print the current menu level."""
         self.show_submenu(menu_name)
         self.print_current_menu(menu_name)
+        if menu_name=='frequency1':
+            self.input_label.setText('Centre Frequency:')
+        if menu_name=='span1':
+            self.input_label.setText('Span:')
+        if menu_name=='amplitude1':
+            self.input_label.setText('Amplitude:')
+        
+
+                    
+        
 
     def update_button_labels(self):
         labels = self.menu_manager.get_button_labels()
@@ -258,6 +274,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_soft_button(self, button_index):
         self.menu_manager.handle_button_press(button_index)
         self.update_button_labels()
+        
 
     def toggle_hold(self):
         self.is_paused = not self.is_paused
@@ -268,9 +285,18 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
 
-    def use_rtl_source(self):
+    def use_rtl_source(self):     
         print("Using RTL-SDR data source")
+        self.input_label.setText('Starting RTL device')
+        app.processEvents()
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
+        self.window = self.dsp.create_window(self.data_source.sample_rate, 'hamming')
+        self.input_label.setText('RTL device running')
+        self.timer.start(20)
+
+    def use_audio_source(self):
+        print("Using audio data source")
+        self.data_source = AudioDataSource(self.CENTRE_FREQUENCY)
         self.window = self.dsp.create_window(self.data_source.sample_rate, 'hamming')
         self.timer.start(20)
 

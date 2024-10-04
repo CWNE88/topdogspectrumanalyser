@@ -527,25 +527,6 @@ Count</string>
           <string/>
          </property>
         </widget>
-        <widget class="QLabel" name="inputtext">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>540</y>
-           <width>301</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Input Text</string>
-         </property>
-        </widget>
         <widget class="QPushButton" name="buttonhold">
          <property name="enabled">
           <bool>true</bool>
@@ -1265,6 +1246,32 @@ Sweep</string>
          <property name="text">
           <string/>
          </property>
+        </widget>
+        <widget class="QWidget" name="horizontalLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>540</y>
+           <width>301</width>
+           <height>80</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QLabel" name="input_label">
+            <property name="text">
+             <string>Input text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="input_value">
+            <property name="text">
+             <string>Input value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>

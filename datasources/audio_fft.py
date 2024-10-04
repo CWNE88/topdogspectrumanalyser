@@ -6,8 +6,10 @@ import numpy as np
 import sys
 import sounddevice as sd
 from PyQt6 import QtWidgets  # Ensure this import is present
+from . import DataSource
 
-class Visualiser():
+class AudioDataSource(DataSource):
+
     
     def __init__(self, sample_rate=44100, samplesize=16384):
         self.sample_rate = sample_rate
@@ -25,6 +27,12 @@ class Visualiser():
         self.gldisplay.opts['bgcolor'] = (0.0, 0.0, 0.0, 1.0)
         self.gldisplay.opts['devicePixelRatio'] = 1
         self.gldisplay.opts['center'] = QtGui.QVector3D(0.0, 0.0, 0.0)
+
+        self.peak_text = gl.GLTextItem()
+        self.peak_text.setData(pos=(0.0, 10.0, 10.0), color=(255, 255, 255, 255), text='Peak frequency')
+        self.gldisplay.addItem(self.peak_text)
+
+
         self.gldisplay.show()               
 
         ########## GRAPHIC ELEMENTS ###############
@@ -34,8 +42,30 @@ class Visualiser():
 
         # Create logarithmic x-axis values
         freq_bins = np.fft.rfftfreq(self.samplesize, 1/self.sample_rate)  # Get real FFT frequencies
-        self.x = np.log10(freq_bins + 1)  # Logarithmic scaling
+        #self.x = np.zeros([len(freq_bins)]) 
+        print (len(freq_bins))
+        
 
+        #freq_bins = np.linspace(0, 8193, num=8193)  # Example freq_bins
+
+        # Normalise freq_bins to [0, 1]
+        normalised_bins = freq_bins / 8193
+
+        # Scale to desired range [-10, 10]
+#        self.x = normalised_bins * 20 - 10  # Scale to [-10, 10]
+
+        normalised_bins = freq_bins / 8193
+
+
+        log_array = np.logspace(0, 1.301, 8193)  # 1.301 is log10(20)
+        shifted_array = log_array - 10
+        final_array = np.clip(shifted_array, -10, 10)
+
+        self.x = final_array
+
+        #self.x = np.log10(freq_bins + 1)  # Logarithmic scaling
+        print (np.shape(self.x))
+        print (self.x)
         self.y = np.zeros([len(self.x)])  # Ensure y matches x
         self.z = np.zeros([len(self.x)])  # Ensure z matches x
         
@@ -83,7 +113,7 @@ class Visualiser():
         power = np.clip(power, 0, 20)
         
         # Prepare the plot data
-        self.z = power  # Power on the z-axis
+        self.z = power*20  # Power on the z-axis
         specanpts = np.vstack([self.x, self.y, self.z]).transpose()
         
         self.trace.setData(pos=specanpts)
@@ -93,5 +123,5 @@ class Visualiser():
 
 # Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
-    v = Visualiser()
+    v = AudioDataSource()
     v.animation()

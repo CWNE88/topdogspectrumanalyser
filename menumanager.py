@@ -7,16 +7,21 @@ class MenuManager:
         # Define submenu options
         self.submenus = {
             'frequency1': {
-                'options': ['Centre\nFrequency', 'Start\nFrequency', 'Stop\nFrequency', 'CF Step\nAuto/Man', 'Frequency\nOffset', 'CF/2 to\nCentre Freq', 'CF*2 to\nCentre Freq'],
+                'options': ['Centre\nFrequency', 
+                            'Start\nFrequency', 
+                            'Stop\nFrequency', 
+                            'CF Step\nAuto/Man', 
+                            'Frequency\nOffset', 
+                            'CF/2 to\nCentre Freq', 
+                            'CF*2 to\nCentre Freq'],
                 'submenus': {
-                    'Centre Frequency': {
-                        'options': ['Set Centre', 'Centre Info'],
-                    },
                     'Start Frequency': {
-                        'options': ['Set Start', 'Start Info'],
+                        'options': ['Set Start', 
+                                    'Start Info'],
                     },
                     'Stop Frequency': {
-                        'options': ['Set Stop', 'Stop Info'],
+                        'options': ['Set Stop', 
+                                    'Stop Info'],
                     },
                     'CF Step\nAuto/Man': {
                         'options': ['Set sfam', 'Stop sfam'],
