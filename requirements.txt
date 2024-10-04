@@ -11,9 +11,6 @@ pyhackrf==0.2.0
 pyhackrf2==1.0.3
 PyOpenGL==3.1.7
 pyparsing==3.1.4
-PyQt5==5.15.11
-PyQt5-Qt5==5.15.15
-PyQt5_sip==12.15.0
 PyQt6==6.7.1
 PyQt6-Qt6==6.7.2
 PyQt6_sip==13.8.0
@@ -23,8 +20,9 @@ python-dateutil==2.9.0.post0
 QSpectrumAnalyzer==2.1.0
 Qt.py==1.4.1
 scipy==1.14.1
+setuptools==75.1.0
 SimpleSoapy==1.5.1
 SimpleSpectral==1.0.0
 six==1.16.0
-soapy-power==1.6.1
+soapy_power==1.6.1
 types-pyside2==5.15.2.1.7
