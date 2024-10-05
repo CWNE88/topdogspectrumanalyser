@@ -4,6 +4,15 @@ from PyQt6.QtCore import pyqtSignal, QObject
 
 
 class DataSource:
+    centre_freq: float
+    sample_rate: float
+    gain: float
+
+    def __init__(self, centre_freq: float, sample_rate: float, gain: float) -> None:
+        self.centre_freq = centre_freq
+        self.sample_rate = sample_rate
+        self.gain = gain
+
     @staticmethod
     def find_devices():
         pass

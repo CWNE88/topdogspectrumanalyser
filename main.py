@@ -32,6 +32,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     dsp = SignalProcessing.process()
 
+    data_source: DataSource | SweepDataSource = None
+
 
     def __init__(self):
         super().__init__()
@@ -244,12 +246,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.data_source and not self.is_paused:
             if isinstance(self.data_source, DataSource):
                 try:
-                    self.output_centre_freq.setText(self.engformat(self.data_source.sdr.center_freq) + "Hz")
-                    self.output_sample_rate.setText(f"{int(self.data_source.sdr.sample_rate):,} SPS")
-                    self.output_start_freq.setText(self.engformat(self.data_source.sdr.center_freq - self.data_source.sdr.sample_rate / 2) + "Hz")
-                    self.output_stop_freq.setText(self.engformat(self.data_source.sdr.center_freq + self.data_source.sdr.sample_rate / 2) + "Hz")
-                    self.output_span.setText(self.engformat(self.data_source.sdr.sample_rate) + "Hz")
-                    self.output_gain.setText(str(self.data_source.sdr.gain) + "dB")
+                    self.output_centre_freq.setText(self.engformat(self.data_source.centre_freq) + "Hz")
+                    self.output_sample_rate.setText(f"{int(self.data_source.sample_rate):,} SPS")
+                    self.output_start_freq.setText(self.engformat(self.data_source.centre_freq - self.data_source.sample_rate / 2) + "Hz")
+                    self.output_stop_freq.setText(self.engformat(self.data_source.centre_freq + self.data_source.sample_rate / 2) + "Hz")
+                    self.output_span.setText(self.engformat(self.data_source.centre_freq) + "Hz")
+                    self.output_gain.setText(str(self.data_source.gain) + "dB")
 
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
 
