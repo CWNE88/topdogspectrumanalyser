@@ -84,9 +84,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_button_labels()
 
     def initialise_labels(self):
-        """Initialise labels in the UI."""
-    def initialise_labels(self):
-        """Initialise labels in the UI."""
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, 'output_sample_rate')
         self.output_span = self.findChild(QtWidgets.QLabel, 'output_span')
