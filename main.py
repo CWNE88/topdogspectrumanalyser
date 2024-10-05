@@ -21,7 +21,7 @@ import SignalProcessing
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 100e6
     INITIAL_SAMPLE_SIZE = 4096
-    GAIN = 30
+    GAIN = 36.4 # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
@@ -43,7 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget.showGrid(x=True, y=True)  
         self.plot_widget.setLabel('left', 'Power (dB)')  # Label for y-axis
         self.plot_widget.setLabel('bottom', 'Frequency (Mhz)')  # Label for x-axis
-        self.plot_widget.setYRange(-2, 3) 
+        self.plot_widget.setYRange(-30, 60) 
         self.setup_layout()
 
         # Initialise MenuManager
@@ -193,7 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 try:
                     self.output_centre_freq.setText(self.engformat(self.data_source.sdr.center_freq) + "Hz")
                     self.output_res_bw.setText(self.engformat(self.data_source.sdr.sample_rate / self.INITIAL_SAMPLE_SIZE) + "Hz")
-                    self.output_sample_rate.setText(str(int(self.data_source.sdr.sample_rate)))
+                    self.output_sample_rate.setText(f"{int(self.data_source.sdr.sample_rate):,} SPS")
                     self.output_start_freq.setText(self.engformat(self.data_source.sdr.center_freq-self.data_source.sdr.sample_rate/2) + "Hz")
                     self.output_stop_freq.setText(self.engformat(self.data_source.sdr.center_freq+self.data_source.sdr.sample_rate/2) + "Hz")
                     self.output_span.setText(self.engformat(self.data_source.sdr.sample_rate) + "Hz")

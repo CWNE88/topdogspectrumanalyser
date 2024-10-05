@@ -16,7 +16,7 @@ class process:
         return self.magnitude
     
     def get_log_magnitude(self, magnitude):
-        self.log_magnitude = np.log10(magnitude + 1e-12)
+        self.log_magnitude = 20 * np.log10(magnitude + 1e-12)   # check the 20*
         return self.log_magnitude
 
     # Low pass filter
