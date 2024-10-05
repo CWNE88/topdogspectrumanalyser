@@ -206,6 +206,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     child.widget().deleteLater()
         layout.addWidget(self.plot_widget)  # Default to the 2D plot
 
+
     def toggle_display(self):
         if self.current_display == 'plot':
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
