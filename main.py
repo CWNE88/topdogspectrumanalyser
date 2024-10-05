@@ -57,6 +57,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gldisplay.opts['fov'] = 70
         self.gldisplay.opts['elevation'] = 28
         self.gldisplay.opts['bgcolor'] = (0.0, 0.0, 0.0, 1.0)
+     
+
+        gx = gl.GLGridItem()
+        gx.rotate(90, 0, 1, 0)
+        gx.translate(-10, 0, 0)
+        self.gldisplay.addItem(gx)
+
+        gy = gl.GLGridItem()
+        gy.rotate(90, 1, 0, 0)
+        gy.translate(0, -10, 0)
+        self.gldisplay.addItem(gy)
+
+        gz = gl.GLGridItem()
+        gz.translate(0, 0, -10)
+        self.gldisplay.addItem(gz)
+
+
+
+
+
         
         # Add both widgets to the stacked widget
         self.stacked_widget.addWidget(self.plot_widget)
@@ -205,7 +225,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 if child.widget():
                     child.widget().deleteLater()
         layout.addWidget(self.plot_widget)  # Default to the 2D plot
-
 
     def toggle_display(self):
         if self.current_display == 'plot':
