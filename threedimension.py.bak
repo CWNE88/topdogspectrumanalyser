@@ -5,19 +5,15 @@ from PyQt6 import QtWidgets, QtCore
 import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 
-class ThreeD(object):
+class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a widget in your main application
     def __init__(self):
-        self.traces = dict()
-        
-        # Initialize QApplication
-        self.app = QtWidgets.QApplication(sys.argv)  
-        
+        super().__init__()
+
         # Create the GLViewWidget
         self.w = gl.GLViewWidget()
         self.w.opts['distance'] = 40
-        self.w.setWindowTitle('This is a GLViewWidget object within the pyqtgraph(top-level library) opengl (submodule)')
+        self.w.setWindowTitle('This is a GLViewWidget object within the pyqtgraph (top-level library) opengl (submodule)')
         self.w.setGeometry(0, 110, 1920, 1080)
-        self.w.show()
 
         # Create the background grids
         gx = gl.GLGridItem()
@@ -34,14 +30,16 @@ class ThreeD(object):
         gz.translate(0, 0, -10)
         self.w.addItem(gz)
 
+        # Prepare data
         self.n = 50                             # number of lines
         self.m = 1000                           # number of points along the lines
 
         self.y = np.linspace(-10, 10, self.n)
         self.x = np.linspace(-10, 10, self.m)
         self.phase = 0
-        
 
+        # Create traces
+        self.traces = dict()
         for i in range(self.n):
             yi = np.array([self.y[i]] * self.m)
             d = np.sqrt(self.x ** 2 + yi ** 2)
@@ -50,9 +48,8 @@ class ThreeD(object):
             self.traces[i] = gl.GLLinePlotItem(pos=pts, color=pg.glColor((i, self.n * 1.3)), width=(i + 1) / 10, antialias=True)
             self.w.addItem(self.traces[i])
 
-    def start(self):
-        if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-            self.app.exec()
+    def get_widget(self):
+        return self.w  # Return the GLViewWidget so it can be used in the main application
 
     def set_plotdata(self, name, points, color, width):
         self.traces[name].setData(pos=points, color=color, width=width)
@@ -69,15 +66,15 @@ class ThreeD(object):
                 width=(i + 1) / 10
             )
             self.phase -= .002
-            
+
     def animation(self):
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update)
         timer.start(20)
 
-        self.start()
-
 # Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)  # Only create QApplication if this is being run standalone
     v = ThreeD()
     v.animation()
+    sys.exit(app.exec())

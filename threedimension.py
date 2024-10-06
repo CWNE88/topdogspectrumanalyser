@@ -48,6 +48,10 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             self.traces[i] = gl.GLLinePlotItem(pos=pts, color=pg.glColor((i, self.n * 1.3)), width=(i + 1) / 10, antialias=True)
             self.w.addItem(self.traces[i])
 
+    def start_animation(self):
+        print("in start_animation")
+        self.animation()
+
     def get_widget(self):
         return self.w  # Return the GLViewWidget so it can be used in the main application
 
@@ -68,6 +72,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             self.phase -= .002
 
     def animation(self):
+        print ("in animation")
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update)
         timer.start(20)

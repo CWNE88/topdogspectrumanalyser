@@ -58,7 +58,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
  
         # Create and configure 3D GLViewWidget
-        self.glviewwidget = threedimension.ThreeD().get_widget()
+
+        self.three_d_widget = threedimension.ThreeD()
+        self.glviewwidget = self.three_d_widget.get_widget()
+
+        
+
+
+
+
 
 
      
@@ -193,6 +201,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.current_display == 'plot':
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
+            self.three_d_widget.start_animation()
+            
+
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
             self.current_display = 'plot'
