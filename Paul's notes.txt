@@ -1,0 +1,22 @@
+Why does hackrf_fft use 'device'
+self.device.read_samples(sample_size)
+
+while rtlsdr_fft uses 'sdr'
+self.sdr.read_samples(sample_size)
+
+
+Issues:
+
+HackRF FFT source can't be reselected because it's already in use. Probably not closed off, but does it need to be?
+
+RTL FFT source does full restart when reslecting it. Like the HackRF, can't it just be kept open for quick switching back correctly?
+
+Startup shows this message (after I added the 2d/3d switch functionality)
+QWidget::setLayout: Attempting to set QLayout "" on QWidget "graphical_display", which already has a layout
+
+HackRF amp doesn't seem to be on (or something else weird). There's no signal, yet if I use the HackRF in gqrx there's plenty of signal
+device.enable_amp()  
+
+Why does res bandwidth output text need space before Hz when others don't? Maybe check if <1000
+self.output_res_bw.setText(self.engformat(self.data_source.sample_rate / self.INITIAL_SAMPLE_SIZE) + " Hz")
+

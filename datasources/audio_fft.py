@@ -6,9 +6,11 @@ import numpy as np
 import sys
 import sounddevice as sd
 from PyQt6 import QtWidgets  # Ensure this import is present
-from . import DataSource
+#from . import DataSource
 
-class AudioDataSource(DataSource):
+class AudioDataSource():
+
+#class AudioDataSource(DataSource):
 
     
     def __init__(self, sample_rate=44100, samplesize=16384):

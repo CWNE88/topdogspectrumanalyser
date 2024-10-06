@@ -83,80 +83,11 @@
              </item>
              <item>
               <widget class="QLabel" name="output_span">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QLabel" name="label_res_bw">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Res BW:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_res_bw">
                <property name="font">
                 <font>
                  <family>Monospace</family>
                 </font>
                </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLabel" name="label_video_bw">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Video BW:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_video_bw">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QLabel" name="label_start_freq">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Start Freq:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_start_freq">
                <property name="text">
                 <string>-</string>
                </property>
@@ -180,6 +111,67 @@
              </item>
              <item>
               <widget class="QLabel" name="output_gain">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="label_sample_size">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Sample size:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_sample_size">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QLabel" name="label_start_freq">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Start Freq:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_start_freq">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
                <property name="text">
                 <string>-</string>
                </property>
@@ -188,29 +180,6 @@
             </layout>
            </item>
            <item row="3" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
-             <item>
-              <widget class="QLabel" name="label_sample_rate">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Sample Rate:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_sample_rate">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
               <widget class="QLabel" name="label_stop_freq">
@@ -226,6 +195,11 @@
              </item>
              <item>
               <widget class="QLabel" name="output_stop_freq">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
                <property name="text">
                 <string>-</string>
                </property>
@@ -233,17 +207,83 @@
              </item>
             </layout>
            </item>
-           <item row="3" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
-              <widget class="QLabel" name="label_13">
+              <widget class="QLabel" name="label_video_bw">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
-                <string>TextLabel</string>
+                <string>Video BW:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_12">
+              <widget class="QLabel" name="output_video_bw">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="label_sample_rate">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Sample rate:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_sample_rate">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLabel" name="label_res_bw">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Res BW:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_res_bw">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
                <property name="text">
                 <string>-</string>
                </property>
@@ -614,7 +654,7 @@ Count</string>
          <property name="title">
           <string>Instrument</string>
          </property>
-         <widget class="QPushButton" name="buttoninstrument1">
+         <widget class="QPushButton" name="buttonpreset">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -635,7 +675,7 @@ Count</string>
            <string>Preset</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument2">
+         <widget class="QPushButton" name="buttonconfig">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -743,7 +783,7 @@ Sweep</string>
            <string>Audio</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument6">
+         <widget class="QPushButton" name="buttonmode">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -761,7 +801,7 @@ Sweep</string>
            <string notr="true"/>
           </property>
           <property name="text">
-           <string>Module</string>
+           <string>Mode</string>
           </property>
          </widget>
         </widget>

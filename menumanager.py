@@ -83,6 +83,35 @@ class MenuManager:
                     }
                 }
             },
+            'mode1': {
+                'options': ['Wi-Fi', 'Audio', 'Digital'],
+                'submenus': {
+                    '2.4 GHz': {
+                        'options': [],
+                    },
+                    'U-NII 1': {
+                        'options': [],
+                    },
+                    'U-NII 2a': {
+                        'options': [],
+                    },
+                    'U-NII 2b': {
+                        'options': [],
+                    },
+                    'U-NII 2c': {
+                        'options': [],
+                    },
+                    'U-NII 3': {
+                        'options': [],
+                    },
+                    '6 GHz': {
+                        'options': [],
+                    },
+                    'More (1 of 2)': {
+                        'options': [],
+                    }
+                }
+            },
             'amplitude2': {
                 'options': ['Amplitude\nUnits', 'Coupling\nAC/DC', 'Norm\nRef Position',
                  'Presel\nAuto Peak', 'Presel\nMan Adj', 'More (2 of 2)'],

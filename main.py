@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import QStackedWidget
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    CENTRE_FREQUENCY = 100e6
+    CENTRE_FREQUENCY = 98e6
     INITIAL_SAMPLE_SIZE = 4096
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
@@ -51,7 +51,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_widget.setLabel('left', 'Power (dB)')
         self.plot_widget.setLabel('bottom', 'Frequency (Mhz)')
         self.plot_widget.setYRange(-30, 60)
-        
+        text_item = pg.TextItem("Text on plot", anchor=(0, 18))
+        #text_item.setPos(0, 11)  # Set the position of the text
+        self.plot_widget.addItem(text_item)
+
+    
         # Create and configure 3D GLViewWidget
         self.gldisplay = gl.GLViewWidget()
         self.gldisplay.opts['distance'] = 28
@@ -140,7 +144,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_start_freq = self.findChild(QtWidgets.QLabel, 'output_start_freq')
         self.output_stop_freq = self.findChild(QtWidgets.QLabel, 'output_stop_freq')
         self.output_gain = self.findChild(QtWidgets.QLabel, 'output_gain')
-        self.input_label = self.findChild(QtWidgets.QLabel, 'input_label')
+        self.output_gain = self.findChild(QtWidgets.QLabel, 'output_gain')
+        self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
         self.input_value = self.findChild(QtWidgets.QLabel, 'input_value')
 
         self.input_label.setText('Select data source')
@@ -161,7 +166,6 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def connect_main_buttons(self):
-        """Connect main buttons to their respective submenu functions."""
         self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
         self.buttonfrequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
 
@@ -171,16 +175,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
         self.buttonamplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
 
-        # Connect soft buttons
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
         self.buttonsoft2.pressed.connect(lambda: self.handle_soft_button(1))
         self.buttonsoft3.pressed.connect(lambda: self.handle_soft_button(2))
+
+        self.buttonmode.pressed.connect(lambda: self.handle_menu_button('mode1'))
+
 
         # Connect buttons to switch data source
         self.connect_data_source_buttons()
 
     def connect_data_source_buttons(self):
         """Connect buttons to switch data source."""
+        self.button_preset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
+        self.button_mode = self.findChild(QtWidgets.QPushButton, 'buttonmode')
         self.button_instrument4 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument4')
         self.button_instrument8 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument8')
         self.button_instrument9 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument9')
@@ -250,8 +258,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.output_sample_rate.setText(f"{int(self.data_source.sample_rate):,} SPS")
                     self.output_start_freq.setText(self.engformat(self.data_source.centre_freq - self.data_source.sample_rate / 2) + "Hz")
                     self.output_stop_freq.setText(self.engformat(self.data_source.centre_freq + self.data_source.sample_rate / 2) + "Hz")
-                    self.output_span.setText(self.engformat(self.data_source.centre_freq) + "Hz")
-                    self.output_gain.setText(str(self.data_source.gain) + "dB")
+                    self.output_span.setText(self.engformat(self.data_source.sample_rate) + "Hz")
+                    self.output_gain.setText(str(self.data_source.gain) + " dB")
+                    self.output_res_bw.setText(self.engformat(self.data_source.sample_rate / self.INITIAL_SAMPLE_SIZE) + " Hz")
+                    self.output_sample_size.setText(str(self.INITIAL_SAMPLE_SIZE))
 
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
 
@@ -330,10 +340,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
+    
 
     def use_rtl_source(self):     
         print("Using RTL-SDR data source")
         self.input_label.setText('Starting RTL device')
+        self.button_instrument4.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
+        self.button_instrument9.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         app.processEvents()
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
         self.window = self.dsp.create_window(self.data_source.sample_rate, 'hamming')
@@ -348,7 +361,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def use_hackrf_source(self):
         print("Using HackRF data source")
+        self.button_instrument9.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
+        self.button_instrument4.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.data_source = HackRFDataSource(self.CENTRE_FREQUENCY)
+        self.input_label.setText('HackRF FFT device running')
         self.timer.start(20)
 
     def use_rtl_sweep_source(self):
@@ -365,5 +381,6 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
+    #window.showMaximized()
     window.show()
     sys.exit(app.exec())
