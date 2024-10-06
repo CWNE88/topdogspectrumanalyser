@@ -56,12 +56,29 @@ class MainWindow(QtWidgets.QMainWindow):
         text_item.setAnchor((1, 1))
         self.plot_widget.addItem(text_item)
 
- 
+
+        #threed=threedimension.ThreeD()      # Tried to do it this way
+        
         # Create and configure 3D GLViewWidget
-        self.glviewwidget = threedimension.ThreeD().get_widget()
-
-
+        self.glviewwidget = gl.GLViewWidget()
+        self.glviewwidget.opts['distance'] = 28
+        self.glviewwidget.opts['azimuth'] = 90
+        self.glviewwidget.opts['fov'] = 70
+        self.glviewwidget.opts['elevation'] = 28
+        self.glviewwidget.opts['bgcolor'] = (0.0, 0.0, 0.0, 1.0)
      
+
+        gx = gl.GLGridItem()
+        gx.rotate(90, 0, 1, 0)
+        gx.translate(-10, 0, 0)
+        self.glviewwidget.addItem(gx)
+        gy = gl.GLGridItem()
+        gy.rotate(90, 1, 0, 0)
+        gy.translate(0, -10, 0)
+        self.glviewwidget.addItem(gy)
+        gz = gl.GLGridItem()
+        gz.translate(0, 0, -10)
+        self.glviewwidget.addItem(gz)
 
         # Add both widgets to the stacked widget
         self.stacked_widget.addWidget(self.plot_widget)
