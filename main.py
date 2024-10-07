@@ -174,9 +174,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.current_display == 'plot':
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
-            self.three_d_widget.start_animation()
+            self.fancywidget.start_animation()
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
+            self.fancywidget.stop_animation()
             self.current_display = 'plot'
 
     def display_logo(self):
