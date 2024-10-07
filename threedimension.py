@@ -6,6 +6,8 @@ import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 
 class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a widget in your main application
+    timer: QtCore.QTimer = None
+
     def __init__(self):
         super().__init__()
 
@@ -52,6 +54,11 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
         print("in start_animation")
         self.animation()
 
+    def stop_animation(self):
+        print("in stop_animation")
+        if self.timer is not None:
+            self.timer.stop()
+
     def get_widget(self):
         return self.w  # Return the GLViewWidget so it can be used in the main application
 
@@ -73,9 +80,12 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
 
     def animation(self):
         print ("in animation")
-        timer = QtCore.QTimer()
-        timer.timeout.connect(self.update)
-        timer.start(20)
+        if self.timer is None:
+            self.timer = QtCore.QTimer()
+            self.timer.setInterval(20)
+            self.timer.timeout.connect(self.update)
+
+        self.timer.start()
 
 # Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
