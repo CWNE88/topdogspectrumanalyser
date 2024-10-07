@@ -22,7 +22,7 @@ import threedimension
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
-    INITIAL_SAMPLE_SIZE = 4096*2
+    INITIAL_SAMPLE_SIZE = 1024
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
@@ -217,7 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         peak_y_value = power_db[index_of_peak]
                         corresponding_x_value = frequency_bins[index_of_peak]
 
-                        text_item = pg.TextItem(self.engformat(peak_y_value) + " dB")
+                        text_item = pg.TextItem(str(self.engformat(corresponding_x_value)) + "Hz\n" + str(self.engformat(peak_y_value) + " dB"  ))
                         text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
 
                         if self.current_display == 'plot':
@@ -244,6 +244,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     corresponding_x_value = self.sweep_data['x'][index_of_peak]
                     print("Peak value is " + str(peak_y_value))
                     print("At frequency  " + str(corresponding_x_value))
+                    text_item = pg.TextItem(str(self.engformat(corresponding_x_value)) + "Hz\n" + str(self.engformat(peak_y_value) + " dB"  ))
+                    text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
 
     def show_submenu(self, menu_name):
         self.menu_manager.show_submenu(menu_name)
@@ -319,6 +321,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def use_hackrf_sweep_source(self):
         print("Using HackRF sweep data source")
+        
+        def my_sweep_callback(data):
+        # Process the sweep data here
+            print("Sweep data received:", data)
+        
         self.data_source = HackRFSweepDataSourceOld(start_freq=self.CENTRE_FREQUENCY - 1e6, 
                                                      stop_freq=self.CENTRE_FREQUENCY + 1e6)
         self.timer.start(20)
