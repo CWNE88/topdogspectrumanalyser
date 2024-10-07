@@ -20,8 +20,6 @@ import SignalProcessing
 from PyQt6.QtWidgets import QStackedWidget
 import threedimension
 
-
-
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
     INITIAL_SAMPLE_SIZE = 4096*2
@@ -29,11 +27,8 @@ class MainWindow(QtWidgets.QMainWindow):
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
-
     sweep_data = None
-
     dsp = SignalProcessing.process()
-
     data_source: DataSource | SweepDataSource = None
 
     def __init__(self):
@@ -43,46 +38,31 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        # Create a QStackedWidget
         self.stacked_widget = QStackedWidget(self)  # sounds like a widget with big tits
         
         # Create and configure 2D PlotWidget
-        self.plot_widget = pg.PlotWidget()
-        self.plot_widget.showGrid(x=True, y=True)
-        self.plot_widget.setLabel('left', 'Power (dB)')
-        self.plot_widget.setLabel('bottom', 'Frequency (Mhz)')
-        self.plot_widget.setYRange(-30, 60)
-        text_item = pg.TextItem("Select data source to start")
-        text_item.setAnchor((1, 1))
-        self.plot_widget.addItem(text_item)
-
+        self.two_d_widget = pg.PlotWidget()
+        self.two_d_widget.showGrid(x=True, y=True)
+        self.two_d_widget.setLabel('left', 'Power (dB)')
+        self.two_d_widget.setLabel('bottom', 'Frequency (Mhz)')
+        self.two_d_widget.setYRange(-30, 60)
  
         # Create and configure 3D GLViewWidget
-
-        self.three_d_widget = threedimension.ThreeD()
-        self.glviewwidget = self.three_d_widget.get_widget()
-
-        
-
-
-
-
-
-
-     
+        self.fancywidget = threedimension.ThreeD()
+        self.three_d_widget = self.fancywidget.get_widget()
 
         # Add both widgets to the stacked widget
-        self.stacked_widget.addWidget(self.plot_widget)
-        self.stacked_widget.addWidget(self.glviewwidget)
+        self.stacked_widget.addWidget(self.two_d_widget)
+        self.stacked_widget.addWidget(self.three_d_widget)
 
         # Set the stacked widget as the main display layout
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display')
-        layout.setLayout(QtWidgets.QVBoxLayout())
         layout.layout().addWidget(self.stacked_widget)
 
         # Set the initial display
         self.current_display = 'plot'
         self.stacked_widget.setCurrentIndex(0)  # Show 2D plot initially
+        self.display_logo()
 
         self.menu_manager = MenuManager()
         self.data_source = None
@@ -116,7 +96,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
         self.input_value = self.findChild(QtWidgets.QLabel, 'input_value')
 
-
     def initialise_buttons(self):
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
         self.buttonsoft2 = self.findChild(QtWidgets.QPushButton, 'buttonsoft2')
@@ -132,7 +111,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
 
-
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -147,7 +125,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonmode.pressed.connect(lambda: self.handle_menu_button('mode1'))
         
     def connect_data_source_buttons(self):
-        """Connect buttons to switch data source."""
         self.button_preset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
         self.button_mode = self.findChild(QtWidgets.QPushButton, 'buttonmode')
         self.button_instrument4 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument4')
@@ -182,10 +159,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.toggle_hold()
         event.accept()
 
-        # Display the logo as a static plot on startup
-        self.display_logo()
-        print("Waiting for user to select data source...")
-
     def setup_layout(self):
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display').layout()
         if layout is None:
@@ -195,24 +168,25 @@ class MainWindow(QtWidgets.QMainWindow):
                 child = layout.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
-        layout.addWidget(self.plot_widget)  # Default to the 2D plot
+        layout.addWidget(self.two_d_widget)  # Default to the 2D plot
 
     def toggle_display(self):
         if self.current_display == 'plot':
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
             self.three_d_widget.start_animation()
-            
-
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
             self.current_display = 'plot'
 
-
-
     def display_logo(self):
         x_vals, y_vals = zip(*points)
-        self.plot_widget.plot(x_vals, y_vals, pen=None, symbol='t', symbolBrush='b')
+        self.two_d_widget.plot(x_vals, y_vals, pen=None, symbol='t', symbolBrush='b')
+        print ("display logo")
+
+        text_item = pg.TextItem("in the logo method")
+        text_item.setAnchor((0, 0))
+        self.two_d_widget.addItem(text_item)
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
@@ -233,30 +207,37 @@ class MainWindow(QtWidgets.QMainWindow):
                         fft = self.dsp.do_fft(samples)
                         centrefft = self.dsp.do_centre_fft(fft)
                         magnitude = self.dsp.get_magnitude(centrefft)
-                        power_db = self.dsp.get_log_magnitude(magnitude)
+                        power_db  = self.dsp.get_log_magnitude(magnitude)
 
                         frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
-                        if self.current_display == 'plot':
-                            self.plot_widget.clear()
-                            self.plot_widget.plot(frequency_bins / 1e6, power_db, pen='g')
-                            self.plot_widget.setXRange(
-                                self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
-                                self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6)
-                            )
 
                         index_of_peak = np.argmax(power_db)
                         peak_y_value = power_db[index_of_peak]
                         corresponding_x_value = frequency_bins[index_of_peak]
+
+                        text_item = pg.TextItem(self.engformat(peak_y_value) + " dB")
+                        text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
+
+                        if self.current_display == 'plot':
+                            self.two_d_widget.clear()
+                            self.two_d_widget.plot(frequency_bins / 1e6, power_db, pen='g')
+                            self.two_d_widget.addItem(text_item)
+                            
+                            #Automatic x range, disabled for now
+                            #self.two_d_widget.setXRange(
+                            #    self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
+                            #    self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6)
+                            #)
 
                 except Exception as e:
                     print(f"Error reading samples: {e}")
 
             elif isinstance(self.data_source, SweepDataSource):
                 if self.sweep_data is not None:
-                    self.plot_widget.clear()
-                    self.plot_widget.plot(self.sweep_data['x'], self.sweep_data['y'], pen='g')
+                    #self.two_d_widget.clear()
+                    self.two_d_widget.plot(self.sweep_data['x'], self.sweep_data['y'], pen='g')
 
                     index_of_peak = np.argmax(self.sweep_data['y'])
                     peak_y_value = self.sweep_data['y'][index_of_peak]
