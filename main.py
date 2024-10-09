@@ -37,6 +37,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.peak_frequency = None
+        self.peak_power = None
+
         # Load the UI file
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
@@ -44,43 +47,42 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stacked_widget = QStackedWidget(self)  # sounds like a widget with big tits
         
         # Create and configure 2D PlotWidget
-        self.temp_2_d_widget = twodimension.TwoD()
-        self.two_d_widget = self.temp_2_d_widget.get_widget() 
+        #self.temp_2_d_widget = twodimension.TwoD()
+        #self.two_d_widget = self.temp_2_d_widget.get_widget() 
 
- 
+        # Create and configure 2D PlotWidget
+        self.two_d_widget = twodimension.TwoD()
+        #self.two_d_widget = self.temp_2_d_widget.get_widget() 
+
         # Create and configure 3D GLViewWidget
         self.three_d_widget = threedimension.ThreeD()
-        
+
+        gx = gl.GLGridItem()
+        gx.rotate(30, 0, 1, 0)
+        gx.translate(-10, 0, 0)
+        self.three_d_widget.widget.addItem(gx)
+
         # Add both widgets to the stacked widget
-        self.stacked_widget.addWidget(self.two_d_widget)
+        self.stacked_widget.addWidget(self.two_d_widget.widget)
         self.stacked_widget.addWidget(self.three_d_widget.widget)
 
         # Set the stacked widget as the main display layout
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display')
         layout.layout().addWidget(self.stacked_widget)
-
-        # Set the initial display
         self.current_display = 'plot'
         self.stacked_widget.setCurrentIndex(0)  # Show 2D plot initially
         self.display_logo()
 
-        self.menu_manager = MenuManager()
         self.data_source = None
         self.engformat = mpl.ticker.EngFormatter(places=3)
         self.timer = QtCore.QTimer()    # timer for updating plot
         self.timer.timeout.connect(self.update_plot)
         self.is_paused = False
-
-        text_item = pg.TextItem("start text")
-        self.two_d_widget.addItem(text_item)
-        self.two_d_widget.showGrid(x=True, y=True)
-        self.two_d_widget.setLabel('left', 'Power (dB)')
-        self.two_d_widget.setLabel('bottom', 'Frequency (Mhz)')
-        self.two_d_widget.setYRange(-30, 60)
+        self.menu_manager = MenuManager()
+        
 
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_hold)
-
         if self.button2d3d:
             self.button2d3d.pressed.connect(self.toggle_display)
 
@@ -182,7 +184,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
             self.three_d_widget.start_animation()
-            self.timer.timeout.disconnect(self.update_plot)
             
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
@@ -192,12 +193,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def display_logo(self):
         x_vals, y_vals = zip(*points)
-        self.two_d_widget.plot(x_vals, y_vals, pen=None, symbol='t', symbolBrush='b')
+        self.two_d_widget.widget.plot(x_vals, y_vals, pen=None, symbol='t', symbolBrush='b')
         print ("display logo")
 
-        text_item = pg.TextItem("in the logo method")
-        text_item.setAnchor((0, 0))
-        self.two_d_widget.addItem(text_item)
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
@@ -213,7 +211,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.output_sample_size.setText(str(self.INITIAL_SAMPLE_SIZE))
 
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
-
+                    
                     if samples is not None and len(samples) > 0:
                         fft = self.dsp.do_fft(samples)
                         centrefft = self.dsp.do_centre_fft(fft)
@@ -232,15 +230,18 @@ class MainWindow(QtWidgets.QMainWindow):
                         text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
 
                         if self.current_display == 'plot':
-                            self.two_d_widget.clear()
-                            self.two_d_widget.plot(frequency_bins / 1e6, power_db, pen='g')
-                            self.two_d_widget.addItem(text_item)
-                            
-                            #Automatic x range, disabled for now
-                            #self.two_d_widget.setXRange(
-                            #    self.CENTRE_FREQUENCY / 1e6 - (self.data_source.sample_rate / 2 / 1e6),
-                            #    self.CENTRE_FREQUENCY / 1e6 + (self.data_source.sample_rate / 2 / 1e6)
-                            #)
+                            self.two_d_widget.widget.clear()
+                            self.two_d_widget.widget.plot(frequency_bins / 1e6, power_db, pen='g')
+                            self.two_d_widget.widget.addItem(text_item)
+
+
+                        if self.peak_frequency is not None:
+                            self.three_d_widget.widget.removeItem(self.peak_frequency)
+                        self.peak_frequency = gl.GLTextItem()
+                        peak_value=str(self.engformat(corresponding_x_value) + "Hz, " + self.engformat(peak_y_value) + " dB")
+                        self.peak_frequency.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text=peak_value)
+                        self.three_d_widget.widget.addItem(self.peak_frequency)
+ 
 
                 except Exception as e:
                     print(f"Error reading samples: {e}")

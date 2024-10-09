@@ -66,6 +66,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
         self.traces[name].setData(pos=points, color=color, width=width)
 
     def update(self):
+        print ("in threedimension.ThreeD.update")
         for i in range(self.n):
             yi = np.array([self.y[i]] * self.m)
             d = np.sqrt(self.x ** 2 + yi ** 2)
@@ -78,6 +79,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             )
             self.phase -= .003
 
+    ### THIS METHOD NEVER GETS CALLED
     def animation(self):
         print("in threedimension.ThreeD.animation")
         if self.timer is None:

@@ -20,13 +20,23 @@ class TwoD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a wi
         super().__init__()
 
         # Create and configure 2D PlotWidget
-        self.two_d_widget = pg.PlotWidget()
-        self.two_d_widget.showGrid(x=True, y=True)
-        self.two_d_widget.setLabel('left', 'Power (dB)')
-        self.two_d_widget.setLabel('bottom', 'Frequency asdfasdf(Mhz)')
-        self.two_d_widget.setYRange(-30, 60)
-        self.two_d_widget.text_item = pg.TextItem("two d nigga")
-        self.two_d_widget.text_item.setAnchor((1, 1))
+        self.widget = pg.PlotWidget()
+        self.widget.showGrid(x=True, y=True)
+        self.widget.setLabel('left', 'Power (dB)')
+        self.widget.setLabel('bottom', 'Frequency asdfasdf(Mhz)')
+        self.widget.setYRange(-30, 60)
+        self.widget.text_item = pg.TextItem("two d nigga")
+        self.widget.text_item.setAnchor((1, 1))
+
+
+        # Set the initial display
+
+        text_item = pg.TextItem("start text")
+        self.widget.addItem(text_item)
+        self.widget.showGrid(x=True, y=True)
+        self.widget.setLabel('left', 'Power (dB)')
+        self.widget.setLabel('bottom', 'Frequency (Mhz)')
+        self.widget.setYRange(-30, 60)
         
         print ("test")
  
@@ -41,7 +51,7 @@ class TwoD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a wi
             self.timer.stop()
 
     def get_widget(self):
-        return self.two_d_widget  # Return the plot widget so it can be used in the main application
+        return self.widget  # Return the plot widget so it can be used in the main application
 
     def set_plotdata(self, name, points, color, width):
         pass
