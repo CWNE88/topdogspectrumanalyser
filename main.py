@@ -19,17 +19,20 @@ from datasources import DataSource, SweepDataSource
 import SignalProcessing
 from PyQt6.QtWidgets import QStackedWidget
 import threedimension
+import twodimension
+from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
-    INITIAL_SAMPLE_SIZE = 1024
+    INITIAL_SAMPLE_SIZE = 1024*2
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
     sweep_data = None
     dsp = SignalProcessing.process()
-    data_source: DataSource | SweepDataSource = None
+    #data_source: DataSource | SweepDataSource = None
+    data_source: Union[DataSource, SweepDataSource] = None
 
     def __init__(self):
         super().__init__()
@@ -41,19 +44,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stacked_widget = QStackedWidget(self)  # sounds like a widget with big tits
         
         # Create and configure 2D PlotWidget
-        self.two_d_widget = pg.PlotWidget()
-        self.two_d_widget.showGrid(x=True, y=True)
-        self.two_d_widget.setLabel('left', 'Power (dB)')
-        self.two_d_widget.setLabel('bottom', 'Frequency (Mhz)')
-        self.two_d_widget.setYRange(-30, 60)
+        self.temp_2_d_widget = twodimension.TwoD()
+        self.two_d_widget = self.temp_2_d_widget.get_widget() 
+
  
         # Create and configure 3D GLViewWidget
-        self.fancywidget = threedimension.ThreeD()
-        self.three_d_widget = self.fancywidget.get_widget()
-
+        self.three_d_widget = threedimension.ThreeD()
+        
         # Add both widgets to the stacked widget
         self.stacked_widget.addWidget(self.two_d_widget)
-        self.stacked_widget.addWidget(self.three_d_widget)
+        self.stacked_widget.addWidget(self.three_d_widget.widget)
 
         # Set the stacked widget as the main display layout
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display')
@@ -70,6 +70,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer = QtCore.QTimer()    # timer for updating plot
         self.timer.timeout.connect(self.update_plot)
         self.is_paused = False
+
+        text_item = pg.TextItem("start text")
+        self.two_d_widget.addItem(text_item)
+        self.two_d_widget.showGrid(x=True, y=True)
+        self.two_d_widget.setLabel('left', 'Power (dB)')
+        self.two_d_widget.setLabel('bottom', 'Frequency (Mhz)')
+        self.two_d_widget.setYRange(-30, 60)
 
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_hold)
@@ -174,11 +181,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.current_display == 'plot':
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
-            self.fancywidget.start_animation()
+            self.three_d_widget.start_animation()
+            self.timer.timeout.disconnect(self.update_plot)
+            
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
-            self.fancywidget.stop_animation()
+            self.three_d_widget.stop_animation()
             self.current_display = 'plot'
+            self.timer.timeout.connect(self.update_plot)
 
     def display_logo(self):
         x_vals, y_vals = zip(*points)

@@ -12,25 +12,25 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
         super().__init__()
 
         # Create the GLViewWidget
-        self.w = gl.GLViewWidget()
-        self.w.opts['distance'] = 40
-        self.w.setWindowTitle('This is a GLViewWidget object within the pyqtgraph (top-level library) opengl (submodule)')
-        self.w.setGeometry(0, 110, 1920, 1080)
+        self.widget = gl.GLViewWidget()
+        self.widget.opts['distance'] = 40
+        self.widget.setWindowTitle('This is a GLViewWidget object within the pyqtgraph (top-level library) opengl (submodule)')
+        self.widget.setGeometry(0, 110, 1920, 1080)
 
         # Create the background grids
         gx = gl.GLGridItem()
         gx.rotate(90, 0, 1, 0)
         gx.translate(-10, 0, 0)
-        self.w.addItem(gx)
+        self.widget.addItem(gx)
 
         gy = gl.GLGridItem()
         gy.rotate(90, 1, 0, 0)
         gy.translate(0, -10, 0)
-        self.w.addItem(gy)
+        self.widget.addItem(gy)
 
         gz = gl.GLGridItem()
         gz.translate(0, 0, -10)
-        self.w.addItem(gz)
+        self.widget.addItem(gz)
 
         # Prepare data
         self.n = 50                             # number of lines
@@ -48,19 +48,19 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             z = 10 * np.cos(d + self.phase) / (d + 1)
             pts = np.vstack([self.x, yi, z]).transpose()
             self.traces[i] = gl.GLLinePlotItem(pos=pts, color=pg.glColor((i, self.n * 1.3)), width=(i + 1) / 10, antialias=True)
-            self.w.addItem(self.traces[i])
+            self.widget.addItem(self.traces[i])
 
     def start_animation(self):
-        print("in start_animation")
+        print("in threedimension.ThreeD.start_animation")
         self.animation()
 
     def stop_animation(self):
-        print("in stop_animation")
+        print("in threedimension.ThreeD.stop_animation")
         if self.timer is not None:
             self.timer.stop()
 
     def get_widget(self):
-        return self.w  # Return the GLViewWidget so it can be used in the main application
+        return self.widget
 
     def set_plotdata(self, name, points, color, width):
         self.traces[name].setData(pos=points, color=color, width=width)
@@ -76,10 +76,10 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
                 color=pg.glColor((i, self.n * 1.3)),
                 width=(i + 1) / 10
             )
-            self.phase -= .002
+            self.phase -= .003
 
     def animation(self):
-        print ("in animation")
+        print("in threedimension.ThreeD.animation")
         if self.timer is None:
             self.timer = QtCore.QTimer()
             self.timer.setInterval(20)
