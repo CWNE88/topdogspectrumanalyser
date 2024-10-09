@@ -24,7 +24,7 @@ from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
-    INITIAL_SAMPLE_SIZE = 1024*2
+    INITIAL_SAMPLE_SIZE = 1024
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
@@ -53,6 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create and configure 2D PlotWidget
         self.two_d_widget = twodimension.TwoD()
         #self.two_d_widget = self.temp_2_d_widget.get_widget() 
+        self.power_db = None
 
         # Create and configure 3D GLViewWidget
         self.three_d_widget = threedimension.ThreeD()
@@ -216,14 +217,14 @@ class MainWindow(QtWidgets.QMainWindow):
                         fft = self.dsp.do_fft(samples)
                         centrefft = self.dsp.do_centre_fft(fft)
                         magnitude = self.dsp.get_magnitude(centrefft)
-                        power_db  = self.dsp.get_log_magnitude(magnitude)
+                        self.power_db  = self.dsp.get_log_magnitude(magnitude)
 
-                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(power_db))
+                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
 
-                        index_of_peak = np.argmax(power_db)
-                        peak_y_value = power_db[index_of_peak]
+                        index_of_peak = np.argmax(self.power_db)
+                        peak_y_value = self.power_db[index_of_peak]
                         corresponding_x_value = frequency_bins[index_of_peak]
 
                         text_item = pg.TextItem(str(self.engformat(corresponding_x_value)) + "Hz\n" + str(self.engformat(peak_y_value) + " dB"  ))
@@ -231,7 +232,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                         if self.current_display == 'plot':
                             self.two_d_widget.widget.clear()
-                            self.two_d_widget.widget.plot(frequency_bins / 1e6, power_db, pen='g')
+                            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen='g')
                             self.two_d_widget.widget.addItem(text_item)
 
 
@@ -241,6 +242,12 @@ class MainWindow(QtWidgets.QMainWindow):
                         peak_value=str(self.engformat(corresponding_x_value) + "Hz, " + self.engformat(peak_y_value) + " dB")
                         self.peak_frequency.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text=peak_value)
                         self.three_d_widget.widget.addItem(self.peak_frequency)
+                        
+                        ### Unsure if this is how you do it
+                        self.three_d_widget.z=self.power_db
+                        print (self.three_d_widget.z)
+
+                        
  
 
                 except Exception as e:

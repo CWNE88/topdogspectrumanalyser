@@ -11,6 +11,30 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
     def __init__(self):
         super().__init__()
 
+
+        ######################## VARIABLES #########################
+
+        self.number_of_bins = None
+        self.number_of_lines = 20
+        self.peak_power = None
+        self.power_db = None
+        self.peak_frequency = None
+        self.centre_freq = None
+        self.spans = None
+        self.samplesize = 1024                                      # number of fft bins
+        self.rbw = None
+        self.averaging = None
+        self.peak='off'                                             # peak marker sphere
+        self.inputmode='default'                                    # input area
+        self.linlog='lin'                                           # linear or logarithmic
+        self.pause='disabled'                                       # pause display
+        self.numberoflines = 200                                    # number of lines on screen
+        self.hold='enabled'
+        self.grid=0
+        self.peak='enabled'
+
+
+
         # Create the GLViewWidget
         self.widget = gl.GLViewWidget()
         self.widget.opts['distance'] = 40
@@ -32,24 +56,45 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
         gz.translate(0, 0, -10)
         self.widget.addItem(gz)
 
-        # Prepare data
-        self.n = 50                             # number of lines
-        self.m = 1000                           # number of points along the lines
+        self.titletext = gl.GLTextItem()
+        self.titletext.setData(pos=(0.0, -10.0, -8.0), color=(255, 255, 255, 255), text='Top Dog Spectrum Analyser')
+        self.widget.addItem(self.titletext)
 
-        self.y = np.linspace(-10, 10, self.n)
-        self.x = np.linspace(-10, 10, self.m)
-        self.phase = 0
+        self.legend_x_low = gl.GLTextItem()
+        self.legend_x_low.setData(pos=(-10.0, 0.0, 0.0), color=(255, 255, 255, 255), text='-10 X')
+        self.widget.addItem(self.legend_x_low)
+        self.legend_x_high = gl.GLTextItem()
+        self.legend_x_high.setData(pos=(10.0, 0.0, 0.0), color=(255, 255, 255, 255), text='+10 X')
+        self.widget.addItem(self.legend_x_high)
+        self.legend_y_low = gl.GLTextItem()
+        self.legend_y_low.setData(pos=(0.0, -10.0, 0.0), color=(255, 255, 255, 255), text='-10 Y')
+        self.widget.addItem(self.legend_y_low)
+        self.legend_y_high = gl.GLTextItem()
+        self.legend_y_high.setData(pos=(0.0, 10.0, 0.0), color=(255, 255, 255, 255), text='+10 Y')
+        self.widget.addItem(self.legend_y_high)
+        self.legend_z_low = gl.GLTextItem()
+        self.legend_z_low.setData(pos=(0.0, 0.0, -10.0), color=(255, 255, 255, 255), text='-10 Z')
+        self.widget.addItem(self.legend_z_low)
+        self.legend_z_high = gl.GLTextItem()
+        self.legend_z_high.setData(pos=(0.0, 0.0, 10.0), color=(255, 255, 255, 255), text='+10 Z')
+        self.widget.addItem(self.legend_z_high)
 
-        # Create traces
-        self.traces = dict()
-        for i in range(self.n):
-            yi = np.array([self.y[i]] * self.m)
-            d = np.sqrt(self.x ** 2 + yi ** 2)
-            z = 10 * np.cos(d + self.phase) / (d + 1)
-            pts = np.vstack([self.x, yi, z]).transpose()
-            self.traces[i] = gl.GLLinePlotItem(pos=pts, color=pg.glColor((i, self.n * 1.3)), width=(i + 1) / 10, antialias=True)
-            self.widget.addItem(self.traces[i])
 
+        self.traces = {}  
+                
+        self.x = np.linspace(-10, 10, self.samplesize)              
+        self.y = np.zeros([self.samplesize]) 
+        self.z = np.zeros([self.samplesize])         
+
+        print (self.x)            
+        print (self.y)
+        print (self.z)
+        specanpts = np.vstack([self.x, self.y, self.z]).transpose() 
+        
+        self.traces[0] = gl.GLLinePlotItem(pos=specanpts, color=np.zeros([self.samplesize, 4]), antialias=True, mode='line_strip')     
+        self.widget.addItem(self.traces[0])
+
+        
     def start_animation(self):
         print("in threedimension.ThreeD.start_animation")
         self.animation()
@@ -67,17 +112,39 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
 
     def update(self):
         print ("in threedimension.ThreeD.update")
-        for i in range(self.n):
-            yi = np.array([self.y[i]] * self.m)
-            d = np.sqrt(self.x ** 2 + yi ** 2)
-            z = 10 * np.cos(d + self.phase) / (d + 1)
-            pts = np.vstack([self.x, yi, z]).transpose()
-            self.set_plotdata(
-                name=i, points=pts,
-                color=pg.glColor((i, self.n * 1.3)),
-                width=(i + 1) / 10
-            )
-            self.phase -= .003
+
+        # Simple line
+        #self.x = np.linspace(-10, 10, self.samplesize)
+        #self.y = np.zeros(self.samplesize) 
+        #self.z = np.zeros(self.samplesize) 
+
+       
+        # Line with random
+        self.x = np.linspace(-10, 10, self.samplesize)
+        self.y = np.zeros(self.samplesize) 
+        #self.z = np.random.rand(self.samplesize)*10
+        
+
+        
+        # Prepare the plot data
+        print (np.shape(self.x))
+        print (np.shape(self.y))
+        print (np.shape(self.z))
+
+        print (self.x)            
+        print (self.y)
+        print (self.z)
+        
+
+        specanpts = np.vstack([self.y, self.x, self.z]).transpose()
+       
+        self.set_plotdata(name=0, points=specanpts, color=[0,1,0,1], width=1)
+    
+        
+
+
+
+
 
     ### THIS METHOD NEVER GETS CALLED
     def animation(self):
