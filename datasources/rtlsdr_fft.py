@@ -1,8 +1,8 @@
-from . import DataSource
+from . import SampleDataSource
 from rtlsdr import RtlSdr
 import numpy as np
 
-class RtlSdrDataSource(DataSource):
+class RtlSdrDataSource(SampleDataSource):
 
     @staticmethod
     def find_devices():

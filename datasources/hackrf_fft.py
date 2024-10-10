@@ -1,10 +1,10 @@
-from . import DataSource
+from . import SampleDataSource
 from hackrf import *
 from numpy import complexfloating, ndarray as NDArray
 import numpy as np
 from scipy.signal import butter, filtfilt
 
-class HackRFDataSource(DataSource):
+class HackRFDataSource(SampleDataSource):
     samples: NDArray[complexfloating]
 
     @staticmethod

@@ -3,7 +3,7 @@ from PyQt6.QtCore import pyqtSignal, QObject
 
 
 
-class DataSource:
+class SampleDataSource:
     centre_freq: float
     sample_rate: float
     gain: float
