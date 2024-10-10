@@ -15,7 +15,7 @@ from datasources.hackrf_fft import HackRFDataSource
 from datasources.hackrf_sweep import HackRFSweepDataSourceOld
 from datasources.rtlsdr_sweep import RtlSweepDataSource
 from datasources.audio_fft import AudioDataSource
-from datasources import DataSource, SweepDataSource
+from datasources import SampleDataSource, SweepDataSource
 import SignalProcessing
 from PyQt6.QtWidgets import QStackedWidget
 import threedimension
@@ -24,19 +24,20 @@ from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6
-    INITIAL_SAMPLE_SIZE = 1024
+
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
     sweep_data = None
+    INITIAL_SAMPLE_SIZE = 4096
     dsp = SignalProcessing.process()
-    #data_source: DataSource | SweepDataSource = None
-    data_source: Union[DataSource, SweepDataSource] = None
+    #data_source: DataSourceDataSource | SweepDataSource = None    # Only newer python
+    data_source: Union[SampleDataSource, SweepDataSource] = None
 
     def __init__(self):
         super().__init__()
-
+        
         self.peak_frequency = None
         self.peak_power = None
 
@@ -44,24 +45,14 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.stacked_widget = QStackedWidget(self)  # sounds like a widget with big tits
-        
-        # Create and configure 2D PlotWidget
-        #self.temp_2_d_widget = twodimension.TwoD()
-        #self.two_d_widget = self.temp_2_d_widget.get_widget() 
+        # Create stacked widget
+        self.stacked_widget = QStackedWidget(self)
 
         # Create and configure 2D PlotWidget
         self.two_d_widget = twodimension.TwoD()
-        #self.two_d_widget = self.temp_2_d_widget.get_widget() 
-        self.power_db = None
-
+        
         # Create and configure 3D GLViewWidget
-        self.three_d_widget = threedimension.ThreeD()
-
-        gx = gl.GLGridItem()
-        gx.rotate(30, 0, 1, 0)
-        gx.translate(-10, 0, 0)
-        self.three_d_widget.widget.addItem(gx)
+        self.three_d_widget = threedimension.ThreeD(self.INITIAL_SAMPLE_SIZE,50)
 
         # Add both widgets to the stacked widget
         self.stacked_widget.addWidget(self.two_d_widget.widget)
@@ -74,6 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stacked_widget.setCurrentIndex(0)  # Show 2D plot initially
         self.display_logo()
 
+        self.power_db = None
         self.data_source = None
         self.engformat = mpl.ticker.EngFormatter(places=3)
         self.timer = QtCore.QTimer()    # timer for updating plot
@@ -200,7 +192,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
-            if isinstance(self.data_source, DataSource):
+            if isinstance(self.data_source, SampleDataSource):
                 try:
                     self.output_centre_freq.setText(self.engformat(self.data_source.centre_freq) + "Hz")
                     self.output_sample_rate.setText(f"{int(self.data_source.sample_rate):,} SPS")
@@ -219,35 +211,27 @@ class MainWindow(QtWidgets.QMainWindow):
                         magnitude = self.dsp.get_magnitude(centrefft)
                         self.power_db  = self.dsp.get_log_magnitude(magnitude)
 
+
                         frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
 
-                        index_of_peak = np.argmax(self.power_db)
-                        peak_y_value = self.power_db[index_of_peak]
-                        corresponding_x_value = frequency_bins[index_of_peak]
-
-                        text_item = pg.TextItem(str(self.engformat(corresponding_x_value)) + "Hz\n" + str(self.engformat(peak_y_value) + " dB"  ))
-                        text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
-
                         if self.current_display == 'plot':
                             self.two_d_widget.widget.clear()
                             self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen='g')
-                            self.two_d_widget.widget.addItem(text_item)
-
-
-                        if self.peak_frequency is not None:
-                            self.three_d_widget.widget.removeItem(self.peak_frequency)
-                        self.peak_frequency = gl.GLTextItem()
-                        peak_value=str(self.engformat(corresponding_x_value) + "Hz, " + self.engformat(peak_y_value) + " dB")
-                        self.peak_frequency.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text=peak_value)
-                        self.three_d_widget.widget.addItem(self.peak_frequency)
                         
-                        ### Unsure if this is how you do it
-                        self.three_d_widget.z=self.power_db
-                        print (self.three_d_widget.z)
+                        # Set values in 3d widget
+                        self.three_d_widget.z=self.power_db/10
 
-                        
+
+
+                        # Find peak value
+                        #index_of_peak = np.argmax(self.power_db)
+                        #peak_y_value = self.power_db[index_of_peak]
+                        #corresponding_x_value = frequency_bins[index_of_peak]
+                        #text_item = pg.TextItem("test")
+                        #text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
+
  
 
                 except Exception as e:
