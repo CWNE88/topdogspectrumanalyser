@@ -20,17 +20,26 @@ class TwoD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a wi
         super().__init__()
 
         # Create and configure 2D PlotWidget
-        
         self.widget = pg.PlotWidget()
-        
+        self.widget.showGrid(x=True, y=True)
+        self.widget.setLabel('left', 'Power (dB)')
+        self.widget.setLabel('bottom', 'Frequency asdfasdf(Mhz)')
+        self.widget.setYRange(-30, 60)
+        self.widget.text_item = pg.TextItem("two d nigga")
+        self.widget.text_item.setAnchor((1, 1))
+
+
+        # Set the initial display
+
+        text_item = pg.TextItem("start text")
+        self.widget.addItem(text_item)
         self.widget.showGrid(x=True, y=True)
         self.widget.setLabel('left', 'Power (dB)')
         self.widget.setLabel('bottom', 'Frequency (Mhz)')
         self.widget.setYRange(-30, 60)
         
-    def set_peak_frequency_text(self, text):
-        self.widget.peak_frequency1.setText(text)
-
+        print ("test")
+ 
 
     def start_animation(self):
         print("in start_animation")

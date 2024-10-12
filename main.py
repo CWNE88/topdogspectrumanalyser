@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys
 import numpy as np
 import pyqtgraph as pg
@@ -31,6 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
     VGA_GAIN = 10
     sweep_data = None
     INITIAL_SAMPLE_SIZE = 4096
+    INITIAL_NUMBER_OF_LINES = 20
     dsp = SignalProcessing.process()
     #data_source: DataSourceDataSource | SweepDataSource = None    # Only newer python
     data_source: Union[SampleDataSource, SweepDataSource] = None
@@ -38,9 +40,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.peak_frequency = None
+        self.peak_frequency1 = "Peak On"
         self.peak_power = None
-
+        self.is_peak_on = False
+        
         # Load the UI file
         uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
@@ -52,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.two_d_widget = twodimension.TwoD()
         
         # Create and configure 3D GLViewWidget
-        self.three_d_widget = threedimension.ThreeD(self.INITIAL_SAMPLE_SIZE,50)
+        self.three_d_widget = threedimension.ThreeD(self.INITIAL_SAMPLE_SIZE, self.INITIAL_NUMBER_OF_LINES)
 
         # Add both widgets to the stacked widget
         self.stacked_widget.addWidget(self.two_d_widget.widget)
@@ -76,6 +79,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.buttonhold:
             self.buttonhold.pressed.connect(self.toggle_hold)
+        if self.buttonpeak:
+            self.buttonpeak.pressed.connect(self.toggle_peak)
         if self.button2d3d:
             self.button2d3d.pressed.connect(self.toggle_display)
 
@@ -108,6 +113,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonsoft7 = self.findChild(QtWidgets.QPushButton, 'buttonsoft7')
         self.buttonsoft8 = self.findChild(QtWidgets.QPushButton, 'buttonsoft8')
         self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
+        self.buttonpeak = self.findChild(QtWidgets.QPushButton, 'buttonpeak')
         self.button2d3d = self.findChild(QtWidgets.QPushButton, 'button2d3d')
         self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
@@ -159,6 +165,9 @@ class MainWindow(QtWidgets.QMainWindow):
         elif event.key() == Qt.Key.Key_Space:
             print("Toggle hold")
             self.toggle_hold()
+        elif event.key() == Qt.Key.Key_P:
+            print("Toggle peak")
+            self.toggle_peak()
         event.accept()
 
     def setup_layout(self):
@@ -170,7 +179,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 child = layout.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
-        layout.addWidget(self.two_d_widget)  # Default to the 2D plot
 
     def toggle_display(self):
         if self.current_display == 'plot':
@@ -189,9 +197,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.two_d_widget.widget.plot(x_vals, y_vals, pen=None, symbol='t', symbolBrush='b')
         print ("display logo")
 
-
     def update_plot(self):
         if self.data_source and not self.is_paused:
+            #print (self.data_source.centre_freq)
+
             if isinstance(self.data_source, SampleDataSource):
                 try:
                     self.output_centre_freq.setText(self.engformat(self.data_source.centre_freq) + "Hz")
@@ -207,14 +216,21 @@ class MainWindow(QtWidgets.QMainWindow):
                     
                     if samples is not None and len(samples) > 0:
                         fft = self.dsp.do_fft(samples)
+                        
+                        # Need a check here so that if it is audio (mono) source, then only keep the first half of the fft
+                        # So, if it's 1024 samples, once the FFT is done, just grab the first 512 samples and discard the rest...
+                        # ...and don't do the centrefft because it's not needed.
+                        # However, if it's a stereo source, do the above for left and right (still only half of the samples for each side)
+                        # as the negative values are same when doing FFT on real numbers (like sound samples)
+                        # Will need two plots; one for left, and one for right.
+                        # Can't really put left on the left, as it would show as negative which isn't right. 
+
                         centrefft = self.dsp.do_centre_fft(fft)
                         magnitude = self.dsp.get_magnitude(centrefft)
                         self.power_db  = self.dsp.get_log_magnitude(magnitude)
 
-
                         frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
                         frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
-
 
                         if self.current_display == 'plot':
                             self.two_d_widget.widget.clear()
@@ -222,26 +238,13 @@ class MainWindow(QtWidgets.QMainWindow):
                         
                         # Set values in 3d widget
                         self.three_d_widget.z=self.power_db/10
-
-
-
-                        # Find peak value
-                        #index_of_peak = np.argmax(self.power_db)
-                        #peak_y_value = self.power_db[index_of_peak]
-                        #corresponding_x_value = frequency_bins[index_of_peak]
-                        #text_item = pg.TextItem("test")
-                        #text_item.setPos(corresponding_x_value / 1e6, peak_y_value)  
-
  
-
                 except Exception as e:
                     print(f"Error reading samples: {e}")
 
             elif isinstance(self.data_source, SweepDataSource):
                 if self.sweep_data is not None:
-                    #self.two_d_widget.clear()
                     self.two_d_widget.plot(self.sweep_data['x'], self.sweep_data['y'], pen='g')
-
                     index_of_peak = np.argmax(self.sweep_data['y'])
                     peak_y_value = self.sweep_data['y'][index_of_peak]
                     corresponding_x_value = self.sweep_data['x'][index_of_peak]
@@ -282,6 +285,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_manager.handle_button_press(button_index)
         self.update_button_labels()
 
+
+    def toggle_peak(self):
+        self.is_peak_on = not self.is_peak_on
+        if self.is_peak_on:
+            print("Peak on")
+            self.peak_frequency1 = pg.TextItem("Peak on")
+            self.two_d_widget.widget.addItem(self.peak_frequency1)
+        else:
+            print("Peak off")
+            self.two_d_widget.widget.removeItem(self.peak_frequency1)
+
     def toggle_hold(self):
         self.is_paused = not self.is_paused
         if self.is_paused:
@@ -296,6 +310,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Using RTL-SDR data source")
         self.input_label.setText('Starting RTL device')
         self.button_instrument4.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
+        self.button_instrument8.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_instrument9.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         app.processEvents()
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
@@ -305,12 +320,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def use_audio_source(self):
         print("Using audio data source")
-        self.data_source = AudioDataSource(self.CENTRE_FREQUENCY)
+        self.button_instrument4.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
+        self.button_instrument8.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
+        self.button_instrument9.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
+        self.sample_rate=44100
+        self.data_source = AudioDataSource()
         self.window = self.dsp.create_window(self.data_source.sample_rate, 'hamming')
+
         self.timer.start(20)
 
     def use_hackrf_source(self):
         print("Using HackRF data source")
+        self.button_instrument8.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_instrument9.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
         self.button_instrument4.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.data_source = HackRFDataSource(self.CENTRE_FREQUENCY)

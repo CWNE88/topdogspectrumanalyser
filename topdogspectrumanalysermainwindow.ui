@@ -384,7 +384,7 @@
 Right</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonmarker4">
+         <widget class="QPushButton" name="buttonpeak">
           <property name="geometry">
            <rect>
             <x>80</x>

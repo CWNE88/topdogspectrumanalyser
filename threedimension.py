@@ -4,6 +4,8 @@ import numpy as np
 from PyQt6 import QtWidgets, QtCore
 import pyqtgraph.opengl as gl
 import pyqtgraph as pg
+import matplotlib.pyplot as plt
+
 
 class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a widget in your main application
     timer: QtCore.QTimer = None
@@ -33,6 +35,8 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
 
         # Create the GLViewWidget
         self.widget = gl.GLViewWidget()
+        
+
         self.widget.opts['distance'] = 40
         self.widget.setGeometry(0, 110, 1920, 1080)
 
@@ -43,7 +47,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             self.y = np.full(self.number_of_points, 10)
             self.z = np.zeros([self.number_of_points])
             specanpts = np.vstack([self.x, self.y, self.z]).transpose()
-            self.traces[i] = gl.GLLinePlotItem(pos=specanpts, color=np.zeros([self.number_of_points, 4]), antialias=True, mode='line_strip')
+            self.traces[i] = gl.GLLinePlotItem(pos=specanpts, color=np.zeros([self.number_of_points, 4]), antialias=False, mode='line_strip')
             self.widget.addItem(self.traces[i])
 
         def set_up_grids():
@@ -57,7 +61,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
 
             grid_y = gl.GLGridItem()
             grid_y.rotate(90, 1, 0, 0)
-            grid_y.translate(0, -10, 0)
+            grid_y.translate(0, 10, 0)
             self.widget.addItem(grid_y)
 
             grid_z = gl.GLGridItem()
@@ -87,7 +91,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             self.legend_z_high.setData(pos=(0.0, 0.0, 10.0), color=(255, 255, 255, 255), text='+10 Z')
             self.widget.addItem(self.legend_z_high)
 
-        #set_up_grids()
+        set_up_grids()
 
 
         ######### HISTORY LINES ###########
@@ -99,7 +103,7 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             self.y = np.full ([self.number_of_points], self.lineyvalues[i]) 
             self.z = np.zeros ([self.number_of_points])                     
             specanpts = np.vstack ([self.x, self.y, self.z]).transpose() 
-            self.traces[i] = gl.GLLinePlotItem (pos=specanpts, color=[0,1,0,1], antialias=True, mode='line_strip')     
+            self.traces[i] = gl.GLLinePlotItem (pos=specanpts, color=[0,1,0,1], antialias=False, mode='line_strip')     
             self.widget.addItem (self.traces[i])
               
 
@@ -127,6 +131,8 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
         goodcolours = np.empty([self.number_of_points,4])
         goodcolours[:,3] = 1
         
+
+
         # Move previous lines along
         for i in range (self.number_of_lines-1):
             oldlinepoints=self.traces[i+1].pos      # get points of previous line
@@ -134,19 +140,24 @@ class ThreeD(QtWidgets.QWidget):  # Inherit from QWidget to make it usable as a 
             oldlinepoints[:,1]=self.lineyvalues[i]  # set y value of previous line to increment
             self.set_plotdata(name=i, points=oldlinepoints, color=oldlinecolours, width=1)  # plot previous line
 
+        #cmap = plt.get_cmap('hot')
+        cmap = plt.get_cmap('jet')
+        #cmap = plt.get_cmap('gist_gray')
+        
+
         # Current line  
         for i in range (self.number_of_points):
-            goodcolours[i]=pg.glColor((8-self.z[i] ,  8*1.4))
-                
+            
+            normed_value = self.z[i] / 5
+            goodcolours[i, :3] = cmap(normed_value)[:3] 
+            goodcolours[i, 3] = 0.1
+            #print (np.shape(self.z))
+
+            
+            #self.z=self.z * gain
+ 
         specanpts = np.vstack([self.x, self.y, self.z]).transpose()
-        #self.set_plotdata(name=self.number_of_lines-1, points=specanpts, color=[1,1,1,1], width=1)
         self.set_plotdata(name=self.number_of_lines-1, points=specanpts, color=goodcolours, width=1)
-
-
-
-
-
-
 
         self.widget.opts['azimuth'] = self.widget.opts['azimuth'] +0.1
 
