@@ -118,6 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
+        self.buttonpreset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
 
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
@@ -151,6 +152,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.button_instrument5.pressed.connect(self.use_rtl_sweep_source)
         if self.button_instrument10:
             self.button_instrument10.pressed.connect(self.use_hackrf_sweep_source)
+        if self.button_preset:
+            self.button_preset.pressed.connect(self.preset)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F:
@@ -342,6 +345,10 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Using RTL-SDR sweep data source")
         self.data_source = RtlSweepDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
+
+    def preset(self):
+        self.two_d_widget.widget.getPlotItem().autoRange()
+        
 
     def use_hackrf_sweep_source(self):
         print("Using HackRF sweep data source")
