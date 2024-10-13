@@ -220,20 +220,24 @@ class MainWindow(QtWidgets.QMainWindow):
                     if samples is not None and len(samples) > 0:
                         fft = self.dsp.do_fft(samples)
                         
-                        # Need a check here so that if it is audio (mono) source, then only keep the first half of the fft
-                        # So, if it's 1024 samples, once the FFT is done, just grab the first 512 samples and discard the rest...
-                        # ...and don't do the centrefft because it's not needed.
-                        # However, if it's a stereo source, do the above for left and right (still only half of the samples for each side)
-                        # as the negative values are same when doing FFT on real numbers (like sound samples)
-                        # Will need two plots; one for left, and one for right.
-                        # Can't really put left on the left, as it would show as negative which isn't right. 
 
-                        centrefft = self.dsp.do_centre_fft(fft)
-                        magnitude = self.dsp.get_magnitude(centrefft)
-                        self.power_db  = self.dsp.get_log_magnitude(magnitude)
+                        
+                        if isinstance(self.data_source, AudioDataSource):
+                            centrefft = fft[:int(self.INITIAL_SAMPLE_SIZE//2)]
+                            magnitude = self.dsp.get_magnitude(centrefft)
+                            self.power_db  = self.dsp.get_log_magnitude(magnitude)
+                            frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
+                            half_length = len(frequency_bins) // 2  # Calculate half length
+                            frequency_bins = frequency_bins[:half_length]
+                            self.power_db = self.power_db[:half_length]
+ 
 
-                        frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
-                        frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
+                        else:
+                            centrefft = self.dsp.do_centre_fft(fft)                   
+                            magnitude = self.dsp.get_magnitude(centrefft)
+                            self.power_db  = self.dsp.get_log_magnitude(magnitude)
+                            frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
+                            frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
                         if self.current_display == 'plot':
                             self.two_d_widget.widget.clear()
@@ -307,7 +311,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
-    
 
     def use_rtl_source(self):     
         print("Using RTL-SDR data source")
