@@ -1,0 +1,80 @@
+Source selection
+- RTL-SDR Samples
+- HackRF Samples
+- RTL-SDR Sweep
+- HackRF Sweep
+- Audio Samples
+
+Check for devices on startup
+If RTL-SDR Samples or HackRF Samples is selected, keep device active to avoid slow startup if moving between sources and back, unless going to Sweep mode, because then it will have to be released.
+
+Menu system
+Frequency
+- Centre
+- Start
+- Stop
+Span
+- Full span
+- Last span
+- Span zoom
+- Zero span (Show samples like oscilloscope)
+Amplitude
+- Ref level
+- Attenuation
+- Gain
+- Squelch - set minimum display power values
+
+Settings/Controls
+- RTL BiasT (on/off)
+- Amplifier (on/off)
+- Peak marker (on/off)
+
+modes
+Wi-Fi
+- 2.4GHz full
+- U-NII-1, U-NII-2, UNII-3
+- 5GHz full
+- 6GHz full
+
+In 2D plot:
+Have brighter colours at Wi-Fi channels (selectable with wheel). Show markers for them in overlay
+Use brighter plot colours at values for channel
+
+In 3D plot:
+Have brighter colours at Wi-Fi channels (selectable with wheel). Show markers for them in overlay
+Use brighter colours for vertexes
+
+
+Max hold
+In 2D - Use yellow line
+Maybe make fade off
+
+In 3D - Only show on current line
+
+
+Add waterfall widget
+Create split option for widget - Let user decide which to have in top and bottom halves (2d, 3d, waterfall)
+
+To do:
+- Add peak search
+- Enable input from keypad for things like frequency, span, etc. Make output text display as digits are being pressed
+- Figure out power spectral density display
+- Add control to export displayed image as file
+- Show marker on 2D plot at mouse location showing frequency/power
+- Presets for a few instrument states
+- Show 
+- Enable video bandwidth setting (averaging)
+- Add calibration - For a given signal input, adjust sdr.freq_correction and set power ref level
+- Enable button for DC removal
+- Enable duty cycle sweep with different colouring for higher duty cycle
+- Enable markers - peak to marker - measure bandwidth between markers (delta)
+- Log scale for audio input
+- Green for left, yellow for right (if stereo input)
+
+Feature request:
+- Handoff to Gqrx
+- Daemon server for remote
+
+Bugs:
+- Buttons and display widget don't work after orientation change
+- When changing between sources, plot needs to start at zoom of the range, not of previous source
