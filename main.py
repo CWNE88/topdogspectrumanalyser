@@ -24,14 +24,14 @@ import twodimension
 from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
-    CENTRE_FREQUENCY = 98e6
+    CENTRE_FREQUENCY = 98e6 #2412e6
 
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
     sweep_data = None
-    INITIAL_SAMPLE_SIZE = 4096
+    INITIAL_SAMPLE_SIZE = 1024
     INITIAL_NUMBER_OF_LINES = 20
     dsp = SignalProcessing.process()
     #data_source: DataSourceDataSource | SweepDataSource = None    # Only newer python
@@ -43,9 +43,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.peak_frequency1 = "Peak On"
         self.peak_power = None
         self.is_peak_on = False
+        self.is_vertical = False
         
         # Load the UI file
-        uic.loadUi('topdogspectrumanalysermainwindow.ui', self)
+        uic.loadUi('mainwindowhorizontal.ui', self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         # Create stacked widget
@@ -83,6 +84,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.buttonpeak.pressed.connect(self.toggle_peak)
         if self.button2d3d:
             self.button2d3d.pressed.connect(self.toggle_display)
+        if self.buttonverthoriz:
+            self.buttonverthoriz.pressed.connect(self.toggle_orientation)
 
         self.initialise_labels()
         self.initialise_buttons()
@@ -91,6 +94,47 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_button_focus_policy(self) # Avoids buttons being active after pressing
         self.connect_main_buttons()
         self.update_button_labels()
+
+    def load_new_ui(self, ui_file):
+        # Clear the existing layout
+        layout = self.findChild(QtWidgets.QWidget, 'graphical_display').layout()
+        if layout:
+            while layout.count():
+                child = layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
+        # Load the new UI
+        uic.loadUi(ui_file, self)
+
+        # Initialize stacked widget and child widgets
+        self.stacked_widget = QStackedWidget(self)
+
+        # Create and configure 2D PlotWidget
+        self.two_d_widget = twodimension.TwoD()
+
+        # Create and configure 3D GLViewWidget
+        self.three_d_widget = threedimension.ThreeD(self.INITIAL_SAMPLE_SIZE, self.INITIAL_NUMBER_OF_LINES)
+
+        # Add both widgets to the stacked widget
+        self.stacked_widget.addWidget(self.two_d_widget.widget)
+        self.stacked_widget.addWidget(self.three_d_widget.widget)
+
+        # Set the stacked widget as the main display layout
+        new_layout = self.findChild(QtWidgets.QWidget, 'graphical_display')
+        new_layout.layout().addWidget(self.stacked_widget)
+        
+        self.current_display = 'plot'
+        self.stacked_widget.setCurrentIndex(0)  # Show 2D plot initially
+        self.display_logo()
+
+        # Reinitialize components
+        self.initialise_labels()  # Reinitialize labels if they exist in the new UI
+        self.initialise_buttons()  # Reinitialize buttons if they exist in the new UI
+        self.connect_data_source_buttons()  # Reconnect data source buttons if necessary
+        self.update_button_labels()  # Update button labels based on the new UI
+
+
 
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
@@ -102,6 +146,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_gain = self.findChild(QtWidgets.QLabel, 'output_gain')
         self.output_res_bw = self.findChild(QtWidgets.QLabel, 'output_res_bw')
         self.input_value = self.findChild(QtWidgets.QLabel, 'input_value')
+        self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
+        self.output_sample_rate = self.findChild(QtWidgets.QLabel, 'output_sample_rate')
 
     def initialise_buttons(self):
         self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
@@ -119,6 +165,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
         self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
         self.buttonpreset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
+        self.buttonverthoriz = self.findChild(QtWidgets.QPushButton, 'buttonverthoriz')
+        self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
+        self.buttonpeak = self.findChild(QtWidgets.QPushButton, 'buttonpeak')
 
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
@@ -171,6 +220,9 @@ class MainWindow(QtWidgets.QMainWindow):
         elif event.key() == Qt.Key.Key_P:
             print("Toggle peak")
             self.toggle_peak()
+        elif event.key() == Qt.Key.Key_O:
+            print("Toggle orientation")
+            self.toggle_orientation()
         event.accept()
 
     def setup_layout(self):
@@ -311,6 +363,35 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
+
+    def toggle_orientation(self):
+        print ("toggle orientation")
+        self.is_vertical = not self.is_vertical
+        if self.is_vertical:
+            print("Changing orientation to vertical")
+            self.load_new_ui('mainwindowvertical.ui')
+            
+        else:
+            print("Changing orientation to horizontal")
+            self.load_new_ui('mainwindowhorizontal.ui')  
+
+    def load_new_ui(self, ui_file):
+        # Clear the existing layout
+        layout = self.findChild(QtWidgets.QWidget, 'graphical_display').layout()
+        if layout:
+            while layout.count():
+                child = layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
+        uic.loadUi(ui_file, self)
+
+        
+        self.initialise_labels()  
+        self.initialise_buttons() 
+        self.setup_layout()  
+        self.connect_data_source_buttons()  
+        self.update_button_labels()  
 
     def use_rtl_source(self):     
         print("Using RTL-SDR data source")
