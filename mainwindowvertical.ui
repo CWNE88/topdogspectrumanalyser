@@ -445,7 +445,7 @@ Hold</string>
              </rect>
             </property>
             <property name="text">
-             <string>BW</string>
+             <string/>
             </property>
            </widget>
            <widget class="QPushButton" name="button2d3d">
@@ -484,7 +484,7 @@ Hold</string>
              </rect>
             </property>
             <property name="text">
-             <string>Trig</string>
+             <string/>
             </property>
            </widget>
            <widget class="QPushButton" name="buttoncontrol6">
@@ -701,7 +701,7 @@ Horiz</string>
              </rect>
             </property>
             <property name="text">
-             <string>Cal</string>
+             <string/>
             </property>
            </widget>
            <widget class="QPushButton" name="buttoninstrument4">
