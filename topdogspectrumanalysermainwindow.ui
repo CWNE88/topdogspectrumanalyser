@@ -398,7 +398,7 @@ Right</string>
 Search</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonmarker3">
+         <widget class="QPushButton" name="buttonmaxhold">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -416,8 +416,8 @@ Search</string>
            <string notr="true"/>
           </property>
           <property name="text">
-           <string>Freq
-Count</string>
+           <string>Max
+Hold</string>
           </property>
          </widget>
         </widget>
