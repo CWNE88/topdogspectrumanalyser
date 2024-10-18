@@ -24,7 +24,7 @@ import twodimension
 from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
-    CENTRE_FREQUENCY = 1552e6 #2412e6
+    CENTRE_FREQUENCY = 98e6 #1552e6 #2412e6
 
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
@@ -70,6 +70,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.is_paused = False
         self.menu_manager = MenuManager()
         self.rtl_bias_t = False
+        self.max_hold = False
+        self.max_hold_buffer = None
 
         self.initialise_buttons()
         self.status_label.setText('Select data source')
@@ -87,6 +89,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.button2d3d.pressed.connect(self.toggle_display)
         if self.buttonverthoriz:
             self.buttonverthoriz.pressed.connect(self.toggle_orientation)
+        if self.buttonmaxhold:
+            self.buttonmaxhold.pressed.connect(self.toggle_max_hold)
+
 
 
     def load_new_ui(self, ui_file):
@@ -128,11 +133,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonsoft8 = self.findChild(QtWidgets.QPushButton, 'buttonsoft8')
         self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
         self.button2d3d = self.findChild(QtWidgets.QPushButton, 'button2d3d')
-        self.buttonfrequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
         self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
-        self.buttonamplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
-        self.buttonverthoriz = self.findChild(QtWidgets.QPushButton, 'buttonverthoriz')
         self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
+        self.button_frequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
+        self.button_amplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
         self.button_peak = self.findChild(QtWidgets.QPushButton, 'buttonpeak')
         self.button_preset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
         self.button_mode = self.findChild(QtWidgets.QPushButton, 'buttonmode')
@@ -144,15 +148,17 @@ class MainWindow(QtWidgets.QMainWindow):
         
 
     def connect_buttons(self):
-        self.buttonfrequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
+        self.button_frequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
         self.buttonspan.pressed.connect(lambda: self.handle_menu_button('span1'))
-        self.buttonamplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
+        self.button_amplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
         self.buttonsoft2.pressed.connect(lambda: self.handle_soft_button(1))
         self.buttonsoft3.pressed.connect(lambda: self.handle_soft_button(2))
-        self.buttonmode.pressed.connect(lambda: self.handle_menu_button('mode1'))
-        self.buttonrtlfft.pressed.connect(lambda: self.handle_menu_button('rtlfft1'))
-        self.buttonhackrffft.pressed.connect(lambda: self.handle_menu_button('hackrffft1'))
+        self.button_mode.pressed.connect(lambda: self.handle_menu_button('mode1'))
+        self.button_rtl_fft.pressed.connect(lambda: self.handle_menu_button('rtlfft1'))
+        self.button_hackrf_fft.pressed.connect(lambda: self.handle_menu_button('hackrffft1'))
+        
+        
         #self.buttonaudio.pressed.connect(lambda: self.handle_menu_button('audio1'))
 
     def initialise_labels(self):
@@ -226,7 +232,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
             self.three_d_widget.start_animation()
-            
+
+ 
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
             self.three_d_widget.stop_animation()
@@ -240,7 +247,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
-            #print (self.data_source.centre_freq)
+            
 
             if isinstance(self.data_source, SampleDataSource):
                 try:
@@ -277,10 +284,23 @@ class MainWindow(QtWidgets.QMainWindow):
                             frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
                             frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
 
+                        if self.max_hold:
+                            if self.max_hold_buffer is None:
+                                self.max_hold_buffer = self.power_db.copy() 
+                            else:
+                                self.max_hold_buffer = np.maximum(self.max_hold_buffer, self.power_db)  
+
+
                         if self.current_display == 'plot':
+
                             self.two_d_widget.widget.clear()
-                            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen='g')
+
                         
+                        if self.max_hold is True and self.max_hold_buffer is not None:
+                            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.max_hold_buffer, pen='y')  # Max hold values
+
+                        self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen='g')
+
                         # Set values in 3d widget
                         self.three_d_widget.z=self.power_db/10
  
@@ -352,13 +372,22 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Animation resumed")
             self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
 
+    def toggle_max_hold(self):
+        self.max_hold = not self.max_hold
+        if self.max_hold:
+            print("Max hold enabled")
+            self.max_hold_buffer = None
+        else:
+            print("Max hold disabled")
+            
+
+
     def toggle_orientation(self):
-        print ("toggle orientation")
+        print ("Toggle orientation")
         self.is_vertical = not self.is_vertical
         if self.is_vertical:
             print("Changing orientation to vertical")
             self.load_new_ui('mainwindowvertical.ui')
-            
         else:
             print("Changing orientation to horizontal")
             self.load_new_ui('mainwindowhorizontal.ui')  
@@ -378,7 +407,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_layout()  
         self.update_button_labels()  
 
-    def use_rtl_source(self):     
+    def use_rtl_source(self):
+        self.max_hold_buffer = None
         print("Using RTL-SDR data source")
         self.status_label.setText('Starting RTL device')
         self.button_rtl_fft.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
@@ -393,6 +423,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start(20)
 
     def use_hackrf_source(self):
+        self.max_hold_buffer = None
         print("Using HackRF data source")
         self.button_rtl_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_hackrf_fft.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
@@ -404,6 +435,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start(20)
 
     def use_rtl_sweep_source(self):
+        self.max_hold_buffer = None
         self.button_rtl_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_hackrf_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_rtl_sweep.setStyleSheet("background-color: #a0a0a0; color: black; font-weight: normal;")
@@ -415,6 +447,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def use_hackrf_sweep_source(self):
+        self.max_hold_buffer = None
         self.button_rtl_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_hackrf_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_rtl_sweep.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
@@ -432,6 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def use_audio_source(self):
+        self.max_hold_buffer = None
         print("Using audio data source")
         self.button_rtl_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_hackrf_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
