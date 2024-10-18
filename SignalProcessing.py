@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.signal import butter, filtfilt, spectrogram, welch
+from scipy.fft import fft
 
 class process:
     
     def do_fft(self, samples):
-        self.fft_result = np.fft.fft(samples)
+        self.fft_result = fft(samples)
         return self.fft_result
     
     def do_centre_fft(self, X):
