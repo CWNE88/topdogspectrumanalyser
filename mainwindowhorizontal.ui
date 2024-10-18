@@ -679,7 +679,7 @@ Horiz</string>
          <widget class="QPushButton" name="buttonconfig">
           <property name="geometry">
            <rect>
-            <x>90</x>
+            <x>160</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -692,7 +692,7 @@ Horiz</string>
          <widget class="QPushButton" name="buttoninstrument3">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>230</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -702,11 +702,11 @@ Horiz</string>
            <string/>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument4">
+         <widget class="QPushButton" name="buttonrtlfft">
           <property name="geometry">
            <rect>
-            <x>230</x>
-            <y>40</y>
+            <x>20</x>
+            <y>90</y>
             <width>61</width>
             <height>41</height>
            </rect>
@@ -716,11 +716,11 @@ Horiz</string>
 FFT</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument5">
+         <widget class="QPushButton" name="buttonrtlsweep">
           <property name="geometry">
            <rect>
-            <x>300</x>
-            <y>40</y>
+            <x>160</x>
+            <y>90</y>
             <width>61</width>
             <height>41</height>
            </rect>
@@ -730,10 +730,10 @@ FFT</string>
 Sweep</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument9">
+         <widget class="QPushButton" name="buttonhackrffft">
           <property name="geometry">
            <rect>
-            <x>230</x>
+            <x>90</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -744,10 +744,10 @@ Sweep</string>
 FFT</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument10">
+         <widget class="QPushButton" name="buttonhackrfsweep">
           <property name="geometry">
            <rect>
-            <x>300</x>
+            <x>230</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -761,8 +761,8 @@ Sweep</string>
          <widget class="QPushButton" name="buttoninstrument7">
           <property name="geometry">
            <rect>
-            <x>90</x>
-            <y>90</y>
+            <x>300</x>
+            <y>40</y>
             <width>61</width>
             <height>41</height>
            </rect>
@@ -771,24 +771,25 @@ Sweep</string>
            <string>Save</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument8">
+         <widget class="QPushButton" name="buttonaudiofft">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>300</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
            </rect>
           </property>
           <property name="text">
-           <string>Audio</string>
+           <string>Audio
+FFT</string>
           </property>
          </widget>
          <widget class="QPushButton" name="buttonmode">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>90</y>
+            <x>90</x>
+            <y>40</y>
             <width>61</width>
             <height>41</height>
            </rect>
@@ -1294,19 +1295,29 @@ Sweep</string>
            <x>10</x>
            <y>540</y>
            <width>301</width>
-           <height>80</height>
+           <height>60</height>
           </rect>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLabel" name="input_label">
+           <widget class="QLabel" name="status_label">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
             <property name="text">
-             <string>Input text</string>
+             <string>Data entry display</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="input_value">
+            <property name="font">
+             <font>
+              <pointsize>16</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Input value</string>
             </property>

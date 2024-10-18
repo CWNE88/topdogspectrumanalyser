@@ -704,7 +704,7 @@ Horiz</string>
              <string/>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument4">
+           <widget class="QPushButton" name="buttonrtlfft">
             <property name="geometry">
              <rect>
               <x>230</x>
@@ -773,7 +773,7 @@ Sweep</string>
              <string>Save</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument8">
+           <widget class="QPushButton" name="buttonaudio">
             <property name="geometry">
              <rect>
               <x>160</x>

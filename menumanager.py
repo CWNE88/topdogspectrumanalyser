@@ -29,17 +29,20 @@ class MenuManager:
                     'Frequency\nOffset': {
                         'options': ['Set freq_offset', 'Stop freq_offset'],
                     },
-                    'CF Step\nAuto/Man': {
+                    'CF/2 to\nCentre Freq': {
                         'options': ['Set cfdivided2', 'Stop Info'],
                     },
-                    'CF Step\nAuto/Man': {
+                    'CF*2 to\nCentre Freq': {
                         'options': ['Set cftimes2', 'Stop Info'],
                     }
 
                 }
             },
             'span1': {
-                'options': ['Full Span', 'Last Span', 'Span Zoom'],
+                'options': ['Full Span', 
+                            'Last Span', 
+                            'Span Zoom',
+                            'Zero Span'],
                 'submenus': {
                     'Full Span': {
                         'options': ['Set Full', 'Full Info'],
@@ -48,6 +51,9 @@ class MenuManager:
                         'options': ['Set Last', 'Last Info'],
                     },
                     'Span Zoom': {
+                        'options': ['Set Zoom', 'Zoom Info'],
+                    },
+                    'Zero Span': {
                         'options': ['Set Zoom', 'Zoom Info'],
                     }
                 }
@@ -82,39 +88,16 @@ class MenuManager:
                         'options': ['Set Linear', 'Linear Info'],
                     }
                 }
-            },
-            'mode1': {
-                'options': ['Wi-Fi', 'Audio', 'Digital'],
-                'submenus': {
-                    '2.4 GHz': {
-                        'options': [],
-                    },
-                    'U-NII 1': {
-                        'options': [],
-                    },
-                    'U-NII 2a': {
-                        'options': [],
-                    },
-                    'U-NII 2b': {
-                        'options': [],
-                    },
-                    'U-NII 2c': {
-                        'options': [],
-                    },
-                    'U-NII 3': {
-                        'options': [],
-                    },
-                    '6 GHz': {
-                        'options': [],
-                    },
-                    'More (1 of 2)': {
-                        'options': [],
-                    }
-                }
-            },
+            },     
             'amplitude2': {
-                'options': ['Amplitude\nUnits', 'Coupling\nAC/DC', 'Norm\nRef Position',
-                 'Presel\nAuto Peak', 'Presel\nMan Adj', 'More (2 of 2)'],
+                'options': ['Amplitude\nUnits', 
+                            'Coupling\nAC/DC', 
+                            'Norm\nRef Position',
+                            'Presel\nAuto Peak', 
+                            'Presel\nMan Adj',
+                            'Gain',
+                            'Squelch',
+                              'More (2 of 2)'],
                 'submenus': {
                     'Amplitude\nUnits': {
                         'options': ['dBm', 'dBµV', 'dBmV', 'Volts', 'Watts'],
@@ -141,7 +124,85 @@ class MenuManager:
                         'options': ['Set Linear', 'Linear Info'],
                     }
                 }
+            },       
+            'rtlfft1': {
+                'options': ['Device\nNumber', 
+                            'Direct\nSamp', 
+                            'Bias T'],
+                'submenus': {
+                    'Device\nNumber': {
+                        'options': ['Some\nList'],
+                    },
+                    'Direct\nSamp': {
+                        'options': ['On', 'Off'],
+                    },
+                    'Bias T': {
+                        'options': ['On', 'Off'],
+                    },
+
+                }
+            },
+            'hackrffft1': {
+                'options': ['Device\nNumber', 
+                            'Direct\nSamp'],
+                'submenus': {
+                    'Device\nNumber': {
+                        'options': ['Some\nList'],
+                    },
+                    'Direct\nSamp': {
+                        'options': ['On', 'Off'],
+                    },
+                    'Bias T': {
+                        'options': ['On', 'Off'],
+                    },
+
+                }
+            },            
+            'audio1': {
+                'options': ['Device', 
+                            'Mono', 
+                            'Stereo', 
+                            'Left', 
+                            'Right'],
+                'submenus': {
+                    'Device': {
+                        'options': ['Some\nList'],
+                    }
+
+                }
+            },
+            'config1': {
+                'options': ['Calibrate', 
+                            'Gqrx device', 
+                            'Default\nOrientation',
+                            ],
+                'submenus': {
+                    'Calibrate': {
+                        'options': ['Some\nList'],
+                    },
+                    'Gqrx device': {
+                        'options': ['IP Address'],
+                    },
+                    'Default\nOrientation': {
+                        'options': ['Horizontal', 'Vertical'],
+                    }
+                }
+            },            
+            'mode1': {
+                'options': ['General', 'Wi-Fi', 'Audio', 'Digital'],
+                'submenus': {
+                    'Wi-Fi': {
+                        'options': ['2.4 GHz', 'U-NII-1', 'U-NII-2', 'U-NII-3', '5GHz\nFull', '6GHz\nFull'],
+                    },
+                    'Audio': {
+                        'options': [''],
+                    },
+                    'Digital': {
+                        'options': [],
+                    }
+                }
             }
+            
         }
 
     def show_submenu(self, menu_name):
@@ -176,12 +237,24 @@ class MenuManager:
     def handle_button_press(self, button_index):
         """Handle button actions based on current menu and submenu state."""
         if self.current_submenu is None:
-            if self.current_menu == 'frequency':
+            if self.current_menu == 'frequency1':
                 self.handle_frequency1_menu(button_index)
             elif self.current_menu == 'span1':
                 self.handle_span1_menu(button_index)
             elif self.current_menu == 'amplitude1':
                 self.handle_amplitude1_menu(button_index)
+            elif self.current_menu == 'rtlfft1':
+                self.handle_rtlfft1_menu(button_index)
+            elif self.current_menu == 'hackrffft1':
+                self.handle_hackrffft1_menu(button_index)
+            elif self.current_menu == 'rtlsweep1':
+                self.handle_rtlsweep1_menu(button_index)
+            elif self.current_menu == 'hackrfsweep1':
+                self.handle_hackrfsweep1_menu(button_index)
+            elif self.current_menu == 'audio1':
+                self.handle_audio1_menu(button_index)
+            elif self.current_menu == 'mode1':
+                self.handle_mode1_menu(button_index)
         elif self.current_submenu is not None:
             self.handle_submenu_action(button_index)
 
@@ -197,7 +270,25 @@ class MenuManager:
         if button_index < len(self.submenus['amplitude1']['options']):
             self.show_sub_submenu(self.submenus['amplitude1']['options'][button_index])
 
+    def handle_rtlfft1_menu(self, button_index):
+        if button_index < len(self.submenus['rtlfft1']['options']):
+            self.show_sub_submenu(self.submenus['rtlfft1']['options'][button_index])
+
+    def handle_audio1_menu(self, button_index):
+        if button_index < len(self.submenus['audio1']['options']):
+            self.show_sub_submenu(self.submenus['audio1']['options'][button_index])            
+    def handle_mode1_menu(self, button_index):
+        if button_index < len(self.submenus['mode1']['options']):
+            self.show_sub_submenu(self.submenus['mode1']['options'][button_index])            
+
+
+
     def handle_submenu_action(self, button_index):
         print(f"Selected {self.current_submenu} - Option {button_index + 1} selected")
+
+        
+
+
+
         # Optionally handle further actions or sub-submenu selections here
 
