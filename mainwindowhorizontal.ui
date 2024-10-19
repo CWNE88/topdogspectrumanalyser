@@ -384,7 +384,7 @@
 Right</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonpeak">
+         <widget class="QPushButton" name="button_peak">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -568,7 +568,7 @@ Horiz</string>
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonhold">
+        <widget class="QPushButton" name="button_hold">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -655,7 +655,7 @@ Horiz</string>
          <property name="title">
           <string>Instrument</string>
          </property>
-         <widget class="QPushButton" name="buttonpreset">
+         <widget class="QPushButton" name="button_preset">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -702,7 +702,7 @@ Horiz</string>
            <string/>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonrtlfft">
+         <widget class="QPushButton" name="button_rtl_fft">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -716,7 +716,7 @@ Horiz</string>
 FFT</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonrtlsweep">
+         <widget class="QPushButton" name="button_rtl_sweep">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -730,7 +730,7 @@ FFT</string>
 Sweep</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonhackrffft">
+         <widget class="QPushButton" name="button_hackrf_fft">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -744,7 +744,7 @@ Sweep</string>
 FFT</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonhackrfsweep">
+         <widget class="QPushButton" name="button_hackrf_sweep">
           <property name="geometry">
            <rect>
             <x>230</x>
@@ -771,7 +771,7 @@ Sweep</string>
            <string>Save</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonaudiofft">
+         <widget class="QPushButton" name="button_audio_fft">
           <property name="geometry">
            <rect>
             <x>300</x>
@@ -785,7 +785,7 @@ Sweep</string>
 FFT</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonmode">
+         <widget class="QPushButton" name="button_mode">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -807,7 +807,7 @@ FFT</string>
           </property>
          </widget>
         </widget>
-        <widget class="QPushButton" name="buttonfrequency">
+        <widget class="QPushButton" name="button_frequency">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -849,7 +849,7 @@ FFT</string>
           <string>Frequency</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonup">
+        <widget class="QPushButton" name="button_up">
          <property name="geometry">
           <rect>
            <x>237</x>
@@ -870,7 +870,7 @@ FFT</string>
           <string>Up</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonspan">
+        <widget class="QPushButton" name="button_span">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -891,7 +891,7 @@ FFT</string>
           <string>Span</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonamplitude">
+        <widget class="QPushButton" name="button_amplitude">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -933,7 +933,7 @@ FFT</string>
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttondown">
+        <widget class="QPushButton" name="button_down">
          <property name="geometry">
           <rect>
            <x>150</x>

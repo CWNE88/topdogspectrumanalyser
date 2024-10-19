@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -39,62 +39,6 @@
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
-             <item>
-              <widget class="QLabel" name="label_sample_rate">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Sample rate:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_sample_rate">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item>
-              <widget class="QLabel" name="label_sample_size">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Sample size:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_sample_size">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item row="0" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
@@ -111,90 +55,6 @@
              </item>
              <item>
               <widget class="QLabel" name="output_centre_freq">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QLabel" name="label_res_bw">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Resolution BW:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_res_bw">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLabel" name="label_video_bw">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Video BW:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_video_bw">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <widget class="QLabel" name="label_stop_freq">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Stop frequency:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_stop_freq">
                <property name="font">
                 <font>
                  <family>Monospace</family>
@@ -235,34 +95,6 @@
              </item>
             </layout>
            </item>
-           <item row="3" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
-             <item>
-              <widget class="QLabel" name="label_gain">
-               <property name="font">
-                <font>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Gain:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="output_gain">
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item row="2" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
@@ -291,13 +123,181 @@
              </item>
             </layout>
            </item>
+           <item row="3" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QLabel" name="label_stop_freq">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Stop frequency:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_stop_freq">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLabel" name="label_video_bw">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Video BW:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_video_bw">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="label_sample_rate">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Sample rate:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_sample_rate">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLabel" name="label_res_bw">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Resolution BW:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_res_bw">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLabel" name="label_gain">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Gain:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_gain">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="label_sample_size">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Sample size:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="output_sample_size">
+               <property name="font">
+                <font>
+                 <family>Monospace</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
          </widget>
         </item>
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_14">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QFrame" name="frame">
           <property name="minimumSize">
@@ -681,7 +681,7 @@ Horiz</string>
            <widget class="QPushButton" name="buttonconfig">
             <property name="geometry">
              <rect>
-              <x>90</x>
+              <x>160</x>
               <y>40</y>
               <width>61</width>
               <height>41</height>
@@ -694,7 +694,7 @@ Horiz</string>
            <widget class="QPushButton" name="buttoninstrument3">
             <property name="geometry">
              <rect>
-              <x>160</x>
+              <x>230</x>
               <y>40</y>
               <width>61</width>
               <height>41</height>
@@ -707,8 +707,8 @@ Horiz</string>
            <widget class="QPushButton" name="buttonrtlfft">
             <property name="geometry">
              <rect>
-              <x>230</x>
-              <y>40</y>
+              <x>20</x>
+              <y>90</y>
               <width>61</width>
               <height>41</height>
              </rect>
@@ -718,11 +718,11 @@ Horiz</string>
 FFT</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument5">
+           <widget class="QPushButton" name="buttonrtlsweep">
             <property name="geometry">
              <rect>
-              <x>300</x>
-              <y>40</y>
+              <x>160</x>
+              <y>90</y>
               <width>61</width>
               <height>41</height>
              </rect>
@@ -732,10 +732,10 @@ FFT</string>
 Sweep</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument9">
+           <widget class="QPushButton" name="buttonhackrffft">
             <property name="geometry">
              <rect>
-              <x>230</x>
+              <x>90</x>
               <y>90</y>
               <width>61</width>
               <height>41</height>
@@ -746,10 +746,10 @@ Sweep</string>
 FFT</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument10">
+           <widget class="QPushButton" name="buttonhackrfsweep">
             <property name="geometry">
              <rect>
-              <x>300</x>
+              <x>230</x>
               <y>90</y>
               <width>61</width>
               <height>41</height>
@@ -763,8 +763,8 @@ Sweep</string>
            <widget class="QPushButton" name="buttoninstrument7">
             <property name="geometry">
              <rect>
-              <x>90</x>
-              <y>90</y>
+              <x>300</x>
+              <y>40</y>
               <width>61</width>
               <height>41</height>
              </rect>
@@ -773,24 +773,25 @@ Sweep</string>
              <string>Save</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttonaudio">
+           <widget class="QPushButton" name="buttonaudiofft">
             <property name="geometry">
              <rect>
-              <x>160</x>
+              <x>300</x>
               <y>90</y>
               <width>61</width>
               <height>41</height>
              </rect>
             </property>
             <property name="text">
-             <string>Audio</string>
+             <string>Audio
+FFT</string>
             </property>
            </widget>
            <widget class="QPushButton" name="buttonmode">
             <property name="geometry">
              <rect>
-              <x>20</x>
-              <y>90</y>
+              <x>90</x>
+              <y>40</y>
               <width>61</width>
               <height>41</height>
              </rect>
@@ -1296,19 +1297,29 @@ Sweep</string>
              <x>10</x>
              <y>540</y>
              <width>301</width>
-             <height>80</height>
+             <height>60</height>
             </rect>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QLabel" name="input_label">
+             <widget class="QLabel" name="status_label">
+              <property name="font">
+               <font>
+                <pointsize>16</pointsize>
+               </font>
+              </property>
               <property name="text">
-               <string>Input text</string>
+               <string>Data entry display</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="input_value">
+              <property name="font">
+               <font>
+                <pointsize>16</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Input value</string>
               </property>
