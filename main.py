@@ -24,7 +24,9 @@ import twodimension
 from typing import Union
 
 class MainWindow(QtWidgets.QMainWindow):
-    CENTRE_FREQUENCY = 98e6 #1552e6 #2412e6
+    #CENTRE_FREQUENCY = 98e6 #1552e6 #2412e6
+    #CENTRE_FREQUENCY = 2412e6
+    CENTRE_FREQUENCY = 125e6
 
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
@@ -81,8 +83,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_button_labels()
         self.connect_buttons()
         
-        if self.buttonhold:
-            self.buttonhold.pressed.connect(self.toggle_hold)
+        if self.button_hold:
+            self.button_hold.pressed.connect(self.toggle_hold)
         if self.button_peak:
             self.button_peak.pressed.connect(self.toggle_peak)
         if self.button2d3d:
@@ -91,8 +93,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.buttonverthoriz.pressed.connect(self.toggle_orientation)
         if self.buttonmaxhold:
             self.buttonmaxhold.pressed.connect(self.toggle_max_hold)
-
-
 
     def load_new_ui(self, ui_file):
         # Clear the existing layout
@@ -103,7 +103,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 if child.widget():
                     child.widget().deleteLater()
 
-        # Load the new UI
         uic.loadUi(ui_file, self)
         self.stacked_widget = QStackedWidget(self)
         self.two_d_widget = twodimension.TwoD()
@@ -123,33 +122,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_button_labels()  
 
     def initialise_buttons(self):
-        self.buttonsoft1 = self.findChild(QtWidgets.QPushButton, 'buttonsoft1')
-        self.buttonsoft2 = self.findChild(QtWidgets.QPushButton, 'buttonsoft2')
-        self.buttonsoft3 = self.findChild(QtWidgets.QPushButton, 'buttonsoft3')
-        self.buttonsoft4 = self.findChild(QtWidgets.QPushButton, 'buttonsoft4')
-        self.buttonsoft5 = self.findChild(QtWidgets.QPushButton, 'buttonsoft5')
-        self.buttonsoft6 = self.findChild(QtWidgets.QPushButton, 'buttonsoft6')
-        self.buttonsoft7 = self.findChild(QtWidgets.QPushButton, 'buttonsoft7')
-        self.buttonsoft8 = self.findChild(QtWidgets.QPushButton, 'buttonsoft8')
-        self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
-        self.button2d3d = self.findChild(QtWidgets.QPushButton, 'button2d3d')
-        self.buttonspan = self.findChild(QtWidgets.QPushButton, 'buttonspan')
-        self.buttonhold = self.findChild(QtWidgets.QPushButton, 'buttonhold')
-        self.button_frequency = self.findChild(QtWidgets.QPushButton, 'buttonfrequency')
-        self.button_amplitude = self.findChild(QtWidgets.QPushButton, 'buttonamplitude')
-        self.button_peak = self.findChild(QtWidgets.QPushButton, 'buttonpeak')
-        self.button_preset = self.findChild(QtWidgets.QPushButton, 'buttonpreset')
-        self.button_mode = self.findChild(QtWidgets.QPushButton, 'buttonmode')
-        self.button_rtl_fft = self.findChild(QtWidgets.QPushButton, 'buttonrtlfft')
-        self.button_hackrf_fft = self.findChild(QtWidgets.QPushButton, 'buttonhackrffft')
-        self.button_rtl_sweep = self.findChild(QtWidgets.QPushButton, 'buttonrtlsweep')
-        self.button_hackrf_sweep = self.findChild(QtWidgets.QPushButton, 'buttonhackrfsweep')
-        self.button_audio_fft = self.findChild(QtWidgets.QPushButton, 'buttonaudiofft')
+        button_names = [
+            'buttonsoft1', 'buttonsoft2', 'buttonsoft3', 'buttonsoft4',
+            'buttonsoft5', 'buttonsoft6', 'buttonsoft7', 'buttonsoft8',
+            'button_hold', 'button2d3d', 'button_span', 'button_frequency',
+            'button_amplitude', 'button_peak', 'button_preset',
+            'button_mode', 'button_rtl_fft', 'button_hackrf_fft',
+            'button_rtl_sweep', 'button_hackrf_sweep', 'button_audio_fft'
+        ]
+        self.buttons = {name: self.findChild(QtWidgets.QPushButton, name) for name in button_names}
         
-
     def connect_buttons(self):
         self.button_frequency.pressed.connect(lambda: self.handle_menu_button('frequency1'))
-        self.buttonspan.pressed.connect(lambda: self.handle_menu_button('span1'))
+        self.button_span.pressed.connect(lambda: self.handle_menu_button('span1'))
         self.button_amplitude.pressed.connect(lambda: self.handle_menu_button('amplitude1'))
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
         self.buttonsoft2.pressed.connect(lambda: self.handle_soft_button(1))
@@ -157,10 +142,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_mode.pressed.connect(lambda: self.handle_menu_button('mode1'))
         self.button_rtl_fft.pressed.connect(lambda: self.handle_menu_button('rtlfft1'))
         self.button_hackrf_fft.pressed.connect(lambda: self.handle_menu_button('hackrffft1'))
-        
-        
-        #self.buttonaudio.pressed.connect(lambda: self.handle_menu_button('audio1'))
-
+        self.button_audio_fft.pressed.connect(lambda: self.handle_menu_button('audio1'))
+                
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, 'output_sample_rate')
@@ -173,10 +156,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.input_value = self.findChild(QtWidgets.QLabel, 'input_value')
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, 'output_centre_freq')
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, 'output_sample_rate')
-
-
-
-        self.button_instrument10 = self.findChild(QtWidgets.QPushButton, 'buttoninstrument10')
         
         if self.button_rtl_fft:
             self.button_rtl_fft.pressed.connect(self.use_rtl_source)
@@ -197,25 +176,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_F:
-            print("Menu level: frequency1")
-            self.show_submenu('frequency1')
-        elif event.key() == Qt.Key.Key_S:
-            print("Menu level: span1")
-            self.show_submenu('span1')
-        elif event.key() == Qt.Key.Key_A:
-            print("Menu level: amplitude1")
-            self.show_submenu('amplitude1')
-        elif event.key() == Qt.Key.Key_Space:
-            print("Toggle hold")
-            self.toggle_hold()
-        elif event.key() == Qt.Key.Key_P:
-            print("Toggle peak")
-            self.toggle_peak()
-        elif event.key() == Qt.Key.Key_O:
-            print("Toggle orientation")
-            self.toggle_orientation()
-        event.accept()
+        key_actions = {
+            Qt.Key.Key_F: lambda: self.show_submenu('frequency1'),
+            Qt.Key.Key_S: lambda: self.show_submenu('span1'),
+            Qt.Key.Key_A: lambda: self.show_submenu('amplitude1'),
+            Qt.Key.Key_Space: self.toggle_hold,
+            Qt.Key.Key_P: self.toggle_peak,
+            Qt.Key.Key_O: self.toggle_orientation,
+            Qt.Key.Key_X: self.toggle_max_hold,
+        }
+        action = key_actions.get(event.key())
+        if action:
+            action()
+            event.accept()
+
 
     def setup_layout(self):
         layout = self.findChild(QtWidgets.QWidget, 'graphical_display').layout()
@@ -232,7 +206,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.stacked_widget.setCurrentIndex(1)  # Show 3D display
             self.current_display = 'gldisplay'
             self.three_d_widget.start_animation()
-
  
         else:
             self.stacked_widget.setCurrentIndex(0)  # Show 2D plot
@@ -247,8 +220,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
-            
-
             if isinstance(self.data_source, SampleDataSource):
                 try:
                     self.output_centre_freq.setText(self.engformat(self.data_source.centre_freq) + "Hz")
@@ -259,14 +230,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.output_gain.setText(str(self.data_source.gain) + " dB")
                     self.output_res_bw.setText(self.engformat(self.data_source.sample_rate / self.INITIAL_SAMPLE_SIZE) + "Hz")
                     self.output_sample_size.setText(str(self.INITIAL_SAMPLE_SIZE))
-
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
                     
                     if samples is not None and len(samples) > 0:
                         fft = self.dsp.do_fft(samples)
-                        
-
-                        
                         if isinstance(self.data_source, AudioDataSource):
                             centrefft = fft[:int(self.INITIAL_SAMPLE_SIZE//2)]
                             magnitude = self.dsp.get_magnitude(centrefft)
@@ -275,35 +242,75 @@ class MainWindow(QtWidgets.QMainWindow):
                             half_length = len(frequency_bins) // 2  # Calculate half length
                             frequency_bins = frequency_bins[:half_length]
                             self.power_db = self.power_db[:half_length]
- 
-
                         else:
                             centrefft = self.dsp.do_centre_fft(fft)                   
                             magnitude = self.dsp.get_magnitude(centrefft)
                             self.power_db  = self.dsp.get_log_magnitude(magnitude)
                             frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
                             frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
-
+                        
                         if self.max_hold:
                             if self.max_hold_buffer is None:
                                 self.max_hold_buffer = self.power_db.copy() 
                             else:
                                 self.max_hold_buffer = np.maximum(self.max_hold_buffer, self.power_db)  
 
-
+                        # Plot max first if enabled
                         if self.current_display == 'plot':
-
                             self.two_d_widget.widget.clear()
-
-                        
                         if self.max_hold is True and self.max_hold_buffer is not None:
-                            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.max_hold_buffer, pen='y')  # Max hold values
-
+                            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.max_hold_buffer, pen='y')
+                        
+                        # Plot live value
                         self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen='g')
 
-                        # Set values in 3d widget
+                        if self.is_peak_on:
+                            
+                            if self.power_db is not None and len(self.power_db) > 0:
+                                index_of_peak = np.argmax(self.power_db)
+                                peak_value = self.power_db[index_of_peak]
+                                peak_frequency = frequency_bins[index_of_peak] / 1e6  # for y value, but undecided
+                                
+                                text = f"<span style='color: green;'>Live peak</span> <br>" \
+                                f" <span style='color: white;'>{peak_value:.2f} dB</span><br>" \
+                                f" <span style='color: white;'>{peak_frequency:.2f} MHz</span>"
+                                self.peak_frequency1 = pg.TextItem(text)
+                                self.peak_frequency1.setHtml(text)  # Use setHtml instead of setText
+                                y_range = self.two_d_widget.widget.viewRange()[1]  # Get the Y range
+                                y_min, y_max = y_range
+                                nine_tenths_height = y_min + 0.9 * (y_max - y_min)
+                                self.peak_frequency1.setPos(peak_frequency , nine_tenths_height)
+
+                                if self.max_hold == True:
+                                    
+                                    index_of_max_peak = np.argmax(self.max_hold_buffer)
+                                    max_peak_value = self.max_hold_buffer[index_of_max_peak]
+                                    max_peak_frequency = frequency_bins[index_of_max_peak] / 1e6
+                                    
+                                    max_peak_text = f"<span style='color: yellow;'>Max peak</span> <br>" \
+                                                    f" <span style='color: white;'>{max_peak_value:.2f} dB</span><br>" \
+                                                    f" <span style='color: white;'>{max_peak_frequency:.2f} MHz</span>"
+                                    
+                                    self.max_frequency1 = pg.TextItem(max_peak_text)
+                                    self.max_frequency1.setHtml(max_peak_text)  # Use setHtml instead of setText
+
+                                    y_range = self.two_d_widget.widget.viewRange()[1]  # Get the Y range
+                                    y_min, y_max = y_range
+                                    seven_tenths_height = y_min + 1 * (y_max - y_min)
+                                    self.max_frequency1.setPos(max_peak_frequency , seven_tenths_height)
+                                    self.two_d_widget.widget.addItem(self.max_frequency1)
+#
+
+
+                                
+
+
+                                self.two_d_widget.widget.addItem(self.peak_frequency1)
+                                
+                            
                         self.three_d_widget.z=self.power_db/10
- 
+                        
+
                 except Exception as e:
                     print(f"Error reading samples: {e}")
 
@@ -357,30 +364,46 @@ class MainWindow(QtWidgets.QMainWindow):
         self.is_peak_on = not self.is_peak_on
         if self.is_peak_on:
             print("Peak on")
-            self.peak_frequency1 = pg.TextItem("Peak on")
-            self.two_d_widget.widget.addItem(self.peak_frequency1)
+            """
+            # Get the current maximum value and its corresponding frequency
+            if self.power_db is not None and len(self.power_db) > 0:
+                index_of_peak = np.argmax(self.power_db)
+                peak_value = self.power_db[index_of_peak]
+                frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
+                peak_frequency = frequency_bins[index_of_peak] / 1e6  # Convert to MHz for display
+                print (peak_frequency)
+
+                self.peak_frequency1 = pg.TextItem(f"Peak: {peak_value:.2f} dB\nFreq: {peak_frequency:.2f} MHz")
+                self.peak_frequency1.setPos(peak_frequency, peak_value)  # Set position based on peak frequency and value
+                
+                self.two_d_widget.widget.addItem(self.peak_frequency1)
+            """
         else:
             print("Peak off")
-            self.two_d_widget.widget.removeItem(self.peak_frequency1)
+            if hasattr(self, 'peak_frequency1'):
+                self.two_d_widget.widget.removeItem(self.peak_frequency1)
+
+
+
 
     def toggle_hold(self):
         self.is_paused = not self.is_paused
         if self.is_paused:
             print("Animation paused")
-            self.buttonhold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
+            self.button_hold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
         else:
             print("Animation resumed")
-            self.buttonhold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
+            self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
 
     def toggle_max_hold(self):
         self.max_hold = not self.max_hold
         if self.max_hold:
             print("Max hold enabled")
+            self.status_label.setText('Max hold enabled')
             self.max_hold_buffer = None
         else:
             print("Max hold disabled")
-            
-
+            self.status_label.setText('Max hold disabled')
 
     def toggle_orientation(self):
         print ("Toggle orientation")
@@ -388,6 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.is_vertical:
             print("Changing orientation to vertical")
             self.load_new_ui('mainwindowvertical.ui')
+            # Probably need it to remap widgets or something
         else:
             print("Changing orientation to horizontal")
             self.load_new_ui('mainwindowhorizontal.ui')  
@@ -407,6 +431,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setup_layout()  
         self.update_button_labels()  
 
+    #### new definitions
+
+    def set_button_style(self, button_name, active):
+        color = "#a0a0a0" if active else "#ffffff"
+        button = getattr(self, button_name)
+        button.setStyleSheet(f"background-color: {color}; color: black; font-weight: {'normal' if not active else 'bold'};")
+
+    def use_data_source(self, source_class, button_name):
+        self.max_hold_buffer = None
+        print(f"Using {button_name} data source")
+        self.data_source = source_class(self.CENTRE_FREQUENCY)
+        self.set_active_button(button_name)
+        self.timer.start(20)
+
+    def set_active_button(self, active_button):
+        for name in self.buttons:
+            self.set_button_style(name, name == active_button)
+
+    ####
+
     def use_rtl_source(self):
         self.max_hold_buffer = None
         print("Using RTL-SDR data source")
@@ -420,6 +464,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
         self.window = self.dsp.create_window(self.data_source.sample_rate, 'hamming')
         self.status_label.setText('RTL FFT running')
+        #print (self.data_source.sdr.get_device_serial_addresses())
+        print (self.data_source.sdr.get_device_serial_addresses())
+        self.status_label.setText('RTL FFT device ' + str(self.data_source.sdr.get_device_serial_addresses()))
+
         self.timer.start(20)
 
     def use_hackrf_source(self):
@@ -431,6 +479,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_hackrf_sweep.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.button_audio_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
         self.data_source = HackRFDataSource(self.CENTRE_FREQUENCY)
+        #object.get_device_serial_addresses()
         self.status_label.setText('HackRF FFT running')
         self.timer.start(20)
 
@@ -445,7 +494,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.data_source = RtlSweepDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
 
-
     def use_hackrf_sweep_source(self):
         self.max_hold_buffer = None
         self.button_rtl_fft.setStyleSheet("background-color: #ffffff; color: black; font-weight: normal;")
@@ -458,11 +506,9 @@ class MainWindow(QtWidgets.QMainWindow):
         def my_sweep_callback(data):
         # Process the sweep data here
             print("Sweep data received:", data)
-        
         self.data_source = HackRFSweepDataSourceOld(start_freq=self.CENTRE_FREQUENCY - 1e6, 
                                                      stop_freq=self.CENTRE_FREQUENCY + 1e6)
         self.timer.start(20)
-
 
     def use_audio_source(self):
         self.max_hold_buffer = None
@@ -478,11 +524,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_label.setText('Audio running')
         self.timer.start(20)
 
-
     def preset(self):
         self.two_d_widget.widget.getPlotItem().autoRange()
-        
-        
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
