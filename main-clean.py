@@ -66,13 +66,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stacked_widget.setCurrentIndex(0)  # Show 2D plot initially
         self.display_logo()
 
-        # tried to get mouse over value but failed
-        self.cursor_text = pg.TextItem('', anchor=(0, 1))
-        self.two_d_widget.widget.addItem(self.cursor_text)
-        self.two_d_widget.widget.plotItem.scene().sigMouseMoved.connect(self.mouse_move_event)
-
-
-
         self.peak_frequency1 = "Peak On"
         self.peak_power = None
         self.is_peak_on = False
@@ -105,9 +98,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.buttonverthoriz.pressed.connect(self.toggle_orientation)
         if self.buttonmaxhold:
             self.buttonmaxhold.pressed.connect(self.toggle_max_hold)
-
-        
-
 
     def load_new_ui(self, ui_file):
         # Clear the existing layout
@@ -354,8 +344,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
                                 text = (
                                     f"<span style='color: green;'>Live peak</span> <br>"
-                                    f" <span style='color: white;'>{peak_frequency:.2f} MHz</span> <br>"
-                                    f" <span style='color: white;'>{peak_value:.2f} dB</span>"
+                                    f" <span style='color: white;'>{peak_frequency:.2f} MHz</span>"
+                                    f" <span style='color: white;'>{peak_value:.2f} dB</span><br>"
                                 )
 
                                 self.peak_frequency1 = pg.TextItem(text)
@@ -366,7 +356,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     1
                                 ]  # Get the Y range
                                 y_min, y_max = y_range
-                                nine_tenths_height = y_min + 0.9 * (y_max - y_min)
+                                nine_tenths_height = y_min + 0.7 * (y_max - y_min)
                                 self.peak_frequency1.setPos(
                                     peak_frequency, nine_tenths_height
                                 )
@@ -434,13 +424,17 @@ class MainWindow(QtWidgets.QMainWindow):
                                     y_value_lower = y_centre - 20
                                     y_value_upper = y_centre + 20
 
-                                    # 3dB max peak bandwidth markers
-                                    # x1 = lower_freq_3db
-                                    # x2 = upper_freq_3db
-                                    # y1 = y_value_lower
-                                    # y2 = y_value_upper
-                                    # self.two_d_widget.widget.plot([x1, x1], [y1, y2], pen='c')  #
-                                    # self.two_d_widget.widget.plot([x2, x2], [y1, y2], pen='c')  #
+                                    # Define the two points for the line
+                                    x1 = lower_freq_3db
+                                    x2 = upper_freq_3db
+                                    y1 = y_value_lower
+                                    y2 = y_value_upper
+                                    self.two_d_widget.widget.plot(
+                                        [x1, x1], [y1, y2], pen="c"
+                                    )  #
+                                    self.two_d_widget.widget.plot(
+                                        [x2, x2], [y1, y2], pen="c"
+                                    )  #
 
                                     # Calculate bandwidths
                                     bandwidth_3db = upper_freq_3db - lower_freq_3db
@@ -450,8 +444,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                     # Prepare the max peak text
                                     max_peak_text = (
                                         f"<span style='color: yellow;'>Max peak</span> <br>"
-                                        f"<span style='color: white;'>{max_peak_frequency:.2f} MHz</span><br>"
                                         f"<span style='color: white;'>{max_peak_value:.2f} dB</span><br>"
+                                        f"<span style='color: white;'>{max_peak_frequency:.2f} MHz</span><br>"
+                                        f"<span style='color: cyan;'>Bandwidth -3 dB</span> <br>"
+                                        f"<span style='color: white;'>{bandwidth_3db:.2f} MHz</span><br>"
                                     )
 
                                     self.max_frequency1 = pg.TextItem(max_peak_text)
@@ -461,7 +457,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                         1
                                     ]  # Get the Y range
                                     y_min, y_max = y_range
-                                    six_tenths_height = y_max
+                                    six_tenths_height = y_min + 0.3 * (y_max - y_min)
                                     self.max_frequency1.setPos(
                                         max_peak_frequency, six_tenths_height
                                     )
@@ -570,18 +566,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.button_hold.setStyleSheet(
                 "background-color: #222222; color: white; font-weight: bold;"
             )
-    # tried to get mouse over value but failed
-    def mouse_move_event(self, evt):
-        if evt:
-            pos = self.two_d_widget.widget.plotItem.vb.mapSceneToView(evt)
-            x = pos.x()
-            y = pos.y()
 
-            # Update the cursor text
-            self.cursor_text.setText(f"x: {x:.2f} MHz\n" f"y: {y:.2f} dB")
-            self.cursor_text.setPos(x, y)
-    
-            
     def toggle_max_hold(self):
         self.max_hold = not self.max_hold
         if self.max_hold:
@@ -592,66 +577,31 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Max hold disabled")
             self.status_label.setText("Max hold disabled")
 
-
     def toggle_orientation(self):
         print("Toggle orientation")
-        
-        # Remove existing widgets if necessary
-        if self.layout():
-            # Clear the layout to remove all existing widgets
-            for i in reversed(range(self.layout().count())):
-                widget = self.layout().itemAt(i).widget()
-                if widget is not None:
-                    widget.deleteLater()  # Properly delete the widget
-                self.layout().takeAt(i)  # Remove from layout
-
         self.is_vertical = not self.is_vertical
         if self.is_vertical:
             print("Changing orientation to vertical")
             self.load_new_ui("mainwindowvertical.ui")
+            # Probably need it to remap widgets or something
         else:
             print("Changing orientation to horizontal")
             self.load_new_ui("mainwindowhorizontal.ui")
 
-        # Optionally, remap widgets here if needed
-        self.remap_widgets()
-        
+    def load_new_ui(self, ui_file):
+        # Clear the existing layout
+        layout = self.findChild(QtWidgets.QWidget, "graphical_display").layout()
+        if layout:
+            while layout.count():
+                child = layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
 
-    def toggle_orientation(self):
-        print("Toggle orientation")
-        
-        # Remove existing widgets if necessary
-        if self.layout():
-            # Clear the layout to remove all existing widgets
-            for i in reversed(range(self.layout().count())):
-                widget = self.layout().itemAt(i).widget()
-                if widget is not None:
-                    widget.deleteLater()  # Properly delete the widget
-                self.layout().takeAt(i)  # Remove from layout
-
-        self.is_vertical = not self.is_vertical
-        if self.is_vertical:
-            print("Changing orientation to vertical")
-            self.load_new_ui("mainwindowvertical.ui")
-        else:
-            print("Changing orientation to horizontal")
-            self.load_new_ui("mainwindowhorizontal.ui")
-
-        # Optionally, remap widgets here if needed
-        self.remap_widgets()
-
-
-        
-    def remap_widgets(self):
-        self.initialise_buttons()
-        self.status_label.setText("Select data source")
-        self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
-
+        uic.loadUi(ui_file, self)
         self.initialise_labels()
+        self.initialise_buttons()
+        self.setup_layout()
         self.update_button_labels()
-        self.connect_buttons()
-    
-        pass
 
     #### new definitions
 
