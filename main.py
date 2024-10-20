@@ -6,8 +6,6 @@ from PyQt6 import QtWidgets, uic, QtCore
 from pyqtgraph.Qt import QtCore, QtGui
 from PyQt6.QtCore import Qt
 import pyqtgraph.opengl as gl
-
-# from numpy.fft import fft
 from logo import points
 import matplotlib as mpl
 from matplotlib.ticker import EngFormatter
@@ -26,17 +24,19 @@ from typing import Union
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    # CENTRE_FREQUENCY = 98e6 #1552e6 #2412e6
-    # CENTRE_FREQUENCY = 2412e6
-    # CENTRE_FREQUENCY = 125e6
-    CENTRE_FREQUENCY = 434e6
+    #CENTRE_FREQUENCY = 98e6 #
+    CENTRE_FREQUENCY = 1545e6
+    #CENTRE_FREQUENCY = 1552e6 #2412e6
+    #CENTRE_FREQUENCY = 2412e6
+    #CENTRE_FREQUENCY = 125e6
+    #CENTRE_FREQUENCY = 434e6
 
     GAIN = 36.4  # where is this value used?
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
     sweep_data = None
-    INITIAL_SAMPLE_SIZE = 1024
+    INITIAL_SAMPLE_SIZE = 2048
     INITIAL_NUMBER_OF_LINES = 20
     dsp = SignalProcessing.process()
     # data_source: DataSourceDataSource | SweepDataSource = None    # Only newer python
@@ -82,8 +82,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer = QtCore.QTimer()  # timer for updating plot
         self.timer.timeout.connect(self.update_plot)
         self.is_paused = False
-        self.menu_manager = MenuManager()
-        self.rtl_bias_t = False
+        self.menu_manager = MenuManager(option_callback=self.option_selected)  #MenuManager()
+        self.bias_t = False
         self.max_hold = False
         self.max_hold_buffer = None
 
@@ -94,6 +94,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.initialise_labels()
         self.update_button_labels()
         self.connect_buttons()
+
+        # Simulate user actions
+        #menu_manager.show_submenu("rtlfft1")
+        #menu_manager.handle_button_press(2)  # Example button press for "Remove DC"
 
         if self.button_hold:
             self.button_hold.pressed.connect(self.toggle_hold)
@@ -109,6 +113,21 @@ class MainWindow(QtWidgets.QMainWindow):
         
 
 
+
+    def option_selected(submenu, button_index):
+        print(f"Action triggered for {submenu} - Option {button_index + 1} selected")
+
+        # Here you can add the logic you want to perform for each option
+        if submenu == "Remove DC":
+            if button_index == 0:
+                print("Remove DC option selected: Turning On.")
+                # Add your logic to handle "On"
+            elif button_index == 1:
+                print("Remove DC option selected: Turning Off.")
+                # Add your logic to handle "Off"
+
+
+                
     def load_new_ui(self, ui_file):
         # Clear the existing layout
         layout = self.findChild(QtWidgets.QWidget, "graphical_display").layout()
@@ -223,11 +242,27 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Key.Key_P: self.toggle_peak,
             Qt.Key.Key_O: self.toggle_orientation,
             Qt.Key.Key_X: self.toggle_max_hold,
+            Qt.Key.Key_M: lambda: self.print_something("fdsasdf1"),
+            Qt.Key.Key_B: lambda: self.toggle_bias_t(),           
         }
         action = key_actions.get(event.key())
         if action:
             action()
             event.accept()
+
+
+    def toggle_bias_t(self):
+        if self.data_source is not None:
+            current_state = self.data_source.bias_tee
+            self.data_source.set_bias_tee(not current_state)  # Toggle state
+            print(f"Bias tee is {'enabled' if self.data_source.bias_tee else 'disabled'}.")
+            self.status_label.setText(f"Bias tee is {'enabled' if self.data_source.bias_tee else 'disabled'}")
+        
+
+
+
+    def print_something(self, something):
+        print (something)
 
     def setup_layout(self):
         layout = self.findChild(QtWidgets.QWidget, "graphical_display").layout()
@@ -259,6 +294,8 @@ class MainWindow(QtWidgets.QMainWindow):
             x_vals, y_vals, pen=None, symbol="t", symbolBrush="b"
         )
         print("display logo")
+
+
 
     def update_plot(self):
         if self.data_source and not self.is_paused:
@@ -343,6 +380,8 @@ class MainWindow(QtWidgets.QMainWindow):
                             frequency_bins / 1e6, self.power_db, pen="g"
                         )
 
+
+                        
                         if self.is_peak_on:
 
                             if self.power_db is not None and len(self.power_db) > 0:
@@ -353,9 +392,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                 )  # for y value, but undecided
 
                                 text = (
-                                    f"<span style='color: green;'>Live peak</span> <br>"
-                                    f" <span style='color: white;'>{peak_frequency:.2f} MHz</span> <br>"
-                                    f" <span style='color: white;'>{peak_value:.2f} dB</span>"
+                                    f"<span style='color: green;background-color: black;'>Live peak</span> <br>"
+                                    f" <span style='color: white;background-color: black;'>{peak_frequency:.2f} MHz</span> <br>"
+                                    f" <span style='color: white;background-color: black;'>{peak_value:.2f} dB</span>"
                                 )
 
                                 self.peak_frequency1 = pg.TextItem(text)
@@ -449,9 +488,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
                                     # Prepare the max peak text
                                     max_peak_text = (
-                                        f"<span style='color: yellow;'>Max peak</span> <br>"
-                                        f"<span style='color: white;'>{max_peak_frequency:.2f} MHz</span><br>"
-                                        f"<span style='color: white;'>{max_peak_value:.2f} dB</span><br>"
+                                        f"<span style='color: yellow;background-color: black;'>Max peak</span> <br>"
+                                        f"<span style='color: white;background-color: black;'>{max_peak_frequency:.2f} MHz</span><br>"
+                                        f"<span style='color: white; background-color: black;'>{max_peak_value:.2f} dB</span><br>"
                                     )
 
                                     self.max_frequency1 = pg.TextItem(max_peak_text)
@@ -470,6 +509,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     )
 
                                 self.two_d_widget.widget.addItem(self.peak_frequency1)
+
 
                         self.three_d_widget.z = self.power_db / 10
 
@@ -696,6 +736,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         app.processEvents()
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
+        
+        #self.bias_t = self.data_source.bias_tee
         self.window = self.dsp.create_window(self.data_source.sample_rate, "hamming")
         self.status_label.setText("RTL FFT running")
         # print (self.data_source.sdr.get_device_serial_addresses())
