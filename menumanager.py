@@ -1,8 +1,10 @@
 class MenuManager:
-    def __init__(self):
+    def __init__(self, option_callback=None):
         self.current_menu = None
         self.current_submenu = None
         self.current_sub_submenu = None
+        self.option_callback = option_callback  # Store the callback function
+
 
         # Define submenu options
         self.submenus = {
@@ -210,6 +212,7 @@ class MenuManager:
         self.current_menu = menu_name
         self.current_submenu = None
         self.current_sub_submenu = None  # Reset sub-submenu
+        #print ("in show_submenu")
 
     def show_sub_submenu(self, submenu_name):
         """Show the specified sub-submenu."""
@@ -223,6 +226,7 @@ class MenuManager:
     def get_button_labels(self):
         """Get the current button labels based on the menu state."""
         if self.current_menu is None:
+            print (self.current_menu)
             return ["", "", ""]
 
         menu_data = self.submenus[self.current_menu]
@@ -286,3 +290,11 @@ class MenuManager:
         print(f"Selected {self.current_submenu} - Option {button_index + 1} selected")
 
         # Optionally handle further actions or sub-submenu selections here
+
+        
+    def handle_submenu_action(self, button_index):
+            print(f"Selected {self.current_submenu} - Option {button_index + 1} selected")
+            
+            # Call the callback function if it is defined
+            if self.option_callback:
+                self.option_callback(self.current_submenu, button_index)
