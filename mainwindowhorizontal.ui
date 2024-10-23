@@ -459,7 +459,7 @@ Hold</string>
            <string>2D / 3D</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonsource">
+         <widget class="QPushButton" name="button_input">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -469,7 +469,7 @@ Hold</string>
            </rect>
           </property>
           <property name="text">
-           <string>Source</string>
+           <string>Input</string>
           </property>
          </widget>
          <widget class="QPushButton" name="buttoncontrol3">

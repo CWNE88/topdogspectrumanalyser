@@ -21,11 +21,12 @@ from PyQt6.QtWidgets import QStackedWidget
 import threedimension
 import twodimension
 from typing import Union
+from dataentry import Keypad
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    #CENTRE_FREQUENCY = 98e6 #
-    CENTRE_FREQUENCY = 1545e6
+    CENTRE_FREQUENCY = 98e6 #
+    #CENTRE_FREQUENCY = 1545e6
     #CENTRE_FREQUENCY = 1552e6 #2412e6
     #CENTRE_FREQUENCY = 2412e6
     #CENTRE_FREQUENCY = 125e6
@@ -110,24 +111,48 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.buttonmaxhold:
             self.buttonmaxhold.pressed.connect(self.toggle_max_hold)
 
-        
+        self.soft_buttons = [
+            self.buttonsoft1,
+            self.buttonsoft2,
+            self.buttonsoft3,
+            self.buttonsoft4,
+            self.buttonsoft5,
+            self.buttonsoft6,
+            self.buttonsoft7,
+            self.buttonsoft8,
+        ]
+
+
+    def option_selected(self, parent_menu, current_menu, option):
+        if parent_menu is None:
+            print("Parent menu is not defined.")
+            return
+
+        print(f"Parent menu is: {parent_menu}")
+        print(f"Current menu is: {current_menu}")
+        print(f"Selected option is: {option}")
+
+        if parent_menu == "Input":
+            if option == "RTL FFT":
+                self.use_rtl_source()  
+                self.menu_manager.select_submenu("RTL FFT")
+                self.menu_manager.update_button_labels()  
+
+        if parent_menu == "Input":
+            if option == "HackRF FFT":
+                self.use_hackrf_source() 
+                self.menu_manager.select_submenu("HackRF FFT")  
+                self.menu_manager.update_button_labels()
+
+        if parent_menu == "Input":
+            if option == "Audio":
+                self.use_audio_source() 
+                self.menu_manager.select_submenu("Audio FFT")  
+                self.menu_manager.update_button_labels()  
 
 
 
-    def option_selected(submenu, button_index):
-        print(f"Action triggered for {submenu} - Option {button_index + 1} selected")
 
-        # Here you can add the logic you want to perform for each option
-        if submenu == "Remove DC":
-            if button_index == 0:
-                print("Remove DC option selected: Turning On.")
-                # Add your logic to handle "On"
-            elif button_index == 1:
-                print("Remove DC option selected: Turning Off.")
-                # Add your logic to handle "Off"
-
-
-                
     def load_new_ui(self, ui_file):
         # Clear the existing layout
         layout = self.findChild(QtWidgets.QWidget, "graphical_display").layout()
@@ -180,28 +205,25 @@ class MainWindow(QtWidgets.QMainWindow):
             "button_rtl_sweep",
             "button_hackrf_sweep",
             "button_audio_fft",
+            "button_input",
         ]
         self.buttons = {
             name: self.findChild(QtWidgets.QPushButton, name) for name in button_names
         }
 
     def connect_buttons(self):
-        self.button_frequency.pressed.connect(
-            lambda: self.handle_menu_button("frequency1")
-        )
-        self.button_span.pressed.connect(lambda: self.handle_menu_button("span1"))
-        self.button_amplitude.pressed.connect(
-            lambda: self.handle_menu_button("amplitude1")
-        )
+        self.button_frequency.pressed.connect(lambda: self.handle_menu_button("Frequency"))
+        self.button_span.pressed.connect(lambda: self.handle_menu_button("Span"))
+        self.button_amplitude.pressed.connect(lambda: self.handle_menu_button("Amplitude"))
+        self.button_input.pressed.connect(lambda: self.handle_menu_button("Input"))
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
         self.buttonsoft2.pressed.connect(lambda: self.handle_soft_button(1))
         self.buttonsoft3.pressed.connect(lambda: self.handle_soft_button(2))
         self.button_mode.pressed.connect(lambda: self.handle_menu_button("mode1"))
         self.button_rtl_fft.pressed.connect(lambda: self.handle_menu_button("rtlfft1"))
-        self.button_hackrf_fft.pressed.connect(
-            lambda: self.handle_menu_button("hackrffft1")
-        )
+        self.button_hackrf_fft.pressed.connect(lambda: self.handle_menu_button("hackrffft1"))
         self.button_audio_fft.pressed.connect(lambda: self.handle_menu_button("audio1"))
+    
 
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
@@ -235,15 +257,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, event):
         key_actions = {
-            Qt.Key.Key_F: lambda: self.show_submenu("frequency1"),
-            Qt.Key.Key_S: lambda: self.show_submenu("span1"),
-            Qt.Key.Key_A: lambda: self.show_submenu("amplitude1"),
+            Qt.Key.Key_F: lambda: self.show_submenu("frequency"),
+            Qt.Key.Key_S: lambda: self.show_submenu("span"),
+            Qt.Key.Key_A: lambda: self.show_submenu("amplitude"),
+            Qt.Key.Key_I: lambda: self.show_submenu("input"),
             Qt.Key.Key_Space: self.toggle_hold,
             Qt.Key.Key_P: self.toggle_peak,
             Qt.Key.Key_O: self.toggle_orientation,
             Qt.Key.Key_X: self.toggle_max_hold,
-            Qt.Key.Key_M: lambda: self.print_something("fdsasdf1"),
+            Qt.Key.Key_M: lambda: self.print_something("fdsasdff1"),
             Qt.Key.Key_B: lambda: self.toggle_bias_t(),           
+#            (Qt.Key.Key_F, Qt.KeyboardModifier.Control): self.toggle_fullscreen # CTRL + F for fullscreen later
         }
         action = key_actions.get(event.key())
         if action:
@@ -537,20 +561,35 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_manager.show_submenu(menu_name)
         self.update_button_labels()
 
-    def print_current_menu(self, menu_name):
-        print(f"Current menu level: {menu_name}")
-
     def handle_menu_button(self, menu_name):
         self.show_submenu(menu_name)
-        self.print_current_menu(menu_name)
-        if menu_name == "frequency1":
-            self.status_label.setText("Centre Frequency:")
-        if menu_name == "span1":
+        print (f"Current menu level: {menu_name}")
+
+        if menu_name.lower() == "frequency":
+            self.status_label.setText("Centre Frequency")
+        elif menu_name.lower() == "span":
             self.status_label.setText("Span:")
-        if menu_name == "amplitude1":
+        elif menu_name.lower() == "amplitude":
             self.status_label.setText("Amplitude:")
-        if menu_name == "config1":
-            self.status_label.setText("Configuration")
+        elif menu_name.lower() == "input":
+            self.status_label.setText("Input")
+
+        self.update_button_labels_for_menu(menu_name)
+
+    def update_button_labels_for_menu(self, menu_name):
+        # Select the menu first to ensure the stack is correct
+        self.menu_manager.select_menu(menu_name)
+        
+        # Get button labels from MenuManager
+        labels = self.menu_manager.get_button_labels()
+        buttons = self.soft_buttons  # Use the list of all soft buttons
+
+        for i, button in enumerate(buttons):
+            if i < len(labels):
+                button.setText(labels[i])
+            else:
+                button.setText("")  # Clear any remaining buttons if needed
+
 
     def update_button_labels(self):
         labels = self.menu_manager.get_button_labels()
@@ -570,6 +609,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 button.setText(labels[i])
             else:
                 button.setText("")
+    
+    def show_submenu(self, menu_name):
+        self.menu_manager.select_submenu(menu_name)
+        self.update_soft_button_labels()  
+
+    def update_soft_button_labels(self):
+        button_labels = self.menu_manager.get_button_labels()
+        # Assuming you have a list or some UI elements to represent the soft buttons
+        for i, label in enumerate(button_labels):
+            if i < len(self.soft_buttons):
+                self.soft_buttons[i].setText(label)  # Update the UI element for the button
+            else:
+                break  # Prevents index out of range if there are more buttons than labels
+
 
     def handle_soft_button(self, button_index):
         self.menu_manager.handle_button_press(button_index)
@@ -632,7 +685,6 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Max hold disabled")
             self.status_label.setText("Max hold disabled")
 
-
     def toggle_orientation(self):
         print("Toggle orientation")
         
@@ -655,32 +707,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Optionally, remap widgets here if needed
         self.remap_widgets()
-        
-
-    def toggle_orientation(self):
-        print("Toggle orientation")
-        
-        # Remove existing widgets if necessary
-        if self.layout():
-            # Clear the layout to remove all existing widgets
-            for i in reversed(range(self.layout().count())):
-                widget = self.layout().itemAt(i).widget()
-                if widget is not None:
-                    widget.deleteLater()  # Properly delete the widget
-                self.layout().takeAt(i)  # Remove from layout
-
-        self.is_vertical = not self.is_vertical
-        if self.is_vertical:
-            print("Changing orientation to vertical")
-            self.load_new_ui("mainwindowvertical.ui")
-        else:
-            print("Changing orientation to horizontal")
-            self.load_new_ui("mainwindowhorizontal.ui")
-
-        # Optionally, remap widgets here if needed
-        self.remap_widgets()
-
-
         
     def remap_widgets(self):
         self.initialise_buttons()
@@ -692,8 +718,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.connect_buttons()
     
         pass
-
-    #### new definitions
 
     def set_button_style(self, button_name, active):
         color = "#a0a0a0" if active else "#ffffff"
@@ -712,9 +736,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_active_button(self, active_button):
         for name in self.buttons:
             self.set_button_style(name, name == active_button)
-
-    ####
-
+ 
     def use_rtl_source(self):
         self.max_hold_buffer = None
         print("Using RTL-SDR data source")
