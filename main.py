@@ -145,7 +145,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.menu_manager.update_button_labels()
 
         if parent_menu == "Input":
-            if option == "Audio":
+            if option == "Audio FFT":
                 self.use_audio_source() 
                 self.menu_manager.select_submenu("Audio FFT")  
                 self.menu_manager.update_button_labels()  
@@ -210,6 +210,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttons = {
             name: self.findChild(QtWidgets.QPushButton, name) for name in button_names
         }
+        self.soft_buttons = [self.buttonsoft1, self.buttonsoft2, self.buttonsoft3,
+                             self.buttonsoft4, self.buttonsoft5, self.buttonsoft6,
+                             self.buttonsoft7, self.buttonsoft8]
+
 
     def connect_buttons(self):
         self.button_frequency.pressed.connect(lambda: self.handle_menu_button("Frequency"))
@@ -219,11 +223,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonsoft1.pressed.connect(lambda: self.handle_soft_button(0))
         self.buttonsoft2.pressed.connect(lambda: self.handle_soft_button(1))
         self.buttonsoft3.pressed.connect(lambda: self.handle_soft_button(2))
+        self.buttonsoft4.pressed.connect(lambda: self.handle_soft_button(3))
+        self.buttonsoft5.pressed.connect(lambda: self.handle_soft_button(4))
+        self.buttonsoft6.pressed.connect(lambda: self.handle_soft_button(5))
+        self.buttonsoft7.pressed.connect(lambda: self.handle_soft_button(6))
+        self.buttonsoft8.pressed.connect(lambda: self.handle_soft_button(7))
         self.button_mode.pressed.connect(lambda: self.handle_menu_button("mode1"))
         self.button_rtl_fft.pressed.connect(lambda: self.handle_menu_button("rtlfft1"))
-        self.button_hackrf_fft.pressed.connect(lambda: self.handle_menu_button("hackrffft1"))
-        self.button_audio_fft.pressed.connect(lambda: self.handle_menu_button("audio1"))
-    
+        
 
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
@@ -238,16 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, "output_sample_rate")
 
-        if self.button_rtl_fft:
-            self.button_rtl_fft.pressed.connect(self.use_rtl_source)
-        if self.button_hackrf_fft:
-            self.button_hackrf_fft.pressed.connect(self.use_hackrf_source)
-        if self.button_rtl_sweep:
-            self.button_rtl_sweep.pressed.connect(self.use_rtl_sweep_source)
-        if self.button_hackrf_sweep:
-            self.button_hackrf_sweep.pressed.connect(self.use_hackrf_sweep_source)
-        if self.button_audio_fft:
-            self.button_audio_fft.pressed.connect(self.use_audio_source)
+        
         if self.button_preset:
             self.button_preset.pressed.connect(self.preset)
 
@@ -257,16 +255,29 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, event):
         key_actions = {
-            Qt.Key.Key_F: lambda: self.show_submenu("frequency"),
-            Qt.Key.Key_S: lambda: self.show_submenu("span"),
-            Qt.Key.Key_A: lambda: self.show_submenu("amplitude"),
-            Qt.Key.Key_I: lambda: self.show_submenu("input"),
+            #Qt.Key.Key_F: lambda: self.show_submenu("frequency"),
+            Qt.Key.Key_F1: lambda: self.handle_soft_button(0),
+            Qt.Key.Key_F2: lambda: self.handle_soft_button(1),
+            Qt.Key.Key_F3: lambda: self.handle_soft_button(2),
+            Qt.Key.Key_F4: lambda: self.handle_soft_button(3),
+            Qt.Key.Key_F5: lambda: self.handle_soft_button(4),
+            Qt.Key.Key_F6: lambda: self.handle_soft_button(5),
+            Qt.Key.Key_F7: lambda: self.handle_soft_button(6),
+            Qt.Key.Key_F8: lambda: self.handle_soft_button(7),
+            Qt.Key.Key_F: lambda: self.handle_menu_button("Frequency"),
+            Qt.Key.Key_S: lambda: self.handle_menu_button("Span"),
+            Qt.Key.Key_A: lambda: self.handle_menu_button("Amplitude"),
+            Qt.Key.Key_I: lambda: self.handle_menu_button("Input"),
             Qt.Key.Key_Space: self.toggle_hold,
             Qt.Key.Key_P: self.toggle_peak,
             Qt.Key.Key_O: self.toggle_orientation,
             Qt.Key.Key_X: self.toggle_max_hold,
             Qt.Key.Key_M: lambda: self.print_something("fdsasdff1"),
-            Qt.Key.Key_B: lambda: self.toggle_bias_t(),           
+            Qt.Key.Key_B: lambda: self.toggle_bias_t(),   
+            Qt.Key.Key_R: lambda: self.preset(),   
+
+
+
 #            (Qt.Key.Key_F, Qt.KeyboardModifier.Control): self.toggle_fullscreen # CTRL + F for fullscreen later
         }
         action = key_actions.get(event.key())
@@ -557,24 +568,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     )
                     text_item.setPos(corresponding_x_value / 1e6, peak_y_value)
 
-    def show_submenu(self, menu_name):
-        self.menu_manager.show_submenu(menu_name)
-        self.update_button_labels()
 
-    def handle_menu_button(self, menu_name):
-        self.show_submenu(menu_name)
-        print (f"Current menu level: {menu_name}")
-
-        if menu_name.lower() == "frequency":
-            self.status_label.setText("Centre Frequency")
-        elif menu_name.lower() == "span":
-            self.status_label.setText("Span:")
-        elif menu_name.lower() == "amplitude":
-            self.status_label.setText("Amplitude:")
-        elif menu_name.lower() == "input":
-            self.status_label.setText("Input")
-
-        self.update_button_labels_for_menu(menu_name)
 
     def update_button_labels_for_menu(self, menu_name):
         # Select the menu first to ensure the stack is correct
@@ -591,29 +585,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 button.setText("")  # Clear any remaining buttons if needed
 
 
-    def update_button_labels(self):
-        labels = self.menu_manager.get_button_labels()
-        buttons = [
-            self.buttonsoft1,
-            self.buttonsoft2,
-            self.buttonsoft3,
-            self.buttonsoft4,
-            self.buttonsoft5,
-            self.buttonsoft6,
-            self.buttonsoft7,
-            self.buttonsoft8,
-        ]
 
-        for i, button in enumerate(buttons):
-            if i < len(labels):
-                button.setText(labels[i])
-            else:
-                button.setText("")
     
-    def show_submenu(self, menu_name):
-        self.menu_manager.select_submenu(menu_name)
-        self.update_soft_button_labels()  
-
     def update_soft_button_labels(self):
         button_labels = self.menu_manager.get_button_labels()
         # Assuming you have a list or some UI elements to represent the soft buttons
@@ -628,24 +601,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_manager.handle_button_press(button_index)
         self.update_button_labels()
 
+
+    def handle_menu_button(self, menu_name):
+        self.menu_manager.select_menu(menu_name)  # Ensure the menu is selected first
+        print(f"Current menu level: {menu_name}")
+
+        # Update status label based on selected menu
+        if menu_name.lower() == "frequency":
+            self.status_label.setText("Centre Frequency")
+        elif menu_name.lower() == "span":
+            self.status_label.setText("Span:")
+        elif menu_name.lower() == "amplitude":
+            self.status_label.setText("Amplitude:")
+        elif menu_name.lower() == "input":
+            self.status_label.setText("Input")
+
+        # Update button labels for the selected menu
+        self.update_button_labels()
+
+    def show_submenu(self, submenu_name):
+        self.menu_manager.select_submenu(submenu_name)  # Navigate to the submenu
+        self.update_button_labels()  # Update button labels after changing submenu
+
+    def update_button_labels(self):
+        labels = self.menu_manager.get_button_labels()  # Get current button labels
+        buttons = self.soft_buttons  # List of all soft buttons
+
+        # Update buttons based on the available labels
+        for i, button in enumerate(buttons):
+            if i < len(labels):
+                button.setText(labels[i])
+            else:
+                button.setText("")  # Clear excess buttons
+
+
+
+
+
+
     def toggle_peak(self):
         self.is_peak_on = not self.is_peak_on
         if self.is_peak_on:
             print("Peak on")
-            """
-            # Get the current maximum value and its corresponding frequency
-            if self.power_db is not None and len(self.power_db) > 0:
-                index_of_peak = np.argmax(self.power_db)
-                peak_value = self.power_db[index_of_peak]
-                frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
-                peak_frequency = frequency_bins[index_of_peak] / 1e6  # Convert to MHz for display
-                print (peak_frequency)
-
-                self.peak_frequency1 = pg.TextItem(f"Peak: {peak_value:.2f} dB\nFreq: {peak_frequency:.2f} MHz")
-                self.peak_frequency1.setPos(peak_frequency, peak_value)  # Set position based on peak frequency and value
-                
-                self.two_d_widget.widget.addItem(self.peak_frequency1)
-            """
         else:
             print("Peak off")
             if hasattr(self, "peak_frequency1"):
@@ -741,21 +738,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.max_hold_buffer = None
         print("Using RTL-SDR data source")
         self.status_label.setText("Starting RTL device")
-        self.button_rtl_fft.setStyleSheet(
-            "background-color: #a0a0a0; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_rtl_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_audio_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
         app.processEvents()
         self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
         
@@ -773,21 +755,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def use_hackrf_source(self):
         self.max_hold_buffer = None
         print("Using HackRF data source")
-        self.button_rtl_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_fft.setStyleSheet(
-            "background-color: #a0a0a0; color: black; font-weight: normal;"
-        )
-        self.button_rtl_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_audio_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
+
         self.data_source = HackRFDataSource(self.CENTRE_FREQUENCY)
         # object.get_device_serial_addresses()
         self.status_label.setText("HackRF FFT running")
@@ -795,42 +763,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def use_rtl_sweep_source(self):
         self.max_hold_buffer = None
-        self.button_rtl_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_rtl_sweep.setStyleSheet(
-            "background-color: #a0a0a0; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_audio_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
+  
         print("Using RTL-SDR sweep data source")
         self.data_source = RtlSweepDataSource(self.CENTRE_FREQUENCY)
         self.timer.start(20)
 
     def use_hackrf_sweep_source(self):
         self.max_hold_buffer = None
-        self.button_rtl_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_rtl_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_sweep.setStyleSheet(
-            "background-color: #a0a0a0; color: black; font-weight: normal;"
-        )
-        self.button_audio_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
+
         print("Using HackRF sweep data source")
 
         def my_sweep_callback(data):
@@ -846,21 +786,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def use_audio_source(self):
         self.max_hold_buffer = None
         print("Using audio data source")
-        self.button_rtl_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_fft.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_rtl_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_hackrf_sweep.setStyleSheet(
-            "background-color: #ffffff; color: black; font-weight: normal;"
-        )
-        self.button_audio_fft.setStyleSheet(
-            "background-color: #a0a0a0; color: black; font-weight: normal;"
-        )
+        
         self.sample_rate = 44100
         self.data_source = AudioDataSource()
         self.window = self.dsp.create_window(self.data_source.sample_rate, "hamming")

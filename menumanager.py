@@ -31,7 +31,7 @@ class MenuManager:
                 "options": []
             },
            "Input": {
-                "options": ["RTL FFT", "HackRF FFT", "Audio"], 
+                "options": ["RTL FFT", "HackRF FFT", "RTL Sweep", "HackRF Sweep", "Audio FFT"], 
                 "submenus": {
                     "RTL FFT": {
                         "submenus": {
@@ -46,7 +46,7 @@ class MenuManager:
                     "HackRF FFT": {
                         "options": []
                     },
-                    "Audio": {
+                    "Audio FFT": {
                         "options": []
                     }
                 }
@@ -78,7 +78,7 @@ class MenuManager:
 
         if parent_menu and "submenus" in self.menu_data.get(parent_menu, {}):
             if submenu_name in self.menu_data[parent_menu]["submenus"]:
-                self.menu_stack.append(submenu_name)  # Add the submenu to the stack
+                self.menu_stack.append(submenu_name)  
                 print(f"Selected submenu: {submenu_name}")
                 self.update_button_labels()
             else:
@@ -115,10 +115,18 @@ class MenuManager:
             option = options[button_index]
             current_menu = self.menu_stack[-1]
             parent_menu = self.menu_stack[-2] if len(self.menu_stack) > 1 else None
-            
+
+            print(f"Button pressed: {option} at index {button_index} in {current_menu}")
+
             # Check if the selected option has submenus
-            if parent_menu == "Input" and option in self.menu_data[parent_menu]["submenus"]:
-                self.select_submenu(option)  # Navigate into the submenu
+            if parent_menu == "Input":
+                if option in self.menu_data[parent_menu]["submenus"]:
+                    self.select_submenu(option)  # Navigate into the submenu
+                    return  # Exit after handling submenu
+
+                # Handle the main options directly if there are no submenus
+                if self.option_callback:
+                    self.option_callback(parent_menu or current_menu, current_menu, option)
             else:
                 if self.option_callback:
                     self.option_callback(parent_menu or current_menu, current_menu, option)
@@ -126,6 +134,7 @@ class MenuManager:
             print(f"Action triggered: {parent_menu or current_menu} - {current_menu} - Option {option} selected")
         else:
             print("Invalid option index.")
+
 
     def go_back(self):
         """Go back to the previous menu level."""
