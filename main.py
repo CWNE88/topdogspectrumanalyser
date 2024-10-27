@@ -41,6 +41,18 @@ class MainWindow(QtWidgets.QMainWindow):
     # data_source: DataSourceDataSource | SweepDataSource = None    # Only newer python
     data_source: Union[SampleDataSource, SweepDataSource] = None
 
+    inputValue: QtWidgets.QLabel
+
+    dataButtons: list[QtWidgets.QPushButton] = []
+    buttonDot: QtWidgets.QPushButton
+    buttonGhz: QtWidgets.QPushButton
+    buttonMhz: QtWidgets.QPushButton
+    buttonKhz: QtWidgets.QPushButton
+    buttonHz: QtWidgets.QPushButton
+    buttonMinus: QtWidgets.QPushButton
+     
+    dataInput: str = ""
+
     def __init__(self):
         super().__init__()
 
@@ -89,12 +101,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.max_hold_buffer = None
         self.rtl_initialised = False
 
+
         self.initialise_buttons()
         self.status_label.setText("Select data source")
         self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
         self.initialise_labels()
         self.update_button_labels()
         self.connect_buttons()
+
 
         self.soft_buttons = [
             self.buttonsoft1,
@@ -118,6 +132,12 @@ class MainWindow(QtWidgets.QMainWindow):
             if option == "HackRF FFT":
                 self.use_hackrf_source() 
                 self.menu_manager.select_submenu("HackRF FFT")  
+                self.menu_manager.update_button_labels()
+
+        if parent_menu == "Input":
+            if option == "HackRF Sweep":
+                self.use_hackrf_sweep_source() 
+                self.menu_manager.select_submenu("HackRF Sweep")  
                 self.menu_manager.update_button_labels()
 
         if parent_menu == "Input":
@@ -187,6 +207,16 @@ class MainWindow(QtWidgets.QMainWindow):
                              self.buttonsoft4, self.buttonsoft5, self.buttonsoft6,
                              self.buttonsoft7, self.buttonsoft8]
 
+        self.dataButtons = [self.findChild(QtWidgets.QPushButton, f"buttondata{i}") for i in range(0,10)]
+        self.buttonMhz = self.findChild(QtWidgets.QPushButton, "buttonmhz")
+        self.buttonDot = self.findChild(QtWidgets.QPushButton, "buttondot")
+        self.buttonGhz = self.findChild(QtWidgets.QPushButton, "buttonghz")
+        self.buttonKhz = self.findChild(QtWidgets.QPushButton, "buttonkhz")
+        self.buttonHz = self.findChild(QtWidgets.QPushButton, "buttonhz")
+        self.buttonMinus = self.findChild(QtWidgets.QPushButton, "buttonminus")
+
+        pass
+
 
     def connect_buttons(self):
         self.button_frequency.pressed.connect(lambda: self.handle_menu_button("Frequency"))
@@ -211,6 +241,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonverthoriz.pressed.connect(lambda: self.toggle_orientation())
         self.button_export.pressed.connect(lambda: self.export_image())
         self.button_waterfall.pressed.connect(lambda: self.start_waterfall())
+
+        for i, button in enumerate(self.dataButtons):
+            button.pressed.connect(self.handle_data_character(i))
+
+        self.buttonMinus.pressed.connect(self.handle_data_character("-"))
+        self.buttonDot.pressed.connect(self.handle_data_character("."))
+
+        self.buttonGhz.pressed.connect(self.set_centre(1e9))
+        self.buttonMhz.pressed.connect(self.set_centre(1e6))
+        self.buttonKhz.pressed.connect(self.set_centre(1e3))
+        self.buttonHz.pressed.connect(self.set_centre(1))
+
+    def set_centre(self, multiplier):
+        def set_centre_inner():
+            self.CENTRE_FREQUENCY = int(float(self.dataInput) * multiplier)
+            print(f"Centre frequency set to {self.CENTRE_FREQUENCY}")
+            self.inputValue.setText("")
+            self.dataInput = ""
+
+            if isinstance(self.data_source, SampleDataSource):
+                self.data_source.set_centre_freq(self.CENTRE_FREQUENCY)
+                print(f"Centre frequency set to {self.CENTRE_FREQUENCY}")
+
+        return set_centre_inner
+
  
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
@@ -221,13 +276,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_gain = self.findChild(QtWidgets.QLabel, "output_gain")
         self.output_gain = self.findChild(QtWidgets.QLabel, "output_gain")
         self.output_res_bw = self.findChild(QtWidgets.QLabel, "output_res_bw")
-        self.input_value = self.findChild(QtWidgets.QLabel, "input_value")
-        self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
-        self.output_sample_rate = self.findChild(QtWidgets.QLabel, "output_sample_rate")
+        self.inputValue = self.findChild(QtWidgets.QLabel, "input_value")
 
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+    def handle_data_character(self, button_index: str | int):
+        def handle_button_inner():
+            if button_index == "-":
+                if len(self.dataInput) > 0:
+                    self.dataInput = self.dataInput[:-1]
+                    self.inputValue.setText(self.dataInput)
+                    return
+            
+            if button_index == ".":
+                if "." in self.dataInput:
+                    return
+                if len(self.dataInput) == 0:
+                    self.dataInput += "0."
+                else:
+                    self.dataInput += "."
+                self.inputValue.setText(self.dataInput)
+                return
+
+            self.dataInput += str(button_index)
+            self.inputValue.setText(self.dataInput)
+
+        return handle_button_inner
 
     def keyPressEvent(self, event):
         modifiers = event.modifiers()
@@ -251,6 +327,19 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Key.Key_M: lambda: self.print_something("fdsasdff1"),
             Qt.Key.Key_B: lambda: self.toggle_bias_t(),   
             Qt.Key.Key_R: lambda: self.preset(),   
+            Qt.Key.Key_0: self.handle_data_character(0),
+            Qt.Key.Key_1: self.handle_data_character(1),
+            Qt.Key.Key_2: self.handle_data_character(2),
+            Qt.Key.Key_3: self.handle_data_character(3),
+            Qt.Key.Key_4: self.handle_data_character(4),
+            Qt.Key.Key_5: self.handle_data_character(5),
+            Qt.Key.Key_6: self.handle_data_character(6),
+            Qt.Key.Key_7: self.handle_data_character(7),
+            Qt.Key.Key_8: self.handle_data_character(8),
+            Qt.Key.Key_9: self.handle_data_character(9),
+            Qt.Key.Key_Minus: self.handle_data_character("-"),
+            Qt.Key.Key_Period: self.handle_data_character("."),
+            Qt.Key.Key_Backspace: self.handle_data_character("-"),
         }
         action = key_actions.get(event.key())
         if action:

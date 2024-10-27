@@ -23,6 +23,10 @@ class RtlSdrDataSource(SampleDataSource):
         self.bias_tee = enabled
         self.sdr.set_bias_tee(self.bias_tee)
         
+    
+    def set_centre_freq(self, freq_hz):
+        self.sdr.center_freq = freq_hz
+        self.centre_freq = freq_hz
         
 
     def read_samples(self, sample_size):

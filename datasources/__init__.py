@@ -20,6 +20,9 @@ class SampleDataSource:
     def device_init(self, index=0):
         pass
 
+    def set_centre_freq(self, freq_hz: int):
+        pass
+
     def read_samples(self, sample_size):
         raise NotImplementedError
 
@@ -28,8 +31,12 @@ class SampleDataSource:
     
 class SweepDataSource(QObject):
     sweep_signal = pyqtSignal()
-    def __init__(self, on_sweep_callback):
+    start_freq: int
+    stop_freq: int
+
+    def __init__(self, start_freq: int, stop_freq: int):
         super().__init__()
-        self.on_sweep = on_sweep_callback
+        self.start_freq = start_freq
+        self.stop_freq = stop_freq
         
     
