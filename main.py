@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys
+import datetime
 import numpy as np
 import pyqtgraph as pg
 from PyQt6 import QtWidgets, uic, QtCore
@@ -20,19 +21,16 @@ import SignalProcessing
 from PyQt6.QtWidgets import QStackedWidget
 import threedimension
 import twodimension
+
 from typing import Union
 from dataentry import Keypad
-
 
 class MainWindow(QtWidgets.QMainWindow):
     CENTRE_FREQUENCY = 98e6 #
     #CENTRE_FREQUENCY = 1545e6
-    #CENTRE_FREQUENCY = 1552e6 #2412e6
     #CENTRE_FREQUENCY = 2412e6
-    #CENTRE_FREQUENCY = 125e6
-    #CENTRE_FREQUENCY = 434e6
 
-    GAIN = 36.4  # where is this value used?
+    GAIN = 36.4
     AMPLIFIER = True
     LNA_GAIN = 10
     VGA_GAIN = 10
@@ -59,8 +57,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.INITIAL_SAMPLE_SIZE, self.INITIAL_NUMBER_OF_LINES
         )
 
+        # Create waterfall widget
+        #self.waterfall_widget = waterfall.Waterfall()
+
         self.stacked_widget.addWidget(self.two_d_widget.widget)
         self.stacked_widget.addWidget(self.three_d_widget.widget)
+        #self.stacked_widget.addWidget(self.waterfall_widget)
+        
         layout = self.findChild(QtWidgets.QWidget, "graphical_display")
         layout.layout().addWidget(self.stacked_widget)
         self.current_display = "plot"
@@ -68,48 +71,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.display_logo()
 
         # tried to get mouse over value but failed
-        self.cursor_text = pg.TextItem('', anchor=(0, 1))
+        self.cursor_text = pg.TextItem('', anchor=(0, 0))
         self.two_d_widget.widget.addItem(self.cursor_text)
         self.two_d_widget.widget.plotItem.scene().sigMouseMoved.connect(self.mouse_move_event)
-
-
-
+        self.menu_manager = MenuManager(option_callback=self.option_selected)
+        self.engformat = mpl.ticker.EngFormatter(places=3)
+        self.timer = QtCore.QTimer()
         self.peak_frequency1 = "Peak On"
         self.peak_power = None
         self.is_peak_on = False
         self.power_db = None
         self.data_source = None
-        self.engformat = mpl.ticker.EngFormatter(places=3)
-        self.timer = QtCore.QTimer()  # timer for updating plot
         self.timer.timeout.connect(self.update_plot)
         self.is_paused = False
-        self.menu_manager = MenuManager(option_callback=self.option_selected)  #MenuManager()
         self.bias_t = False
         self.max_hold = False
         self.max_hold_buffer = None
+        self.rtl_initialised = False
 
         self.initialise_buttons()
         self.status_label.setText("Select data source")
         self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
-
         self.initialise_labels()
         self.update_button_labels()
         self.connect_buttons()
-
-        # Simulate user actions
-        #menu_manager.show_submenu("rtlfft1")
-        #menu_manager.handle_button_press(2)  # Example button press for "Remove DC"
-
-        if self.button_hold:
-            self.button_hold.pressed.connect(self.toggle_hold)
-        if self.button_peak:
-            self.button_peak.pressed.connect(self.toggle_peak)
-        if self.button2d3d:
-            self.button2d3d.pressed.connect(self.toggle_display)
-        if self.buttonverthoriz:
-            self.buttonverthoriz.pressed.connect(self.toggle_orientation)
-        if self.buttonmaxhold:
-            self.buttonmaxhold.pressed.connect(self.toggle_max_hold)
 
         self.soft_buttons = [
             self.buttonsoft1,
@@ -122,16 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.buttonsoft8,
         ]
 
-
     def option_selected(self, parent_menu, current_menu, option):
-        if parent_menu is None:
-            print("Parent menu is not defined.")
-            return
-
-        print(f"Parent menu is: {parent_menu}")
-        print(f"Current menu is: {current_menu}")
-        print(f"Selected option is: {option}")
-
         if parent_menu == "Input":
             if option == "RTL FFT":
                 self.use_rtl_source()  
@@ -150,11 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.menu_manager.select_submenu("Audio FFT")  
                 self.menu_manager.update_button_labels()  
 
-
-
-
     def load_new_ui(self, ui_file):
-        # Clear the existing layout
         layout = self.findChild(QtWidgets.QWidget, "graphical_display").layout()
         if layout:
             while layout.count():
@@ -206,6 +178,7 @@ class MainWindow(QtWidgets.QMainWindow):
             "button_hackrf_sweep",
             "button_audio_fft",
             "button_input",
+            "button_export"
         ]
         self.buttons = {
             name: self.findChild(QtWidgets.QPushButton, name) for name in button_names
@@ -228,10 +201,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonsoft6.pressed.connect(lambda: self.handle_soft_button(5))
         self.buttonsoft7.pressed.connect(lambda: self.handle_soft_button(6))
         self.buttonsoft8.pressed.connect(lambda: self.handle_soft_button(7))
-        self.button_mode.pressed.connect(lambda: self.handle_menu_button("mode1"))
-        self.button_rtl_fft.pressed.connect(lambda: self.handle_menu_button("rtlfft1"))
-        
-
+        self.button_mode.pressed.connect(lambda: self.handle_menu_button("Mode"))
+        self.button_waterfall.pressed.connect(lambda: self.handle_menu_button("rtlfft1"))
+        self.button_preset.pressed.connect(lambda: self.preset())
+        self.buttonmaxhold.pressed.connect(lambda: self.toggle_max_hold())
+        self.button_hold.pressed.connect(lambda: self.toggle_hold())
+        self.button_peak.pressed.connect(lambda: self.toggle_peak())
+        self.button2d3d.pressed.connect(lambda: self.toggle_display())
+        self.buttonverthoriz.pressed.connect(lambda: self.toggle_orientation())
+        self.button_export.pressed.connect(lambda: self.export_image())
+        self.button_waterfall.pressed.connect(lambda: self.start_waterfall())
+ 
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, "output_sample_rate")
@@ -245,17 +225,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, "output_sample_rate")
 
-        
-        if self.button_preset:
-            self.button_preset.pressed.connect(self.preset)
-
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def keyPressEvent(self, event):
+        modifiers = event.modifiers()
         key_actions = {
-            #Qt.Key.Key_F: lambda: self.show_submenu("frequency"),
             Qt.Key.Key_F1: lambda: self.handle_soft_button(0),
             Qt.Key.Key_F2: lambda: self.handle_soft_button(1),
             Qt.Key.Key_F3: lambda: self.handle_soft_button(2),
@@ -275,16 +251,21 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Key.Key_M: lambda: self.print_something("fdsasdff1"),
             Qt.Key.Key_B: lambda: self.toggle_bias_t(),   
             Qt.Key.Key_R: lambda: self.preset(),   
-
-
-
-#            (Qt.Key.Key_F, Qt.KeyboardModifier.Control): self.toggle_fullscreen # CTRL + F for fullscreen later
         }
         action = key_actions.get(event.key())
         if action:
             action()
             event.accept()
 
+    def export_image(self):
+        now = datetime.datetime.now()
+        filename = now.strftime("%Y-%m-%d_%H-%M-%S") + ".png"
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        filename_prefix="tdn_"
+        filename = filename_prefix + timestamp + ".jpg"
+        pixmap = self.two_d_widget.grab()
+        pixmap.save(filename, 'jpg')
+        print(f"Plot saved as {filename}")
 
     def toggle_bias_t(self):
         if self.data_source is not None:
@@ -292,9 +273,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.data_source.set_bias_tee(not current_state)  # Toggle state
             print(f"Bias tee is {'enabled' if self.data_source.bias_tee else 'disabled'}.")
             self.status_label.setText(f"Bias tee is {'enabled' if self.data_source.bias_tee else 'disabled'}")
-        
-
-
 
     def print_something(self, something):
         print (something)
@@ -322,6 +300,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.three_d_widget.stop_animation()
             self.current_display = "plot"
             self.timer.timeout.connect(self.update_plot)
+    
+    def start_waterfall(self):
+        pass
 
     def display_logo(self):
         x_vals, y_vals = zip(*points)
@@ -507,15 +488,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     ) * 0.1
                                     y_value_lower = y_centre - 20
                                     y_value_upper = y_centre + 20
-
-                                    # 3dB max peak bandwidth markers
-                                    # x1 = lower_freq_3db
-                                    # x2 = upper_freq_3db
-                                    # y1 = y_value_lower
-                                    # y2 = y_value_upper
-                                    # self.two_d_widget.widget.plot([x1, x1], [y1, y2], pen='c')  #
-                                    # self.two_d_widget.widget.plot([x2, x2], [y1, y2], pen='c')  #
-
+ 
                                     # Calculate bandwidths
                                     bandwidth_3db = upper_freq_3db - lower_freq_3db
                                     bandwidth_6db = upper_freq_6db - lower_freq_6db
@@ -559,16 +532,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     index_of_peak = np.argmax(self.sweep_data["y"])
                     peak_y_value = self.sweep_data["y"][index_of_peak]
                     corresponding_x_value = self.sweep_data["x"][index_of_peak]
-                    # print("Peak value is " + str(peak_y_value))
-                    # print("At frequency  " + str(corresponding_x_value))
                     text_item = pg.TextItem(
                         str(self.engformat(corresponding_x_value))
                         + "Hz\n"
                         + str(self.engformat(peak_y_value) + " dB")
                     )
                     text_item.setPos(corresponding_x_value / 1e6, peak_y_value)
-
-
 
     def update_button_labels_for_menu(self, menu_name):
         # Select the menu first to ensure the stack is correct
@@ -602,6 +571,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_button_labels()
 
 
+
+
     def handle_menu_button(self, menu_name):
         self.menu_manager.select_menu(menu_name)  # Ensure the menu is selected first
         print(f"Current menu level: {menu_name}")
@@ -633,10 +604,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 button.setText(labels[i])
             else:
                 button.setText("")  # Clear excess buttons
-
-
-
-
 
 
     def toggle_peak(self):
@@ -702,20 +669,16 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Changing orientation to horizontal")
             self.load_new_ui("mainwindowhorizontal.ui")
 
-        # Optionally, remap widgets here if needed
         self.remap_widgets()
         
     def remap_widgets(self):
         self.initialise_buttons()
         self.status_label.setText("Select data source")
         self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
-
         self.initialise_labels()
         self.update_button_labels()
         self.connect_buttons()
-    
-        pass
-
+     
     def set_button_style(self, button_name, active):
         color = "#a0a0a0" if active else "#ffffff"
         button = getattr(self, button_name)
@@ -735,20 +698,32 @@ class MainWindow(QtWidgets.QMainWindow):
             self.set_button_style(name, name == active_button)
  
     def use_rtl_source(self):
+        
+
         self.max_hold_buffer = None
         print("Using RTL-SDR data source")
         self.status_label.setText("Starting RTL device")
         app.processEvents()
-        self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
+        if self.rtl_initialised:
+            print("RTL-SDR data source is already initialised.")
+        else:
+            self.data_source = RtlSdrDataSource(self.CENTRE_FREQUENCY)
         
         #self.bias_t = self.data_source.bias_tee
         self.window = self.dsp.create_window(self.data_source.sample_rate, "hamming")
         self.status_label.setText("RTL FFT running")
-        # print (self.data_source.sdr.get_device_serial_addresses())
+        print (self.data_source)
+        
+        # This fails after going to audio source with:
+        #  <datasources.audio_fft.AudioDataSource object at 0x7f6d85ec56d0>
+        # When it should be the rtl data source
+
         print(self.data_source.sdr.get_device_serial_addresses())
+
         self.status_label.setText(
             "RTL FFT device " + str(self.data_source.sdr.get_device_serial_addresses())
         )
+        self.rtl_initialised = True
 
         self.timer.start(20)
 

@@ -499,7 +499,7 @@ Hold</string>
 Horiz</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_rtl_fft">
+         <widget class="QPushButton" name="button_waterfall">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -509,7 +509,8 @@ Horiz</string>
            </rect>
           </property>
           <property name="text">
-           <string/>
+           <string>Water
+fall</string>
           </property>
          </widget>
         </widget>
@@ -689,7 +690,7 @@ Horiz</string>
            <string>Config</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttoninstrument3">
+         <widget class="QPushButton" name="button_export">
           <property name="geometry">
            <rect>
             <x>230</x>
@@ -699,7 +700,8 @@ Horiz</string>
            </rect>
           </property>
           <property name="text">
-           <string/>
+           <string>Export
+Image</string>
           </property>
          </widget>
          <widget class="QPushButton" name="button_i8">

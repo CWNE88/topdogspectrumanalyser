@@ -461,19 +461,6 @@ Hold</string>
              <string>2D / 3D</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttonsource">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>40</y>
-              <width>61</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Source</string>
-            </property>
-           </widget>
            <widget class="QPushButton" name="buttoncontrol3">
             <property name="geometry">
              <rect>
@@ -512,6 +499,20 @@ Hold</string>
             <property name="text">
              <string>Vert/
 Horiz</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="button_waterfall">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>40</y>
+              <width>61</width>
+              <height>41</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Water
+fall</string>
             </property>
            </widget>
           </widget>
@@ -691,7 +692,7 @@ Horiz</string>
              <string>Config</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="buttoninstrument3">
+           <widget class="QPushButton" name="button_export">
             <property name="geometry">
              <rect>
               <x>230</x>
@@ -701,24 +702,11 @@ Horiz</string>
              </rect>
             </property>
             <property name="text">
-             <string/>
+             <string>Export
+Image</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="button_rtl_fft">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>90</y>
-              <width>61</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>RTL
-FFT</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="button_rtl_sweep">
+           <widget class="QPushButton" name="button_i8">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -728,11 +716,10 @@ FFT</string>
              </rect>
             </property>
             <property name="text">
-             <string>RTL
-Sweep</string>
+             <string/>
             </property>
            </widget>
-           <widget class="QPushButton" name="button_hackrf_fft">
+           <widget class="QPushButton" name="button_i7">
             <property name="geometry">
              <rect>
               <x>90</x>
@@ -742,11 +729,10 @@ Sweep</string>
              </rect>
             </property>
             <property name="text">
-             <string>HackRF
-FFT</string>
+             <string/>
             </property>
            </widget>
-           <widget class="QPushButton" name="button_hackrf_sweep">
+           <widget class="QPushButton" name="button_i9">
             <property name="geometry">
              <rect>
               <x>230</x>
@@ -756,8 +742,7 @@ FFT</string>
              </rect>
             </property>
             <property name="text">
-             <string>HackRF
-Sweep</string>
+             <string/>
             </property>
            </widget>
            <widget class="QPushButton" name="buttoninstrument7">
@@ -773,7 +758,7 @@ Sweep</string>
              <string>Save</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="button_audio_fft">
+           <widget class="QPushButton" name="button_instrument_10">
             <property name="geometry">
              <rect>
               <x>300</x>
@@ -783,8 +768,7 @@ Sweep</string>
              </rect>
             </property>
             <property name="text">
-             <string>Audio
-FFT</string>
+             <string/>
             </property>
            </widget>
            <widget class="QPushButton" name="button_mode">
@@ -806,6 +790,19 @@ FFT</string>
             </property>
             <property name="text">
              <string>Mode</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="button_input">
+            <property name="geometry">
+             <rect>
+              <x>20</x>
+              <y>90</y>
+              <width>61</width>
+              <height>41</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Input</string>
             </property>
            </widget>
           </widget>
