@@ -28,7 +28,7 @@ class MenuManager:
                 }
             },
             "Mode": {
-                "options": []
+                "options": ["Wi-Fi", "Aviation", "Digital"]
             },
            "Input": {
                 "options": ["RTL FFT", "HackRF FFT", "RTL Sweep", "HackRF Sweep", "Audio FFT"], 
@@ -48,7 +48,13 @@ class MenuManager:
                     },
                     "Audio FFT": {
                         "options": []
-                    }
+                    },
+                    "RTL Sweep": {
+                        "options": []
+                    },
+                    "HackRF Sweep": {
+                        "options": []
+                    }                                        
                 }
             }
 
