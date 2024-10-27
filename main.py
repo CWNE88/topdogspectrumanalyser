@@ -232,7 +232,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttonsoft7.pressed.connect(lambda: self.handle_soft_button(6))
         self.buttonsoft8.pressed.connect(lambda: self.handle_soft_button(7))
         self.button_mode.pressed.connect(lambda: self.handle_menu_button("Mode"))
-        self.button_waterfall.pressed.connect(lambda: self.handle_menu_button("rtlfft1"))
         self.button_preset.pressed.connect(lambda: self.preset())
         self.buttonmaxhold.pressed.connect(lambda: self.toggle_max_hold())
         self.button_hold.pressed.connect(lambda: self.toggle_hold())
@@ -256,13 +255,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_centre(self, multiplier):
         def set_centre_inner():
             self.CENTRE_FREQUENCY = int(float(self.dataInput) * multiplier)
-            print(f"Centre frequency set to {self.CENTRE_FREQUENCY}")
+            self.engformat(self.CENTRE_FREQUENCY) + "Hz"
             self.inputValue.setText("")
             self.dataInput = ""
 
             if isinstance(self.data_source, SampleDataSource):
                 self.data_source.set_centre_freq(self.CENTRE_FREQUENCY)
-                print(f"Centre frequency set to {self.CENTRE_FREQUENCY}")
+                print(f"Centre frequency set to " + self.engformat(self.CENTRE_FREQUENCY) + "Hz")
 
         return set_centre_inner
 
@@ -340,6 +339,12 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Key.Key_Minus: self.handle_data_character("-"),
             Qt.Key.Key_Period: self.handle_data_character("."),
             Qt.Key.Key_Backspace: self.handle_data_character("-"),
+            Qt.Key.Key_H: self.set_centre(1),
+            Qt.Key.Key_K: self.set_centre(1e3),
+            Qt.Key.Key_M: self.set_centre(1e6),
+            Qt.Key.Key_G: self.set_centre(1e9),
+            
+
         }
         action = key_actions.get(event.key())
         if action:
@@ -400,233 +405,160 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         print("display logo")
 
-
-
     def update_plot(self):
         if self.data_source and not self.is_paused:
             if isinstance(self.data_source, SampleDataSource):
                 try:
-                    self.output_centre_freq.setText(
-                        self.engformat(self.data_source.centre_freq) + "Hz"
-                    )
-                    self.output_sample_rate.setText(
-                        f"{int(self.data_source.sample_rate):,} SPS"
-                    )
-                    self.output_start_freq.setText(
-                        self.engformat(
-                            self.data_source.centre_freq
-                            - self.data_source.sample_rate / 2
-                        )
-                        + "Hz"
-                    )
-                    self.output_stop_freq.setText(
-                        self.engformat(
-                            self.data_source.centre_freq
-                            + self.data_source.sample_rate / 2
-                        )
-                        + "Hz"
-                    )
-                    self.output_span.setText(
-                        self.engformat(self.data_source.sample_rate) + "Hz"
-                    )
-                    self.output_gain.setText(str(self.data_source.gain) + " dB")
-                    self.output_res_bw.setText(
-                        self.engformat(
-                            self.data_source.sample_rate / self.INITIAL_SAMPLE_SIZE
-                        )
-                        + "Hz"
-                    )
-                    self.output_sample_size.setText(str(self.INITIAL_SAMPLE_SIZE))
+                    self.update_output_fields()
                     samples = self.data_source.read_samples(self.INITIAL_SAMPLE_SIZE)
-
                     if samples is not None and len(samples) > 0:
-                        fft = self.dsp.do_fft(samples)
-                        if isinstance(self.data_source, AudioDataSource):
-                            centrefft = fft[: int(self.INITIAL_SAMPLE_SIZE // 2)]
-                            magnitude = self.dsp.get_magnitude(centrefft)
-                            self.power_db = self.dsp.get_log_magnitude(magnitude)
-                            frequency_bins = np.linspace(
-                                0, self.data_source.sample_rate, len(self.power_db)
-                            )
-                            half_length = (
-                                len(frequency_bins) // 2
-                            )  # Calculate half length
-                            frequency_bins = frequency_bins[:half_length]
-                            self.power_db = self.power_db[:half_length]
-                        else:
-                            centrefft = self.dsp.do_centre_fft(fft)
-                            magnitude = self.dsp.get_magnitude(centrefft)
-                            self.power_db = self.dsp.get_log_magnitude(magnitude)
-                            frequency_bins = np.linspace(
-                                0, self.data_source.sample_rate, len(self.power_db)
-                            )
-                            frequency_bins += (
-                                self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2
-                            )
-
-                        if self.max_hold:
-                            if self.max_hold_buffer is None:
-                                self.max_hold_buffer = self.power_db.copy()
-                            else:
-                                self.max_hold_buffer = np.maximum(
-                                    self.max_hold_buffer, self.power_db
-                                )
-
-                        # Plot max first if enabled
-                        if self.current_display == "plot":
-                            self.two_d_widget.widget.clear()
-                        if self.max_hold is True and self.max_hold_buffer is not None:
-                            self.two_d_widget.widget.plot(
-                                frequency_bins / 1e6, self.max_hold_buffer, pen="y"
-                            )
-
-                        # Plot live value
-                        self.two_d_widget.widget.plot(
-                            frequency_bins / 1e6, self.power_db, pen="g"
-                        )
-
-
-                        
-                        if self.is_peak_on:
-
-                            if self.power_db is not None and len(self.power_db) > 0:
-                                index_of_peak = np.argmax(self.power_db)
-                                peak_value = self.power_db[index_of_peak]
-                                peak_frequency = (
-                                    frequency_bins[index_of_peak] / 1e6
-                                )  # for y value, but undecided
-
-                                text = (
-                                    f"<span style='color: green;background-color: black;'>Live peak</span> <br>"
-                                    f" <span style='color: white;background-color: black;'>{peak_frequency:.2f} MHz</span> <br>"
-                                    f" <span style='color: white;background-color: black;'>{peak_value:.2f} dB</span>"
-                                )
-
-                                self.peak_frequency1 = pg.TextItem(text)
-                                self.peak_frequency1.setHtml(
-                                    text
-                                )  # Use setHtml instead of setText
-                                y_range = self.two_d_widget.widget.viewRange()[
-                                    1
-                                ]  # Get the Y range
-                                y_min, y_max = y_range
-                                nine_tenths_height = y_min + 0.9 * (y_max - y_min)
-                                self.peak_frequency1.setPos(
-                                    peak_frequency, nine_tenths_height
-                                )
-
-                                if self.max_hold == True:
-
-                                    index_of_max_peak = np.argmax(self.max_hold_buffer)
-                                    max_peak_value = self.max_hold_buffer[
-                                        index_of_max_peak
-                                    ]
-                                    max_peak_frequency = (
-                                        frequency_bins[index_of_max_peak] / 1e6
-                                    )
-
-                                    db_drops = [3, 6, 9]
-                                    thresholds = [
-                                        max_peak_value - db_drop for db_drop in db_drops
-                                    ]
-
-                                    def find_bandwidth_points(threshold):
-                                        lower_index = index_of_max_peak
-                                        while (
-                                            lower_index > 0
-                                            and self.max_hold_buffer[lower_index]
-                                            > threshold
-                                        ):
-                                            lower_index -= 1
-
-                                        upper_index = index_of_max_peak
-                                        while (
-                                            upper_index < len(self.max_hold_buffer) - 1
-                                            and self.max_hold_buffer[upper_index]
-                                            > threshold
-                                        ):
-                                            upper_index += 1
-
-                                        return (
-                                            frequency_bins[lower_index] / 1e6,
-                                            frequency_bins[upper_index] / 1e6,
-                                        )
-
-                                    (
-                                        lower_freq_3db,
-                                        upper_freq_3db,
-                                    ) = find_bandwidth_points(thresholds[0])
-                                    (
-                                        lower_freq_6db,
-                                        upper_freq_6db,
-                                    ) = find_bandwidth_points(thresholds[1])
-                                    (
-                                        lower_freq_9db,
-                                        upper_freq_9db,
-                                    ) = find_bandwidth_points(thresholds[2])
-
-                                    # Get the Y range
-                                    y_range = self.two_d_widget.widget.viewRange()[1]
-                                    y_min, y_max = y_range
-
-                                    # Calculate the y-values (10% of the y-range centered around -3 dB value)
-                                    db_drop = 3
-                                    threshold_value = max_peak_value - db_drop
-                                    y_centre = (max_peak_value - db_drop) + (
-                                        y_max - y_min
-                                    ) * 0.1
-                                    y_value_lower = y_centre - 20
-                                    y_value_upper = y_centre + 20
- 
-                                    # Calculate bandwidths
-                                    bandwidth_3db = upper_freq_3db - lower_freq_3db
-                                    bandwidth_6db = upper_freq_6db - lower_freq_6db
-                                    bandwidth_9db = upper_freq_9db - lower_freq_9db
-
-                                    # Prepare the max peak text
-                                    max_peak_text = (
-                                        f"<span style='color: yellow;background-color: black;'>Max peak</span> <br>"
-                                        f"<span style='color: white;background-color: black;'>{max_peak_frequency:.2f} MHz</span><br>"
-                                        f"<span style='color: white; background-color: black;'>{max_peak_value:.2f} dB</span><br>"
-                                    )
-
-                                    self.max_frequency1 = pg.TextItem(max_peak_text)
-                                    self.max_frequency1.setHtml(max_peak_text)
-
-                                    y_range = self.two_d_widget.widget.viewRange()[
-                                        1
-                                    ]  # Get the Y range
-                                    y_min, y_max = y_range
-                                    six_tenths_height = y_max
-                                    self.max_frequency1.setPos(
-                                        max_peak_frequency, six_tenths_height
-                                    )
-                                    self.two_d_widget.widget.addItem(
-                                        self.max_frequency1
-                                    )
-
-                                self.two_d_widget.widget.addItem(self.peak_frequency1)
-
-
-                        self.three_d_widget.z = self.power_db / 10
+                        self.process_samples(samples)
 
                 except Exception as e:
                     print(f"Error reading samples: {e}")
 
             elif isinstance(self.data_source, SweepDataSource):
-                if self.sweep_data is not None:
-                    self.two_d_widget.plot(
-                        self.sweep_data["x"], self.sweep_data["y"], pen="g"
-                    )
-                    index_of_peak = np.argmax(self.sweep_data["y"])
-                    peak_y_value = self.sweep_data["y"][index_of_peak]
-                    corresponding_x_value = self.sweep_data["x"][index_of_peak]
-                    text_item = pg.TextItem(
-                        str(self.engformat(corresponding_x_value))
-                        + "Hz\n"
-                        + str(self.engformat(peak_y_value) + " dB")
-                    )
-                    text_item.setPos(corresponding_x_value / 1e6, peak_y_value)
+                self.plot_sweep_data()
+
+    def update_output_fields(self):
+        if isinstance(self.data_source, AudioDataSource):
+            self.output_centre_freq.setText("N/A")
+        else:
+            self.output_centre_freq.setText(self.engformat(self.data_source.centre_freq) + "Hz")
+
+        self.output_sample_rate.setText(f"{int(self.data_source.sample_rate):,} SPS")
+        self.update_frequency_outputs()
+
+        self.output_gain.setText(str(self.data_source.gain) + " dB")
+        self.output_res_bw.setText(self.engformat(self.data_source.sample_rate / self.INITIAL_SAMPLE_SIZE) + "Hz")
+        self.output_sample_size.setText(str(self.INITIAL_SAMPLE_SIZE))
+
+    def update_frequency_outputs(self):
+        if isinstance(self.data_source, AudioDataSource):
+            self.output_start_freq.setText("0 Hz")
+        else:
+            self.output_start_freq.setText(
+                self.engformat(self.data_source.centre_freq - self.data_source.sample_rate / 2) + "Hz"
+            )
+
+        self.output_stop_freq.setText(
+            self.engformat(self.data_source.centre_freq + self.data_source.sample_rate / 2) + "Hz"
+        )
+
+        if isinstance(self.data_source, AudioDataSource):
+            self.output_span.setText(self.engformat(self.data_source.sample_rate / 2) + "Hz")
+        else:
+            self.output_span.setText(self.engformat(self.data_source.sample_rate) + "Hz")
+
+    def process_samples(self, samples):
+        fft = self.dsp.do_fft(samples)
+        self.frequency_bins, half_length = self.calculate_frequency_bins(fft)
+
+        if self.max_hold:
+            self.update_max_hold_buffer()
+
+        self.clear_and_plot(self.frequency_bins)
+
+        if self.is_peak_on:
+            self.plot_peak_info(self.frequency_bins)
+
+        self.three_d_widget.z = self.power_db / 10
+
+    def calculate_frequency_bins(self, fft):
+        if isinstance(self.data_source, AudioDataSource):
+            centrefft = fft[:int(self.INITIAL_SAMPLE_SIZE // 2)]
+            magnitude = self.dsp.get_magnitude(centrefft)
+            self.power_db = self.dsp.get_log_magnitude(magnitude)
+            frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
+            half_length = len(frequency_bins) // 2
+            frequency_bins = frequency_bins[:half_length]
+            self.power_db = self.power_db[:half_length]
+        else:
+            centrefft = self.dsp.do_centre_fft(fft)
+            magnitude = self.dsp.get_magnitude(centrefft)
+            self.power_db = self.dsp.get_log_magnitude(magnitude)
+            frequency_bins = np.linspace(0, self.data_source.sample_rate, len(self.power_db))
+            frequency_bins += (self.CENTRE_FREQUENCY - self.data_source.sample_rate / 2)
+
+        return frequency_bins, len(frequency_bins) // 2
+
+    def update_max_hold_buffer(self):
+        if self.max_hold_buffer is None:
+            self.max_hold_buffer = self.power_db.copy()
+        else:
+            self.max_hold_buffer = np.maximum(self.max_hold_buffer, self.power_db)
+
+    def clear_and_plot(self, frequency_bins):
+        if self.current_display == "plot":
+            self.two_d_widget.widget.clear()
+
+        if self.max_hold and self.max_hold_buffer is not None:
+            self.two_d_widget.widget.plot(frequency_bins / 1e6, self.max_hold_buffer, pen="y")
+
+        self.two_d_widget.widget.plot(frequency_bins / 1e6, self.power_db, pen="g")
+
+    def plot_peak_info(self, frequency_bins):
+        if self.power_db is not None and len(self.power_db) > 0:
+            index_of_peak = np.argmax(self.power_db)
+            peak_value = self.power_db[index_of_peak]
+            peak_frequency = frequency_bins[index_of_peak] / 1e6
+            
+            self.add_peak_text(peak_frequency, peak_value)
+
+            if self.max_hold:
+                self.add_max_peak_info(frequency_bins, index_of_peak)
+
+    def add_peak_text(self, peak_frequency, peak_value):
+        text = (
+            f"<span style='color: green;background-color: black;'>Live peak</span> <br>"
+            f"<span style='color: white;background-color: black;'>{peak_frequency:.2f} MHz</span> <br>"
+            f"<span style='color: white;background-color: black;'>{peak_value:.2f} dB</span>"
+        )
+        self.peak_frequency1 = pg.TextItem(text)
+        self.peak_frequency1.setHtml(text)
+        y_min, y_max = self.two_d_widget.widget.viewRange()[1]
+        self.peak_frequency1.setPos(peak_frequency, y_min + 0.9 * (y_max - y_min))
+        self.two_d_widget.widget.addItem(self.peak_frequency1)
+
+    def add_max_peak_info(self, frequency_bins, index_of_max_peak):
+        max_peak_value = self.max_hold_buffer[index_of_max_peak]
+        max_peak_frequency = frequency_bins[index_of_max_peak] / 1e6
+
+        thresholds = [max_peak_value - db_drop for db_drop in [3, 6, 9]]
+        bandwidths = [self.find_bandwidth_points(thresholds[i], index_of_max_peak) for i in range(3)]
+
+        max_peak_text = (
+            f"<span style='color: yellow;background-color: black;'>Max peak</span> <br>"
+            f"<span style='color: white;background-color: black;'>{max_peak_frequency:.2f} MHz</span><br>"
+            f"<span style='color: white; background-color: black;'>{max_peak_value:.2f} dB</span><br>"
+        )
+        self.max_frequency1 = pg.TextItem(max_peak_text)
+        self.max_frequency1.setHtml(max_peak_text)
+        self.max_frequency1.setPos(max_peak_frequency, self.two_d_widget.widget.viewRange()[1][1])
+        self.two_d_widget.widget.addItem(self.max_frequency1)
+
+    def find_bandwidth_points(self, threshold, index_of_max_peak):
+        lower_index = index_of_max_peak
+        while lower_index > 0 and self.max_hold_buffer[lower_index] > threshold:
+            lower_index -= 1
+
+        upper_index = index_of_max_peak
+        while upper_index < len(self.max_hold_buffer) - 1 and self.max_hold_buffer[upper_index] > threshold:
+            upper_index += 1
+
+        return (self.frequency_bins[lower_index] / 1e6, self.frequency_bins[upper_index] / 1e6)
+
+    def plot_sweep_data(self):
+        if self.sweep_data is not None:
+            self.two_d_widget.plot(self.sweep_data["x"], self.sweep_data["y"], pen="g")
+            index_of_peak = np.argmax(self.sweep_data["y"])
+            peak_y_value = self.sweep_data["y"][index_of_peak]
+            corresponding_x_value = self.sweep_data["x"][index_of_peak]
+            text_item = pg.TextItem(
+                str(self.engformat(corresponding_x_value)) + "Hz\n" + str(self.engformat(peak_y_value) + " dB")
+            )
+            text_item.setPos(corresponding_x_value / 1e6, peak_y_value)
+
 
     def update_button_labels_for_menu(self, menu_name):
         # Select the menu first to ensure the stack is correct

@@ -26,6 +26,9 @@ class HackRFDataSource(SampleDataSource):
         self.device.set_vga_gain(vga_gain)
         self.device.set_freq(centre_frequency)
 
+    def set_centre_freq(self, freq_hz: int):
+        self.device.set_freq(freq_hz)
+
     def read_samples(self, sample_size):
         self.samples = self.device.read_samples()
         mean_value = np.mean(self.samples)
