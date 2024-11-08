@@ -316,7 +316,7 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QPushButton" name="buttonsoft2">
+        <widget class="QPushButton" name="button_soft_2">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -384,7 +384,7 @@
 Right</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_peak">
+         <widget class="QPushButton" name="button_peak_search">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -393,12 +393,17 @@ Right</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Peak
 Search</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonmaxhold">
+         <widget class="QPushButton" name="button_max_hold">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -431,9 +436,9 @@ Hold</string>
           </rect>
          </property>
          <property name="title">
-          <string>Control</string>
+          <string>Display</string>
          </property>
-         <widget class="QPushButton" name="buttoncontrol2">
+         <widget class="QPushButton" name="button_3d">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -442,11 +447,34 @@ Hold</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string/>
+           <string>3D</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button2d3d">
+         <widget class="QPushButton" name="button_2d">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>40</y>
+            <width>61</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>2D</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="button_boxes">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -455,21 +483,13 @@ Hold</string>
             <height>41</height>
            </rect>
           </property>
-          <property name="text">
-           <string>2D / 3D</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="buttoncontrol3">
-          <property name="geometry">
-           <rect>
-            <x>150</x>
-            <y>40</y>
-            <width>61</width>
-            <height>41</height>
-           </rect>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
           </property>
           <property name="text">
-           <string/>
+           <string>Boxes</string>
           </property>
          </widget>
          <widget class="QPushButton" name="buttoncontrol6">
@@ -485,7 +505,26 @@ Hold</string>
            <string>Display</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonverthoriz">
+         <widget class="QPushButton" name="button_waterfall">
+          <property name="geometry">
+           <rect>
+            <x>150</x>
+            <y>40</y>
+            <width>61</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Water
+fall</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="button_instrument_10">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -495,26 +534,11 @@ Hold</string>
            </rect>
           </property>
           <property name="text">
-           <string>Vert/
-Horiz</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="button_waterfall">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>40</y>
-            <width>61</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Water
-fall</string>
+           <string/>
           </property>
          </widget>
         </widget>
-        <widget class="QPushButton" name="buttonsoft1">
+        <widget class="QPushButton" name="button_soft_1">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -548,7 +572,7 @@ fall</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonsoft3">
+        <widget class="QPushButton" name="button_soft_3">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -602,7 +626,7 @@ fall</string>
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonsoft6">
+        <widget class="QPushButton" name="button_soft_6">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -623,7 +647,7 @@ fall</string>
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonsoft8">
+        <widget class="QPushButton" name="button_soft_8">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -686,11 +710,16 @@ fall</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Config</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_export">
+         <widget class="QPushButton" name="button_export_image">
           <property name="geometry">
            <rect>
             <x>230</x>
@@ -698,6 +727,11 @@ fall</string>
             <width>61</width>
             <height>41</height>
            </rect>
+          </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
           </property>
           <property name="text">
            <string>Export
@@ -717,7 +751,7 @@ Image</string>
            <string/>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_i7">
+         <widget class="QPushButton" name="button_input_2">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -726,8 +760,17 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string/>
+           <string>Input
+2</string>
           </property>
          </widget>
          <widget class="QPushButton" name="button_i9">
@@ -752,21 +795,13 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Save</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="button_instrument_10">
-          <property name="geometry">
-           <rect>
-            <x>300</x>
-            <y>90</y>
-            <width>61</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
           </property>
          </widget>
          <widget class="QPushButton" name="button_mode">
@@ -790,7 +825,7 @@ Image</string>
            <string>Mode</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_input">
+         <widget class="QPushButton" name="button_input_1">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -799,8 +834,36 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string>Input</string>
+           <string>Input
+1</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="button_vert_horiz">
+          <property name="geometry">
+           <rect>
+            <x>300</x>
+            <y>90</y>
+            <width>61</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Vert/
+Horiz</string>
           </property>
          </widget>
         </widget>
@@ -909,7 +972,7 @@ Image</string>
           <string>Amplitude</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonsoft4">
+        <widget class="QPushButton" name="button_soft_4">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -951,7 +1014,7 @@ Image</string>
           <string>Down</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="buttonsoft5">
+        <widget class="QPushButton" name="button_soft_5">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -984,7 +1047,7 @@ Image</string>
          <property name="title">
           <string>Data</string>
          </property>
-         <widget class="QPushButton" name="buttondata7">
+         <widget class="QPushButton" name="button_data_7">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1005,7 +1068,7 @@ Image</string>
            <string>7</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata8">
+         <widget class="QPushButton" name="button_data_8">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1023,7 +1086,7 @@ Image</string>
            <string>8</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata9">
+         <widget class="QPushButton" name="button_data_9">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1041,7 +1104,7 @@ Image</string>
            <string>9</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonghz">
+         <widget class="QPushButton" name="button_ghz">
           <property name="geometry">
            <rect>
             <x>300</x>
@@ -1050,11 +1113,16 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>GHz</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonmhz">
+         <widget class="QPushButton" name="button_mhz">
           <property name="geometry">
            <rect>
             <x>300</x>
@@ -1063,11 +1131,16 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>MHz</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata5">
+         <widget class="QPushButton" name="button_data_5">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1085,7 +1158,7 @@ Image</string>
            <string>5</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata6">
+         <widget class="QPushButton" name="button_data_6">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1103,7 +1176,7 @@ Image</string>
            <string>6</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata4">
+         <widget class="QPushButton" name="button_data_4">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1124,7 +1197,7 @@ Image</string>
            <string>4</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata0">
+         <widget class="QPushButton" name="button_data_0">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1145,7 +1218,7 @@ Image</string>
            <string>0</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata2">
+         <widget class="QPushButton" name="button_data_2">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1163,7 +1236,7 @@ Image</string>
            <string>2</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata3">
+         <widget class="QPushButton" name="button_data_3">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1181,7 +1254,7 @@ Image</string>
            <string>3</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondot">
+         <widget class="QPushButton" name="button_dot">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1199,7 +1272,7 @@ Image</string>
            <string>.</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttondata1">
+         <widget class="QPushButton" name="button_data_1">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1238,7 +1311,7 @@ Image</string>
            <string>-</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonkhz">
+         <widget class="QPushButton" name="button_khz">
           <property name="geometry">
            <rect>
             <x>300</x>
@@ -1247,11 +1320,16 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>kHz</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonhz">
+         <widget class="QPushButton" name="button_hz">
           <property name="geometry">
            <rect>
             <x>300</x>
@@ -1260,12 +1338,18 @@ Image</string>
             <height>41</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Hz</string>
           </property>
          </widget>
         </widget>
-        <widget class="QPushButton" name="buttonsoft7">
+        <widget class="QPushButton" name="button_soft_7">
          <property name="geometry">
           <rect>
            <x>10</x>

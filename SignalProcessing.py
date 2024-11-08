@@ -17,10 +17,9 @@ class process:
         return self.magnitude
     
     def get_log_magnitude(self, magnitude):
-        self.log_magnitude = 20 * np.log10(magnitude + 1e-12)   # check the 20*
+        self.log_magnitude = 20 * np.log10(magnitude + 1e-12)  
         return self.log_magnitude
 
-    # Low pass filter
     def butter_lowpass(cutoff, fs, order=5):
         nyq = 0.5 * fs
         normal_cutoff = cutoff / nyq

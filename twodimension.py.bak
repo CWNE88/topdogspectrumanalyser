@@ -4,10 +4,10 @@ import numpy as np
 from PyQt6 import QtWidgets, QtCore
 import pyqtgraph as pg
 
+
 class TwoD(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        print ("TwoD init")
         self.setWindowTitle("Top Dog Spectrum Analyser")
         self.setGeometry(100, 500, 1500, 600)
 
@@ -17,14 +17,17 @@ class TwoD(QtWidgets.QWidget):
         self.frequency_bins = None
         self.max_hold_levels = None
 
+        # Create the curves for live data and max hold data
         self.curve = self.widget.plot(pen='g', name='Current Power Levels')
         self.max_hold_curve = self.widget.plot(pen='y', alpha=0.5, name='Max Hold Levels')
 
+        # Set plot labels
         self.widget.setTitle("Spectrum Analyser")
         self.widget.setLabel('left', 'Amplitude (dBm)')
         self.widget.setLabel('bottom', 'Frequency (MHz)')
-        self.widget.setYRange(-100, -10)
+        self.widget.setYRange(-100, -65)
 
+        # Layout setup
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.widget)
 
@@ -33,13 +36,16 @@ class TwoD(QtWidgets.QWidget):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start(20)
 
-    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins):
+    def update_plot_data(self, power_levels, max_hold_levels, frequency_bins):
+        """Receive new data and update the plot."""
         if power_levels is not None and max_hold_levels is not None and frequency_bins is not None:
             self.power_levels = power_levels
             self.max_hold_levels = max_hold_levels
             self.frequency_bins = frequency_bins
-            
+
     def update_plot(self):
+        """Update the plot if data is available."""
         if self.power_levels is not None and self.frequency_bins is not None:
-            self.curve.setData(self.frequency_bins / 1e6, self.power_levels)  
+            # Update curves with the latest data
+            self.curve.setData(self.frequency_bins / 1e6, self.power_levels)  # Convert frequency to MHz
             self.max_hold_curve.setData(self.frequency_bins / 1e6, self.max_hold_levels)
