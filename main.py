@@ -5,6 +5,7 @@ import numpy as np
 import pyqtgraph as pg
 from PyQt6 import QtWidgets, uic, QtCore
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeyEvent
 from input_hackrf_sweep import HackRFSweep
 import twodimension
 import threedimension
@@ -13,8 +14,12 @@ import boxes
 
 from PyQt6.QtWidgets import QStackedWidget
 
+from menu import MenuManager, MenuItem
+
 class MainWindow(QtWidgets.QMainWindow):
-   
+    menu: MenuManager = None
+
+    is_paused = False
 
     def __init__(self):
         super().__init__()
@@ -57,36 +62,40 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_data)
         self.timer.start(20)
 
-        self.initialise_buttons()
- 
         self.connect_buttons()
 
+        self.menu = MenuManager(self, self.on_menu_selection)
 
-    def initialise_buttons(self):
-        button_names = [
-            "button_soft_1", "button_soft_2", "button_soft_3", "button_soft_4", "button_soft_5", "button_soft_6",
-            "button_soft_7", "button_soft_8", "button_hold", "button_2d", "button_3d", "button_waterfall", 
-            "button_max_hold", "button_peak_search", "button_input_1", "button_input_2", "button_frequency", 
-            "button_span", "button_amplitude", "button_preset", "button_mode", "button_export_image",
-            "button_ghz", "button_mhz", "button_khz", "button_hz", "button_boxes"
-        ]
-        self.buttons = {name: self.findChild(QtWidgets.QPushButton, name) for name in button_names}
+    def on_menu_selection(self, item: MenuItem):
+        if item.elementId == "button_hold":
+            self.toggle_hold()
+        elif item.elementId == "button_2d":
+            self.set_display(0)
+        elif item.elementId == "button_3d":
+            self.set_display(1)
+        elif item.elementId == "button_waterfall":
+            self.set_display(2)
+        elif item.elementId == "button_boxes":
+            self.set_display(3)
+        
 
+    def keyPressEvent(self, event: QKeyEvent):
+        self.menu.keyPressEvent(event)
+    
+    
+    def toggle_hold(self):
+        self.is_paused = not self.is_paused
+
+        if self.is_paused:
+            print("Animation paused")
+            self.button_hold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
+        else:
+            print("Animation resumed")
+            self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
 
 
     def connect_buttons(self):
         button_actions = {
-            "button_frequency": lambda: self.handle_menu_button("Frequency"),
-            "button_span": lambda: self.handle_menu_button("Span"),
-            "button_amplitude": lambda: self.handle_menu_button("Amplitude"),
-            "button_soft_1": lambda: self.handle_soft_button(0),
-            "button_soft_2": lambda: self.handle_soft_button(1),
-            "button_soft_3": lambda: self.handle_soft_button(2),
-            "button_soft_4": lambda: self.handle_soft_button(3),
-            "button_soft_5": lambda: self.handle_soft_button(4),
-            "button_soft_6": lambda: self.handle_soft_button(5),
-            "button_soft_7": lambda: self.handle_soft_button(6),
-            "button_soft_8": lambda: self.handle_soft_button(7),
             "button_mode": lambda: self.handle_menu_button("Mode"),
             "button_preset": lambda: self.preset(),
             "button_max_hold": lambda: self.toggle_max_hold(),
@@ -99,11 +108,6 @@ class MainWindow(QtWidgets.QMainWindow):
             "button_vert_horiz": lambda: self.toggle_orientation(),
             "button_export_image": lambda: self.export_image()
         }
-
-        for button_name, action in button_actions.items():
-            button = self.buttons.get(button_name)
-            if button:
-                button.pressed.connect(action)
 
     
     def initialise_labels(self):
