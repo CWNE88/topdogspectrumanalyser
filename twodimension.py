@@ -16,6 +16,7 @@ class TwoD(QtWidgets.QWidget):
         self.power_levels = None
         self.frequency_bins = None
         self.max_hold_levels = None
+        self.max_hold_enabled = False
 
         self.curve = self.widget.plot(pen='g', name='Current Power Levels')
         self.max_hold_curve = self.widget.plot(pen='y', alpha=0.5, name='Max Hold Levels')
@@ -38,8 +39,16 @@ class TwoD(QtWidgets.QWidget):
             self.power_levels = power_levels
             self.max_hold_levels = max_hold_levels
             self.frequency_bins = frequency_bins
+
+    def set_max_hold_enabled(self, max_hold_enabled):
+        self.max_hold_enabled = max_hold_enabled
             
     def update_plot(self):
         if self.power_levels is not None and self.frequency_bins is not None:
             self.curve.setData(self.frequency_bins / 1e6, self.power_levels)  
-            self.max_hold_curve.setData(self.frequency_bins / 1e6, self.max_hold_levels)
+            #print (self.max_hold_enabled)
+            if self.max_hold_enabled == True:
+                self.max_hold_curve.setData(self.frequency_bins / 1e6, self.max_hold_levels)
+            else:
+                self.max_hold_curve.clear()
+

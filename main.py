@@ -107,14 +107,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status_label.setText("Peak search disabled")
     
 
+    # need to make this generic
     def toggle_max_hold(self):
         self.max_hold_enabled = not self.max_hold_enabled
         if self.max_hold_enabled:
             print ("Max hold enabled")
             self.status_label.setText("Max hold enabled")
+            self.max_hold_enabled = True
+            self.two_d_widget.set_max_hold_enabled (True)
         else:
             print ("Max hold disabled")
             self.status_label.setText("Max hold disabled")
+            self.max_hold_enabled = False
+            self.two_d_widget.set_max_hold_enabled  (False)
+            self.max_hold_levels = 0
     
 
 
