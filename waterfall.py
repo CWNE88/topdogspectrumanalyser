@@ -23,8 +23,8 @@ class Waterfall(QtWidgets.QWidget):
         self.waterfall_array = None 
         self.initialised = False
         self.history_amount = 200
-        self.min_level = -70
-        self.max_level = -40
+        self.min_level = -80
+        self.max_level = -60
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
@@ -66,4 +66,6 @@ class Waterfall(QtWidgets.QWidget):
         self.waterfall_array[-1] = self.power_levels            # Insert new data at the bottom
         lut = self.colourmap.getLookupTable(0.0, 1.0, 256)
         self.image_item.setImage(self.waterfall_array.T, autoLevels=False, levels=(self.min_level, self.max_level), lut=lut)
+        
+
         

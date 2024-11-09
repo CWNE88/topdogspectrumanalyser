@@ -21,7 +21,7 @@ class Boxes(QtWidgets.QMainWindow):
         grid.setSpacing(x=1, y=1)
         self.view.addItem(grid)
 
-        self.frequency_bins = 50
+        
         self.n_bins = 2020
 
         self.timer = QTimer()
@@ -41,7 +41,6 @@ class Boxes(QtWidgets.QMainWindow):
 
 
     def init_boxes(self):
-        self.n_bins = self.frequency_bins
         self.vertices = np.zeros((self.n_bins * 8, 3), dtype=float)  # 8 vertices per box
         self.faces = np.zeros((self.n_bins * 12, 3), dtype=int)      # 12 triangles per box
         self.vertex_colours = np.zeros((self.n_bins * 8, 4), dtype=float)  # 4 colors per vertex

@@ -10,7 +10,6 @@ import twodimension
 import threedimension
 import waterfall
 import boxes
-
 from PyQt6.QtWidgets import QStackedWidget
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -22,9 +21,9 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq = 2.4e9
+        self.start_freq = 2.4e9 
         self.stop_freq = 2.5e9
-        self.bin_size = 10e3
+        self.bin_size = 50e3
         
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()

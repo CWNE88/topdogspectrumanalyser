@@ -30,7 +30,7 @@ class MenuManager:
             "Mode": {
                 "options": ["Wi-Fi", "Aviation", "Digital"]
             },
-           "Input": {
+           "Input 1": {
                 "options": ["RTL FFT", "HackRF FFT", "RTL Sweep", "HackRF Sweep", "Audio FFT"], 
                 "submenus": {
                     "RTL FFT": {
@@ -154,13 +154,4 @@ class MenuManager:
 # Example callback function
 def example_callback(menu, submenu, option):
     print(f"Callback executed: {menu} - {submenu} - {option}")
-
-# Example usage
-#menu_manager = MenuManager(option_callback=example_callback)
-# Navigate to "Amplitude"
-#menu_manager.select_menu("Amplitude")
-# Triggering "Units" as if it were a normal option
-#menu_manager.handle_button_press(4)  # This selects "Units"
-# Now navigate to "Units" submenu
-#menu_manager.select_submenu("Units")
-#menu_manager.handle_button_press(2)  # This will trigger "dBmV"
+ 
