@@ -112,8 +112,8 @@ class HackRFSweep:
         self.is_running = False
         if self.thread and self.thread.is_alive():
             print("Stopping sweep thread...")
-            self.thread.join()  # Ensure the thread finishes if it's still running
-            self.thread = None
+            # self.thread.join()  # Ensure the thread finishes if it's still running
+            # self.thread = None
 
         
     def get_data(self):
