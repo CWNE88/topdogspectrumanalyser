@@ -35,7 +35,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.waterfall_widget = waterfall.Waterfall()
         self.boxes_widget = boxes.Boxes()
 
-
         self.stacked_widget = QStackedWidget(self)
         self.stacked_widget.addWidget(self.two_d_widget)
         self.stacked_widget.addWidget(self.three_d_widget)
@@ -46,6 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
         graphical_display_widget.layout().addWidget(self.stacked_widget)
 
         self.current_stacked_index = 0
+        self.get_current_widget_timer().start(20)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
 
 
@@ -56,16 +56,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.power_levels = None
         self.max_hold_levels = None
         self.frequency_bins = None
+        self.peak_hold_enabled = False
+        self.peak_search_enabled = False
+        self.max_hold_enabled = False
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_data)
         self.timer.start(20)
+        self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
+
 
         self.connect_buttons()
 
         self.menu = MenuManager(self, self.on_menu_selection)
+    
+    def set_button_focus_policy(self, parent):
+        for widget in parent.findChildren(QtWidgets.QPushButton):
+            widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
 
     def on_menu_selection(self, item: MenuItem):
+        print (item.elementId)
         if item.elementId == "button_hold":
             self.toggle_hold()
         elif item.elementId == "button_2d":
@@ -76,22 +87,50 @@ class MainWindow(QtWidgets.QMainWindow):
             self.set_display(2)
         elif item.elementId == "button_boxes":
             self.set_display(3)
+        elif item.elementId == "button_peak_search":
+            self.toggle_peak_search()
+        elif item.elementId == "button_max_hold":
+            self.toggle_max_hold()
+            
         
 
     def keyPressEvent(self, event: QKeyEvent):
         self.menu.keyPressEvent(event)
+
+    def toggle_peak_search(self):
+        self.peak_search_enabled = not self.peak_search_enabled
+        if self.peak_search_enabled:
+            print ("Peak search enabled")
+            self.status_label.setText("Peak search enabled")
+        else:
+            print ("Peak search disabled")
+            self.status_label.setText("Peak search disabled")
     
+
+    def toggle_max_hold(self):
+        self.max_hold_enabled = not self.max_hold_enabled
+        if self.max_hold_enabled:
+            print ("Max hold enabled")
+            self.status_label.setText("Max hold enabled")
+        else:
+            print ("Max hold disabled")
+            self.status_label.setText("Max hold disabled")
     
+
+
     def toggle_hold(self):
         self.is_paused = not self.is_paused
 
         if self.is_paused:
             print("Animation paused")
+            self.status_label.setText("Animation pause")
             self.button_hold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
+            self.get_current_widget_timer().stop()
         else:
             print("Animation resumed")
+            self.status_label.setText("Animation resumed")
             self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
-
+            self.get_current_widget_timer().start(20)
 
     def connect_buttons(self):
         button_actions = {
@@ -99,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
             "button_preset": lambda: self.preset(),
             "button_max_hold": lambda: self.toggle_max_hold(),
             "button_hold": lambda: self.toggle_hold(),
-            "button_peak_search": lambda: self.toggle_peak(),
+            "button_peak_search": lambda: self.toggle_peak_search(),
             "button_2d": lambda: self.set_display(0),
             "button_3d": lambda: self.set_display(1),
             "button_waterfall": lambda: self.set_display(2),
@@ -117,7 +156,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_stop_freq = self.findChild(QtWidgets.QLabel, "output_stop_freq")
         self.output_gain = self.findChild(QtWidgets.QLabel, "output_gain")
         self.output_res_bw = self.findChild(QtWidgets.QLabel, "output_res_bw")
-        self.inputValue = self.findChild(QtWidgets.QLabel, "input_value")
+        self.status_label = self.findChild(QtWidgets.QLabel, "status_label")
+        self.input_value = self.findChild(QtWidgets.QLabel, "input_value")
+        
 
 
     def set_display(self, index):

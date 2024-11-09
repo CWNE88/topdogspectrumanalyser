@@ -31,7 +31,7 @@ class TwoD(QtWidgets.QWidget):
         self.paused = False
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(20)
+        #self.timer.start(20)
 
     def update_widget_data(self, power_levels, max_hold_levels, frequency_bins):
         if power_levels is not None and max_hold_levels is not None and frequency_bins is not None:

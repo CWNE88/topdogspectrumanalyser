@@ -21,12 +21,12 @@ class Boxes(QtWidgets.QMainWindow):
         grid.setSpacing(x=1, y=1)
         self.view.addItem(grid)
 
-        self.frequency_bins = 50
+        self.frequency_bins = 2020
         self.n_bins = 2020
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_visualisation)
-        self.timer.start(20)
+        #self.timer.start(20)
 
         # Prepare the initial mesh data
         self.box_item = gl.GLMeshItem()

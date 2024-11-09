@@ -41,11 +41,6 @@ class MenuManager:
         self.on_selection = on_selection
 
         self.menu = MenuItem(self, None, "root", None, [
-            MenuItem(self, "button_hold", "space", "Hold"),
-            MenuItem(self, "button_2d", "2", "2D"),
-            MenuItem(self, "button_3d", "3", "3D"),
-            MenuItem(self, "button_waterfall", "4", "Waterfall"),
-            MenuItem(self, "button_boxes", "5", "Boxes"),
 
             MenuItem(self, "button_frequency", "f", "Frequency", [
                 MenuItem(self, None, None, "Centre\nFrequency"),
@@ -53,7 +48,8 @@ class MenuManager:
                 MenuItem(self, None, None, "Stop\nFrequency")
             ]),
             MenuItem(self, "button_span", "s", "Span", [
-                MenuItem(self, None, None, "Full Span")
+                MenuItem(self, None, None, "Full Span"),
+                MenuItem(self, None, None, "Zero Span")
             ]),
             MenuItem(self, "button_amplitude", "a", "Amplitude", [
                 MenuItem(self, None, None, "Reference\nLevel"),
@@ -70,13 +66,22 @@ class MenuManager:
                 MenuItem(self, None, None, "Range\nLevel"),
                 MenuItem(self, None, None, "Ref Level\nOffset")
                 ]),
+
+            MenuItem(self, "button_hold", "space", "Hold"),
+
+
             MenuItem(self, "button_mode", "ctrl+m", "Mode", [
                 MenuItem(self, None, None, "Wi-Fi"),
                 MenuItem(self, None, None, "Aviation"),
                 MenuItem(self, None, None, "Digital"),
             ]),
+            MenuItem(self, "button_preset", "r", "Preset"),
+            MenuItem(self, "button_max_hold", "x", "Max Hold"),
+            MenuItem(self, "button_peak_search", "p", "Peak Search"),
+            
+            
             MenuItem(self, "button_input_1", "i", "Input", [
-                MenuItem(self, None, None, "RTL Samples", [
+                MenuItem(self, None, None, "RTL\nSamples", [
                     MenuItem(self, None, None, "Bias Tee", [
                         MenuItem(self, None, None, "On"),
                         MenuItem(self, None, None, "Off")
@@ -87,12 +92,35 @@ class MenuManager:
                         MenuItem(self, None, None, "High")
                     ])
                 ]),
-                MenuItem(self, None, None, "HackRF Samples"),
-                MenuItem(self, None, None, "RTL Sweep"),
-                MenuItem(self, None, None, "HackRF Sweep"),
-                MenuItem(self, None, None, "Audio Samples"),
+                MenuItem(self, None, None, "HackRF\nSamples"),
+                MenuItem(self, None, None, "RTL\nSweep"),
+                MenuItem(self, None, None, "HackRF\nSweep"),
+                MenuItem(self, None, None, "Audio\nSamples"),
             ]),
+            #########
+
+            ### Curser UP/DOWN buttons to be mapped too
+            
+            ##########
+
+            MenuItem(self, "button_2d", "2", "2D"),
+            MenuItem(self, "button_3d", "3", "3D"),
+
+            # https://matplotlib.org/stable/users/explain/colors/colormaps.html
+
+            MenuItem(self, "button_waterfall", "4", "Waterfall", [
+                MenuItem(self, None, None, "Colour", [
+                    MenuItem(self, None, None, "Magma"),
+                    MenuItem(self, None, None, "Hot"),
+                    MenuItem(self, None, None, "Viridis")
+                ])
+            ]),
+                        
+                        
+            MenuItem(self, "button_boxes", "5", "Boxes"),
+
         ])
+
 
         self._bind_ui(self.menu, ui)
 
