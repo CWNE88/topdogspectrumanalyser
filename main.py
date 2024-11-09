@@ -47,8 +47,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_stacked_index = 0
         self.get_current_widget_timer().start(20)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
-
-
+        
         self.hackrf_sweep = HackRFSweep()
         self.hackrf_sweep.setup(start_freq=self.start_freq, stop_freq=self.stop_freq, bin_size=self.bin_size)
         self.hackrf_sweep.run()
@@ -56,16 +55,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.power_levels = None
         self.max_hold_levels = None
         self.frequency_bins = None
-        self.peak_hold_enabled = False
+        self.peak_search_frequency = None
+        self.peak_search_power = None
+
         self.peak_search_enabled = False
         self.max_hold_enabled = False
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_data)
         self.timer.start(20)
-        self.set_button_focus_policy(self)  # Avoids buttons being active after pressing
-
-
+        self.set_button_focus_policy(self)  # Avoids buttons keeping focus after pressing, so space bar works
         self.connect_buttons()
 
         self.menu = MenuManager(self, self.on_menu_selection)
@@ -74,14 +73,15 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget in parent.findChildren(QtWidgets.QPushButton):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
-
     def on_menu_selection(self, item: MenuItem):
         print (item.elementId)
         if item.elementId == "button_hold":
             self.toggle_hold()
         elif item.elementId == "button_2d":
+            self.button_2d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
             self.set_display(0)
         elif item.elementId == "button_3d":
+            self.button_3d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
             self.set_display(1)
         elif item.elementId == "button_waterfall":
             self.set_display(2)
@@ -91,8 +91,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.toggle_peak_search()
         elif item.elementId == "button_max_hold":
             self.toggle_max_hold()
-            
-        
 
     def keyPressEvent(self, event: QKeyEvent):
         self.menu.keyPressEvent(event)
@@ -102,27 +100,28 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.peak_search_enabled:
             print ("Peak search enabled")
             self.status_label.setText("Peak search enabled")
+            self.button_peak_search.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
         else:
             print ("Peak search disabled")
             self.status_label.setText("Peak search disabled")
-    
+            self.button_peak_search.setStyleSheet("background-color: #ffffff; color: black; font-weight: bold;")
 
-    # need to make this generic
     def toggle_max_hold(self):
         self.max_hold_enabled = not self.max_hold_enabled
+
         if self.max_hold_enabled:
             print ("Max hold enabled")
             self.status_label.setText("Max hold enabled")
-            self.max_hold_enabled = True
+            self.button_max_hold.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
+            self.max_hold_levels = self.power_levels
             self.two_d_widget.set_max_hold_enabled (True)
+            
         else:
             print ("Max hold disabled")
             self.status_label.setText("Max hold disabled")
-            self.max_hold_enabled = False
+            self.button_max_hold.setStyleSheet("background-color: #ffffff; color: black; font-weight: bold;")
             self.two_d_widget.set_max_hold_enabled  (False)
-            self.max_hold_levels = 0
-    
-
+            
 
     def toggle_hold(self):
         self.is_paused = not self.is_paused
@@ -168,10 +167,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def set_display(self, index):
+        
         self.get_current_widget_timer().stop()
         self.current_stacked_index = index
         self.stacked_widget.setCurrentIndex(index)
         self.get_current_widget_timer().start(20)
+        
 
     def get_current_widget_timer(self):
         widget_timers = {
@@ -183,28 +184,36 @@ class MainWindow(QtWidgets.QMainWindow):
         return widget_timers.get(self.current_stacked_index)
 
     def update_data(self):
-        power_levels = self.hackrf_sweep.get_data()
+        power_level_data = self.hackrf_sweep.get_data()
 
-        if len(power_levels) > 0:
+        if len(power_level_data) > 0:
+            # Set up array if different from previous
             if self.frequency_bins is None or self.start_freq != self.last_start_freq or self.stop_freq != self.last_stop_freq:
-                self.frequency_bins = np.linspace(self.start_freq, self.stop_freq, len(power_levels))
+                self.frequency_bins = np.linspace(self.start_freq, self.stop_freq, len(power_level_data))
                 self.last_start_freq = self.start_freq
                 self.last_stop_freq = self.stop_freq
+            if self.power_levels is None or len(self.power_levels) != len(power_level_data):
+                self.power_levels = np.copy(power_level_data)
 
-            if self.power_levels is None or len(self.power_levels) != len(power_levels):
-                self.power_levels = np.copy(power_levels)
+            self.power_levels = power_level_data
+
+            if self.max_hold_levels is None:
+                self.max_hold_levels = np.array(self.power_levels)
+            else:
+                self.max_hold_levels = np.maximum(self.max_hold_levels, self.power_levels)
+
+            # Peak search
+            if self.peak_search_enabled:
+                peak_index=np.where(self.power_levels == np.amax(self.power_levels))
+                self.peak_search_power = (self.power_levels[peak_index])
+                self.peak_search_frequency = (self.frequency_bins[peak_index])
+                self.two_d_widget.set_peak_search_enabled(self.peak_search_enabled, self.peak_search_frequency[0], self.peak_search_power[0])
+
+
+
                 
-
-            if np.max(np.abs(self.power_levels - power_levels)) > 0.1:
-                self.power_levels = power_levels
-
-                if self.max_hold_levels is None:
-                    self.max_hold_levels = np.array(self.power_levels)
-                else:
-                    self.max_hold_levels = np.maximum(self.max_hold_levels, self.power_levels)
-
             if self.current_stacked_index == 0:
-                self.two_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
+                self.two_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins, self.peak_search_enabled)
             elif self.current_stacked_index == 1:
                 self.three_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
             elif self.current_stacked_index == 2:
