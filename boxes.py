@@ -145,5 +145,5 @@ class Boxes(QtWidgets.QMainWindow):
 
             self.y = np.zeros(len(self.frequency_bins))
             self.z = np.zeros(len(self.frequency_bins))
-            self.update_visualisation()
+#            self.update_visualisation()
  
