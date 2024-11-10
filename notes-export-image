@@ -1,0 +1,48 @@
+from PyQt6.QtGui import QImage, QPainter
+
+class MainWindow(QtWidgets.QMainWindow):
+    # ... existing code ...
+
+    def connect_buttons(self):
+        button_actions = {
+            "button_mode": lambda: self.handle_menu_button("Mode"),
+            "button_preset": lambda: self.preset(),
+            "button_max_hold": lambda: self.toggle_max_hold(),
+            "button_hold": lambda: self.toggle_hold(),
+            "button_peak_search": lambda: self.toggle_peak_search(),
+            "button_2d": lambda: self.set_display(0),
+            "button_3d": lambda: self.set_display(1),
+            "button_waterfall": lambda: self.set_display(2),
+            "button_boxes": lambda: self.set_display(3),
+            "button_vert_horiz": lambda: self.toggle_orientation(),
+            "button_export_image": lambda: self.export_image()  # Add the export image button
+        }
+
+    # New method to export the current displayed widget as an image
+    def export_image(self, filename="exported_image.png"):
+        # Get the currently visible widget inside the stacked widget
+        current_widget = self.stacked_widget.currentWidget()
+        
+        # Check if the widget is valid
+        if current_widget is None:
+            print("No widget currently displayed.")
+            return
+
+        # Create a QImage to capture the widget content
+        image = QImage(current_widget.size(), QImage.Format_RGB888)
+        image.fill(QtCore.Qt.white)  # Optional: Set a white background
+        
+        # Create a QPainter to draw the widget into the image
+        painter = QPainter(image)
+        current_widget.render(painter)  # Render the widget onto the QPainter
+        painter.end()  # End the painter
+
+        # Save the image to the specified file
+        if image.save(filename):
+            print(f"Image successfully saved as {filename}")
+        else:
+            print("Failed to save the image.")
+
+    # ... existing code ...
+
+

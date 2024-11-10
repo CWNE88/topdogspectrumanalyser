@@ -26,9 +26,9 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq = 2.4e9 
-        self.stop_freq = 2.5e9
-        self.bin_size = 50e3
+        self.start_freq = 88e6
+        self.stop_freq = 108e6
+        self.bin_size = 10e3
         
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()
@@ -46,6 +46,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.current_stacked_index = 0
         self.get_current_widget_timer().start(20)
+        #QtCore.QTimer.singleShot(100, self.check_data_ready)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
         self.hackrf_sweep = HackRFSweep()
@@ -54,12 +55,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.power_levels = None
         self.max_hold_levels = None
+        self.min_hold_levels = None
         self.frequency_bins = None
         self.peak_search_frequency = None
         self.peak_search_power = None
 
         self.peak_search_enabled = False
         self.max_hold_enabled = False
+        self.min_hold_enabled = True
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_data)
@@ -136,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status_label.setText("Animation resumed")
             self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
             self.get_current_widget_timer().start(20)
-
+            
     def connect_buttons(self):
         button_actions = {
             "button_mode": lambda: self.handle_menu_button("Mode"),
@@ -202,18 +205,34 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.max_hold_levels = np.maximum(self.max_hold_levels, self.power_levels)
 
+            # Update min hold only if max hold is enabled
+            if self.max_hold_enabled:
+                if self.min_hold_levels is None:
+                    self.min_hold_levels = np.array(self.power_levels)
+                else:
+                    self.min_hold_levels = np.minimum(self.min_hold_levels, self.power_levels)
+
             # Peak search
             if self.peak_search_enabled:
-                peak_index=np.where(self.power_levels == np.amax(self.power_levels))
+                peak_index = np.where(self.power_levels == np.amax(self.power_levels))
                 self.peak_search_power = (self.power_levels[peak_index])
                 self.peak_search_frequency = (self.frequency_bins[peak_index])
                 self.two_d_widget.set_peak_search_enabled(self.peak_search_enabled, self.peak_search_frequency[0], self.peak_search_power[0])
+
+            if self.current_stacked_index == 0:
+                self.two_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.min_hold_levels, self.frequency_bins, self.peak_search_enabled)
+            elif self.current_stacked_index == 1:
+                self.three_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
+            elif self.current_stacked_index == 2:
+                self.waterfall_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
+            elif self.current_stacked_index == 3:
+                self.boxes_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
 
 
 
                 
             if self.current_stacked_index == 0:
-                self.two_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins, self.peak_search_enabled)
+                self.two_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.min_hold_levels, self.frequency_bins, self.peak_search_enabled)
             elif self.current_stacked_index == 1:
                 self.three_d_widget.update_widget_data(self.power_levels, self.max_hold_levels, self.frequency_bins)
             elif self.current_stacked_index == 2:
