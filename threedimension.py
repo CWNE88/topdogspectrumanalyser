@@ -43,6 +43,9 @@ class ThreeD(QtWidgets.QWidget):
         self.timer.timeout.connect(self.update)
         #self.timer.start(20)
 
+        self.peak_search_enabled = False
+        self.peak_marker = None
+
         gx = gl.GLGridItem()
         gx.rotate(90, 0, 1, 0)
         gx.translate(-10, 0, 0)
@@ -78,6 +81,14 @@ class ThreeD(QtWidgets.QWidget):
         self.traces_initialised = False
         self.last_power_levels = None
         print ("3d init")
+
+
+        peakpoints = gl.MeshData.sphere(rows=10, cols=10) 
+        self.peaksphere = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
+        self.peaksphere.resetTransform()
+        self.peaksphere.scale(0.1, 0.1, 0.1)
+        self.peaksphere.translate(2, 0, 0)
+        self.widget.addItem(self.peaksphere)
 
     def initialise_traces(self):
         if self.traces_initialised or self.frequency_bins is None:
@@ -136,7 +147,34 @@ class ThreeD(QtWidgets.QWidget):
         specanpts = np.vstack([self.x, y, self.z]).T
         self.set_plotdata(name=0, points=specanpts, color=goodcolours, width=1)
 
-    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins):
+        ###
+
+        if self.peak_search_enabled:
+            maxxindex=np.where(self.power_levels == np.amax(self.power_levels))
+            self.peaksphere.resetTransform()
+            self.peaksphere.scale(0.2, 0.2, 0.2)
+            self.peaksphere.translate(self.x[maxxindex], 10, np.max(self.z))
+            
+            
+            self.peak_text.setData(
+            pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency"
+                 )
+
+
+    
+
+
+
+    def set_peak_search_enabled(self, is_enabled):
+        self.peak_search_enabled = is_enabled
+        print ("Peak search enabled is " + str(is_enabled))
+    
+    def set_peak_search_value(self, power, frequency):
+        self.peak_search_power = power
+        self.peak_search_frequency = frequency
+
+
+    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins, peak_search_enabled):
         if (
             power_levels is not None
             and max_hold_levels is not None
@@ -145,6 +183,7 @@ class ThreeD(QtWidgets.QWidget):
             self.power_levels = power_levels
             self.max_hold_levels = max_hold_levels
             self.frequency_bins = frequency_bins
+            self.peak_search_enabled = peak_search_enabled
 
             self.y = np.zeros(len(self.frequency_bins))
             self.z = np.zeros(len(self.frequency_bins))

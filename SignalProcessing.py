@@ -2,7 +2,7 @@ import numpy as np
 from scipy.signal import butter, filtfilt, spectrogram, welch
 from scipy.fft import fft
 
-class process:
+class DSP:
     
     def do_fft(self, samples):
         self.fft_result = fft(samples)
@@ -19,7 +19,7 @@ class process:
     def get_log_magnitude(self, magnitude):
         self.log_magnitude = 20 * np.log10(magnitude + 1e-12)  
         return self.log_magnitude
-
+    
     def butter_lowpass(cutoff, fs, order=5):
         nyq = 0.5 * fs
         normal_cutoff = cutoff / nyq

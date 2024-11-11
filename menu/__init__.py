@@ -199,7 +199,7 @@ class MenuManager:
                     
     def on_action(self, item: MenuItem):
         def on_action_inner():
-            print(f"Menu item {item.name} pressed")
+            #print(f"Menu item {item.name} pressed")
             if item.children and len(item.children) > 0:
                 self._bind_soft_buttons(item)
                 self._bind_ui(item, self.ui)

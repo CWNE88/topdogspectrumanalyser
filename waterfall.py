@@ -22,7 +22,7 @@ class Waterfall(QtWidgets.QWidget):
         self.frequency_bins = None
         self.waterfall_array = None 
         self.initialised = False
-        self.history_amount = 200
+        self.history_amount = 1000
         self.min_level = -80
         self.max_level = -60
 
@@ -55,7 +55,7 @@ class Waterfall(QtWidgets.QWidget):
 
     def update_plot(self):
         if self.power_levels is None or self.frequency_bins is None:
-            print("Power levels or frequency bins are None\n")
+            
             return
 
         if self.waterfall_array is None:
