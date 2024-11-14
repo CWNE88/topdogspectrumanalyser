@@ -28,8 +28,8 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq = 2.4e9  
-        self.stop_freq = 2.5e9
+        self.start_freq =  2.4e9 #115e6
+        self.stop_freq = 2.5e9 #135e6
         self.bin_size = 50e3
         
         self.two_d_widget = twodimension.TwoD()
@@ -47,7 +47,7 @@ class MainWindow(QtWidgets.QMainWindow):
         graphical_display_widget.layout().addWidget(self.stacked_widget)
 
         self.current_stacked_index = 0
-        self.get_current_widget_timer().start(20)
+        self.get_current_widget_timer().start(40)
         #QtCore.QTimer.singleShot(100, self.check_data_ready)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
@@ -81,7 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_data)
-        self.timer.start(20)
+        self.timer.start(40)
         self.set_button_focus_policy(self)  # Avoids buttons keeping focus after pressing, so space bar works
         self.connect_buttons()
 
@@ -110,7 +110,27 @@ class MainWindow(QtWidgets.QMainWindow):
         elif item.elementId == "button_max_hold":
             self.toggle_max_hold()
 
+    #def keyPressEvent(self, event: QKeyEvent):
+    #    self.menu.keyPressEvent(event)
+
     def keyPressEvent(self, event: QKeyEvent):
+        if event.modifiers() == Qt.KeyboardModifier.AltModifier and event.key() == Qt.Key.Key_Return:
+            # Create a new window for the graphical display
+            self.graphical_display_window = QtWidgets.QWidget()
+            self.graphical_display_window.setWindowTitle("Graphical Display")
+            self.graphical_display_window.setLayout(QtWidgets.QVBoxLayout())
+            
+            # Remove the graphical display from the main window
+            graphical_display_widget = self.findChild(QtWidgets.QWidget, "graphical_display")
+            graphical_display_widget_parent = graphical_display_widget.parent()
+            graphical_display_widget_parent.layout().removeWidget(graphical_display_widget)
+            
+            # Add the graphical display to the new window
+            self.graphical_display_window.layout().addWidget(graphical_display_widget)
+            
+            # Show the new window
+            self.graphical_display_window.show()
+        
         self.menu.keyPressEvent(event)
 
     def toggle_peak_search(self):
@@ -207,6 +227,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.frequency_bins = np.linspace(self.start_freq, self.stop_freq, len(power_level_data))
                 self.last_start_freq = self.start_freq
                 self.last_stop_freq = self.stop_freq
+                self.waterfall_widget.update_frequency_bins(self.frequency_bins)
                 self.frequency_bins_changed = True
             if self.live_power_levels is None or len(self.live_power_levels) != len(power_level_data):
                 self.live_power_levels = np.copy(power_level_data)
@@ -246,12 +267,6 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.two_d_widget.set_peak_search_enabled(False)
 
-                
-
-
-
-                
-                
             # Pass data to widgets
             if self.current_stacked_index == 0:
                 if self.max_hold_enabled:
@@ -267,6 +282,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.two_d_widget.update_max_power_levels(self.max_power_levels)
                 if self.peak_search_enabled:
                     self.two_d_widget.set_peak_search_enabled(True)
+            
+            if self.current_stacked_index == 2:
+                #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
+                self.waterfall_widget.update_live_power_levels(self.live_power_levels)
 
              
             

@@ -29,8 +29,8 @@ class HackRFSweep:
                 "-f", f"{self.start_freq}:{self.stop_freq}",
                 "-B",
                 "-a 1",
-                "-g 20",
-                "-l 20",
+                "-g 40",
+                "-l 40",
                 "-w", str(self.bin_size)
             ]
             print(f"Running command: {' '.join(cmdline)}")
