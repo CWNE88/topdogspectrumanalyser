@@ -71,7 +71,16 @@ class MenuManager:
 
 
             MenuItem(self, "button_mode", "ctrl+m", "Mode", [
-                MenuItem(self, None, None, "Wi-Fi"),
+                MenuItem(self, None, None, "Wi-Fi", [
+                    MenuItem(self, None, None, "ISM\n2.4 GHz"),
+                    MenuItem(self, None, None, "UNII-1\n5 GHz"),
+                    MenuItem(self, None, None, "UNII-2A\n5 GHz"),
+                    MenuItem(self, None, None, "UNII-3\n5 GHz"),
+                    MenuItem(self, None, None, "UNII-5\n6 GHz"),
+                    MenuItem(self, None, None, "UNII-6\n6 GHz"),
+                    MenuItem(self, None, None, "UNII-7\n6 GHz"),
+                    MenuItem(self, None, None, "UNII-8\n6 GHz")
+                ]),
                 MenuItem(self, None, None, "Aviation"),
                 MenuItem(self, None, None, "Digital"),
             ]),

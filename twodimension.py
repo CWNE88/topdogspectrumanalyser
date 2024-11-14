@@ -98,9 +98,9 @@ class TwoD(QtWidgets.QWidget):
             self.peak_search_marker = pg.ScatterPlotItem(
                 [self.peak_search_frequency / 1e6],  
                 [self.peak_search_power],            
-                symbol='o',
+                symbol='t',
                 brush='w',
-                size=10
+                size=15
             )
             self.widget.addItem(self.peak_search_marker)
         else:
@@ -135,6 +135,9 @@ class TwoD(QtWidgets.QWidget):
             self.max_hold_trace.setData(self.frequency_bins / 1e6, self.max_power_levels)
         else:
             self.max_hold_trace.clear()
+            if self.max_peak_search_label is not None:
+                self.widget.removeItem(self.max_peak_search_label)
+                self.max_peak_search_label = None
 
         if self.peak_search_enabled:
 
@@ -172,13 +175,16 @@ class TwoD(QtWidgets.QWidget):
                 self.max_peak_search_label.setPos(self.max_peak_search_frequency / 1e6, ymin + (ymax - ymin))
                 
                 self.update_max_peak_search_marker()
-
+            else:
+                self.widget.removeItem(self.max_peak_search_label)
+                self.max_peak_search_label = None
         
         
         else:
             if self.max_peak_search_label is not None:
                 self.widget.removeItem(self.max_peak_search_label)
                 self.max_peak_search_label = None
+                self.widget.removeItem(self.max_peak_search_marker)
             
 
             else:
