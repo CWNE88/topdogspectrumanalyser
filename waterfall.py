@@ -14,29 +14,44 @@ class Waterfall(QtWidgets.QWidget):
         self.plot_item.setLabel('left', 'History (Frames)')
         self.plot_item.setLabel('bottom', 'Frequency (MHz)')
 
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.widget)
+        self.histogram_layout = pg.GraphicsLayoutWidget(self)
+        self.histogram = pg.HistogramLUTItem()
+        self.histogram_layout.addItem(self.histogram)
 
-        self.power_levels = None
-        self.max_hold_levels = None
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.addWidget(self.widget)
+        layout.addWidget(self.histogram_layout)
+
+        layout.setStretch(0, 4)
+        layout.setStretch(1, 1)
+
+        self.live_power_levels = None
         self.frequency_bins = None
-        self.waterfall_array = None 
+        self.waterfall_array = None
         self.initialised = False
-        self.history_amount = 1000
+        self.history_amount = 500
         self.min_level = -80
         self.max_level = -60
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
-        #self.timer.start(20)
+
         self.colourmap = pg.colormap.get('magma')
+        self.histogram.gradient.loadPreset("flame")
 
+        # Set manual levels for the histogram (fixed range)
+        self.histogram.setLevels(self.min_level, self.max_level)
 
-    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins):
-        
-        if power_levels is not None and max_hold_levels is not None and frequency_bins is not None:
-            self.power_levels = power_levels
-            self.max_hold_levels = max_hold_levels
+    def update_frequency_bins(self, freq_bins):
+        self.frequency_bins = freq_bins
+        self.initialise_waterfall()
+
+    def update_live_power_levels(self, pwr_lvls):
+        self.live_power_levels = pwr_lvls
+
+    def update_widget_data(self, power_levels, frequency_bins):
+        if power_levels is not None and frequency_bins is not None:
+            self.live_power_levels = power_levels
             self.frequency_bins = frequency_bins
 
             if not self.initialised:
@@ -51,21 +66,23 @@ class Waterfall(QtWidgets.QWidget):
 
         print("Initialising waterfall\n")
         self.waterfall_array = np.zeros((self.history_amount, len(self.frequency_bins)))
-        self.initialised = True  
+        self.initialised = True
+        self.histogram.setImageItem(self.image_item)
 
     def update_plot(self):
-        if self.power_levels is None or self.frequency_bins is None:
-            
+        if self.live_power_levels is None or self.frequency_bins is None:
+            print("Power levels or frequency bins are None\n")
             return
 
         if self.waterfall_array is None:
             print("Waterfall not initialised.\n")
             return
 
-        self.waterfall_array[:-1] = self.waterfall_array[1:]    # Shift old data up
-        self.waterfall_array[-1] = self.power_levels            # Insert new data at the bottom
+        self.waterfall_array = np.roll(self.waterfall_array, -1, axis=0)
+        self.waterfall_array[-1] = self.live_power_levels
+
         lut = self.colourmap.getLookupTable(0.0, 1.0, 256)
         self.image_item.setImage(self.waterfall_array.T, autoLevels=False, levels=(self.min_level, self.max_level), lut=lut)
-        
 
-        
+        # Set the histogram levels manually (fixed range)
+        self.histogram.setLevels(self.min_level, self.max_level)
