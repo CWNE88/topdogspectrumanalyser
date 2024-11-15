@@ -28,9 +28,9 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq =  2.4e9 #115e6
-        self.stop_freq = 2.5e9 #135e6
-        self.bin_size = 50e3
+        self.start_freq =  115e6
+        self.stop_freq = 135e6
+        self.bin_size = 10e3
         
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()
@@ -283,6 +283,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.peak_search_enabled:
                     self.two_d_widget.set_peak_search_enabled(True)
             
+            if self.current_stacked_index == 1:
+                #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
+                self.three_d_widget.update_widget_data(self.live_power_levels, self.max_power_levels, self.frequency_bins, self.peak_search_enabled)
+
             if self.current_stacked_index == 2:
                 #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
                 self.waterfall_widget.update_live_power_levels(self.live_power_levels)
