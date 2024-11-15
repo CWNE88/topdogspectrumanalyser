@@ -30,8 +30,8 @@ class Waterfall(QtWidgets.QWidget):
         self.waterfall_array = None
         self.initialised = False
         self.history_amount = 500
-        self.min_level = -80
-        self.max_level = -60
+        #self.min_level = -80
+        #self.max_level = -60
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
@@ -40,7 +40,7 @@ class Waterfall(QtWidgets.QWidget):
         self.histogram.gradient.loadPreset("flame")
 
         # Set manual levels for the histogram (fixed range)
-        self.histogram.setLevels(self.min_level, self.max_level)
+        #self.histogram.setLevels(self.min_level, self.max_level)
 
     def update_frequency_bins(self, freq_bins):
         self.frequency_bins = freq_bins
@@ -82,7 +82,8 @@ class Waterfall(QtWidgets.QWidget):
         self.waterfall_array[-1] = self.live_power_levels
 
         lut = self.colourmap.getLookupTable(0.0, 1.0, 256)
-        self.image_item.setImage(self.waterfall_array.T, autoLevels=False, levels=(self.min_level, self.max_level), lut=lut)
+        #self.image_item.setImage(self.waterfall_array.T, autoLevels=False, levels=(self.min_level, self.max_level), lut=lut)
+        self.image_item.setImage(self.waterfall_array.T, autoLevels=False, lut=lut)
 
         # Set the histogram levels manually (fixed range)
-        self.histogram.setLevels(self.min_level, self.max_level)
+        #self.histogram.setLevels(self.min_level, self.max_level)
