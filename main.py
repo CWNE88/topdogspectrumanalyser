@@ -10,6 +10,7 @@ from input_hackrf_sweep import HackRFSweep
 import twodimension
 import threedimension
 import waterfall
+import logo
 import boxes
 from PyQt6.QtWidgets import QStackedWidget
 from SignalProcessing import DSP as dsp
@@ -37,17 +38,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.three_d_widget = threedimension.ThreeD()
         self.waterfall_widget = waterfall.Waterfall()
         self.boxes_widget = boxes.Boxes()
+        self.logo_widget = logo.Logo()
 
         self.stacked_widget = QStackedWidget(self)
         self.stacked_widget.addWidget(self.two_d_widget)
         self.stacked_widget.addWidget(self.three_d_widget)
         self.stacked_widget.addWidget(self.waterfall_widget)
         self.stacked_widget.addWidget(self.boxes_widget)
+        self.stacked_widget.addWidget(self.logo_widget)
 
         graphical_display_widget = self.findChild(QtWidgets.QWidget, "graphical_display")
         graphical_display_widget.layout().addWidget(self.stacked_widget)
 
-        self.current_stacked_index = 0
+        self.current_stacked_index = 4
         self.get_current_widget_timer().start(20)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
@@ -227,7 +230,8 @@ class MainWindow(QtWidgets.QMainWindow):
             0: self.two_d_widget.timer,
             1: self.three_d_widget.timer,
             2: self.waterfall_widget.timer,
-            3: self.boxes_widget.timer
+            3: self.boxes_widget.timer,
+            4: self.logo_widget.timer
         }
         return widget_timers.get(self.current_stacked_index)
 
