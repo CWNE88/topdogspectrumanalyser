@@ -13,7 +13,7 @@ import waterfall
 import boxes
 from PyQt6.QtWidgets import QStackedWidget
 from SignalProcessing import DSP as dsp
-
+import matplotlib as mpl
 from menu import MenuManager, MenuItem
 import cProfile
 
@@ -28,9 +28,10 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq =  115e6
+        self.start_freq = 115e6
         self.stop_freq = 135e6
         self.bin_size = 10e3
+        self.centre_freq = None
         
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()
@@ -47,8 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
         graphical_display_widget.layout().addWidget(self.stacked_widget)
 
         self.current_stacked_index = 0
-        self.get_current_widget_timer().start(40)
-        #QtCore.QTimer.singleShot(100, self.check_data_ready)
+        self.get_current_widget_timer().start(20)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
         self.hackrf_sweep = HackRFSweep()
@@ -86,6 +86,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.connect_buttons()
 
         self.menu = MenuManager(self, self.on_menu_selection)
+
+        # display stuff
+        self.res_bw = None
+        self.span = None
+        self.engformat = mpl.ticker.EngFormatter(places=2) 
     
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
@@ -156,7 +161,8 @@ class MainWindow(QtWidgets.QMainWindow):
             print ("Max hold disabled")
             self.status_label.setText("Max hold disabled")
             self.button_max_hold.setStyleSheet("background-color: #ffffff; color: black; font-weight: bold;")
-            self.two_d_widget.set_max_hold_enabled  (False)
+            self.max_power_levels = None
+            
             
 
     def toggle_hold(self):
@@ -199,13 +205,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.output_res_bw = self.findChild(QtWidgets.QLabel, "output_res_bw")
         self.status_label = self.findChild(QtWidgets.QLabel, "status_label")
         self.input_value = self.findChild(QtWidgets.QLabel, "input_value")
+        self.label_sample_rage = self.findChild(QtWidgets.QLabel, "label_sample_rate")
         
 
 
     def set_display(self, index):        
+        print ("in main set_display")
         self.get_current_widget_timer().stop()
         self.current_stacked_index = index
         self.stacked_widget.setCurrentIndex(index)
+        if self.stacked_widget==2:
+            self.three_d_widget.set_number_of_points(len(self.frequency_bins))
+            print (len(self.frequency_bins))
+            self.three_d_widget.initialise_traces()
+            
         self.get_current_widget_timer().start(20)
         
 
@@ -222,16 +235,32 @@ class MainWindow(QtWidgets.QMainWindow):
         power_level_data = self.hackrf_sweep.get_data()
 
         if len(power_level_data) > 0:
-            # Set up array if different from previous
+            self.status_label.setText("bin length" +(str(len(power_level_data))))
+
+            # Set up self.frequency_bins if different from previous
             if self.frequency_bins is None or self.start_freq != self.last_start_freq or self.stop_freq != self.last_stop_freq:
+                
+                # Create new frequency bins
                 self.frequency_bins = np.linspace(self.start_freq, self.stop_freq, len(power_level_data))
                 self.last_start_freq = self.start_freq
                 self.last_stop_freq = self.stop_freq
-                self.waterfall_widget.update_frequency_bins(self.frequency_bins)
+                self.span = self.stop_freq - self.start_freq
+                self.centre_freq = self.span/2 + self.start_freq
+                self.res_bw = (self.span / len(self.frequency_bins))
                 self.frequency_bins_changed = True
-            if self.live_power_levels is None or len(self.live_power_levels) != len(power_level_data):
-                self.live_power_levels = np.copy(power_level_data)
 
+                # Update gui values
+                self.output_start_freq.setText(self.engformat(self.start_freq) + "Hz")
+                self.output_stop_freq.setText(self.engformat(self.stop_freq) + "Hz")
+                self.output_span.setText(self.engformat(self.span) + "Hz")
+                self.output_res_bw.setText(self.engformat(self.res_bw) + "Hz")
+                self.output_centre_freq.setText(self.engformat(self.centre_freq) + "Hz")
+
+                ## TESTING
+                self.label_sample_rate.setText("Sweeps /s")
+                
+
+            
             # Update power array
             self.live_power_levels = power_level_data
 
@@ -241,58 +270,80 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.max_power_levels = np.array(self.live_power_levels)
                 else:
                     self.max_power_levels = np.maximum(self.max_power_levels, self.live_power_levels)
-
-            
             
             # Peak search
- 
             if self.peak_search_enabled:
                 peak_index = np.argmax(self.live_power_levels)
                 self.peak_search_power = self.live_power_levels[peak_index]
                 self.peak_search_frequency = self.frequency_bins[peak_index]
-                self.two_d_widget.set_peak_search_frequency_and_power(self.peak_search_frequency, self.peak_search_power)                
-                self.two_d_widget.set_peak_search_enabled(True)
- #               print (self.peak_search_frequency)
             
-                # Max peak search
+                # Max hold peak search
                 if self.max_hold_enabled:
                     peak_index = np.argmax(self.max_power_levels)
                     self.max_peak_search_power = self.max_power_levels[peak_index]
                     self.max_peak_search_frequency = self.frequency_bins[peak_index]
-                    self.two_d_widget.set_max_peak_search_frequency_and_power(self.max_peak_search_frequency, self.max_peak_search_power)                
-                    self.two_d_widget.set_max_peak_search_enabled(True)
-#                    print (self.max_peak_search_frequency)
-            
-            
-            else:
-                self.two_d_widget.set_peak_search_enabled(False)
+                
 
             # Pass data to widgets
-            if self.current_stacked_index == 0:
-                if self.max_hold_enabled:
+            if not self.is_paused:
+
+                # If 2d widget
+                if self.current_stacked_index == 0:
+                    
+                    # always update live power
+                    self.two_d_widget.update_live_power_levels(self.live_power_levels)
+
+                    # update max hold
+                    if self.max_hold_enabled:
+                        self.two_d_widget.set_max_hold_enabled(True)
+                        self.two_d_widget.update_max_power_levels(self.max_power_levels)
+                    else:
+                        self.two_d_widget.set_max_hold_enabled(False)
+
+                    # update peak search
                     if self.peak_search_enabled:
-                        self.max_peak_search_enabled = True
+                        self.two_d_widget.set_peak_search_enabled(True)
+                        self.two_d_widget.set_peak_search_frequency_and_power(self.peak_search_frequency, self.peak_search_power)
+                    else:
+                        self.two_d_widget.set_peak_search_enabled(False)
+                    
+                    # update max peak search
+                    if self.max_peak_search_enabled:
                         self.two_d_widget.set_max_peak_search_enabled(True)
-           
-                if self.frequency_bins_changed:
-                    self.two_d_widget.update_frequency_bins(self.frequency_bins)
-                    self.frequency_bins_changed = False
-                self.two_d_widget.update_live_power_levels(self.live_power_levels)
-                if self.max_hold_enabled:
-                    self.two_d_widget.update_max_power_levels(self.max_power_levels)
-                if self.peak_search_enabled:
-                    self.two_d_widget.set_peak_search_enabled(True)
-            
-            if self.current_stacked_index == 1:
-                #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
-                self.three_d_widget.update_widget_data(self.live_power_levels, self.max_power_levels, self.frequency_bins, self.peak_search_enabled)
+                        self.two_d_widget.set_max_peak_search_frequency_and_power(self.max_peak_search_frequency, self.max_peak_search_power)
+                    else:
+                        self.two_d_widget.set_max_peak_search_enabled(False)
 
-            if self.current_stacked_index == 2:
-                #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
-                self.waterfall_widget.update_live_power_levels(self.live_power_levels)
+                    #
+                    if self.frequency_bins_changed:
+                        self.two_d_widget.update_frequency_bins(self.frequency_bins)
+                        self.frequency_bins_changed = False
+                    
+                # If 3d widget
+                if self.current_stacked_index == 1:
 
-             
-            
+                    # update peak search
+                    if self.peak_search_enabled:
+                        self.three_d_widget.set_peak_search_enabled(True)
+                        self.three_d_widget.set_peak_search_frequency_and_power(self.peak_search_frequency, self.peak_search_power)
+                    
+                    # Only pass frequencies if traces haven't been initialised
+                    if not self.three_d_widget.traces_initialised:
+                        self.three_d_widget.update_frequency_bins(self.frequency_bins)
+                    
+                    # Pass power to widget
+                    self.three_d_widget.update_live_power_levels(self.live_power_levels)
+                    if not self.three_d_widget.traces_initialised:
+                        self.three_d_widget.initialise_traces()
+                    self.three_d_widget.traces_initialised = True
+                    
+
+                if self.current_stacked_index == 2:
+                    #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
+                    self.waterfall_widget.update_live_power_levels(self.live_power_levels)
+
+                
+                
 
  
     def closeEvent(self, event):

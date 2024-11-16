@@ -114,9 +114,9 @@ class TwoD(QtWidgets.QWidget):
             self.max_peak_search_marker = pg.ScatterPlotItem(
                 [self.max_peak_search_frequency / 1e6],  
                 [self.max_peak_search_power],            
-                symbol='o',
+                symbol='t',
                 brush='w',
-                size=10
+                size=15
             )
             self.widget.addItem(self.max_peak_search_marker)
         else:
@@ -189,7 +189,6 @@ class TwoD(QtWidgets.QWidget):
 
             else:
                 if self.peak_search_label is not None:
-                    print ("storm")
                     self.widget.removeItem(self.peak_search_label)
                     self.peak_search_label = None
                     self.widget.removeItem(self.peak_search_marker)

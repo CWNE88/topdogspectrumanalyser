@@ -20,7 +20,7 @@ class ThreeD(QtWidgets.QWidget):
         super().__init__()
 
         self.widget = gl.GLViewWidget()
-        self.power_levels = None
+        self.live_power_levels = None
         self.frequency_bins = None
         self.max_hold_levels = None
 
@@ -31,9 +31,7 @@ class ThreeD(QtWidgets.QWidget):
         self.widget.opts["elevation"] = 28
         self.widget.opts["bgcolor"] = (0.0, 0.0, 0.0, 1.0)
         self.widget.opts["devicePixelRatio"] = 1
-        self.widget.opts["center"] = QtGui.QVector3D(
-            1.616751790046692, -0.9432722926139832, 0.0
-        )
+        self.widget.opts["center"] = QtGui.QVector3D(1.616751790046692, -0.9432722926139832, 0.0)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.widget)
@@ -41,59 +39,63 @@ class ThreeD(QtWidgets.QWidget):
         self.paused = False
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update)
-        #self.timer.start(20)
 
         self.peak_search_enabled = False
         self.peak_marker = None
 
-        gx = gl.GLGridItem()
-        gx.rotate(90, 0, 1, 0)
-        gx.translate(-10, 0, 0)
-        self.widget.addItem(gx)
+        self.side_grid = gl.GLGridItem()
+        self.side_grid.rotate(90, 0, 1, 0)
+        self.side_grid.translate(-10, 0, 0)
+        self.widget.addItem(self.side_grid)
+        self.side_grid_translated = False
 
-        gy = gl.GLGridItem()
-        gy.rotate(90, 1, 0, 0)
-        gy.translate(0, -10, 0)
-        self.widget.addItem(gy)
 
-        gz = gl.GLGridItem()
-        gz.translate(0, 0, -10)
-        self.widget.addItem(gz)
+
+        self.back_grid = gl.GLGridItem()
+        self.back_grid.rotate(90, 1, 0, 0)
+        self.back_grid.translate(0, -10, 0)
+        self.widget.addItem(self.back_grid)
+        
+
+
+
+        self.bottom_grid = gl.GLGridItem()
+        self.bottom_grid.translate(0, 0, -10)
+        self.widget.addItem(self.bottom_grid)
 
         self.numberoflines = 40
 
-        centre_text = gl.GLTextItem()
-        centre_text.setData(
-            pos=(0.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Centre frequency"
-        )
-        self.widget.addItem(centre_text)
-
         self.peak_text = gl.GLTextItem()
-        self.peak_text.setData(
-            pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency"
-        )
+        self.peak_text.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency")
         self.widget.addItem(self.peak_text)
 
         self.lineyvalues = np.linspace(10, -10, self.numberoflines)
 
         self.traces = dict()
+        
         self.x = None
+        self.y = None
         self.traces_initialised = False
-        self.last_power_levels = None
+        self.last_live_power_levels = None
         print ("3d init")
 
+        #peakpoints = gl.MeshData.sphere(rows=10, cols=10)
+        peakpoints = gl.MeshData.cylinder(rows=10, cols=20, radius = [0,1]) 
+        #self.peak_search_marker = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
+        self.peak_search_marker = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
+        self.peak_search_marker.resetTransform()
+        self.peak_search_marker.scale(0.1, 0.1, 0.1)
+        self.peak_search_marker.translate(2, 0, 0)
+        self.widget.addItem(self.peak_search_marker)
 
-        peakpoints = gl.MeshData.sphere(rows=10, cols=10) 
-        self.peaksphere = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
-        self.peaksphere.resetTransform()
-        self.peaksphere.scale(0.1, 0.1, 0.1)
-        self.peaksphere.translate(2, 0, 0)
-        self.widget.addItem(self.peaksphere)
+        self.engformat = mpl.ticker.EngFormatter(places=2) 
 
     def initialise_traces(self):
-        if self.traces_initialised or self.frequency_bins is None:
-            return
-
+        
+    
+        print ("in initialise_traces")
+        
+        
         self.x = np.linspace(10, -10, len(self.frequency_bins))
         for i in range(self.numberoflines):
             y_val = self.lineyvalues[i]
@@ -108,6 +110,7 @@ class ThreeD(QtWidgets.QWidget):
             self.widget.addItem(self.traces[i])
 
         self.traces_initialised = True
+        print ("self.traces_initialised = True")
 
     def start(self):
         if (sys.flags.interactive != 1) or not hasattr(QtCore, "PYQT_VERSION"):
@@ -116,17 +119,45 @@ class ThreeD(QtWidgets.QWidget):
     def set_plotdata(self, name, points, color, width):
         self.traces[name].setData(pos=points, color=color, width=width)
 
+    def set_number_of_points(self, number):
+        self.number_of_points = number
+
     def set_maxholddata(self, points, width):
         self.maxtrace.setData(pos=points, color=[0.0, 1.0, 0.0, 0.3], width=width)
 
+    def set_peak_search_enabled(self, pk_en):
+        self.peak_search_enabled = pk_en
+
+    def set_peak_search_frequency_and_power(self, pk, pwr):
+        self.peak_search_frequency = pk
+        self.peak_search_power = pwr
+
     def update(self):
-        if self.frequency_bins is None or self.power_levels is None:
+
+        #print (self.widget.opts["azimuth"])
+        if self.widget.opts["azimuth"] > 90 and not self.side_grid_translated:
+            print ("over 90")
+            self.side_grid.translate(20, 0, 0)
+            self.side_grid_translated = True
+
+
+
+
+        
+        # = QtGui.QVector3D(1.616751790046692, -0.9432722926139832, 0.0)
+
+
+
+
+        if self.frequency_bins is None or self.live_power_levels is None:
             return
 
-        if np.array_equal(self.power_levels, self.last_power_levels):
+        if np.array_equal(self.live_power_levels, self.last_live_power_levels):
             return
 
-        self.last_power_levels = self.power_levels.copy()
+        self.last_live_power_levels = self.live_power_levels.copy()
+
+        
 
         for i in range(self.numberoflines-1):
             trace = self.traces[self.numberoflines - i - 2]
@@ -135,8 +166,8 @@ class ThreeD(QtWidgets.QWidget):
             trace_pos[:, 1] = self.lineyvalues[self.numberoflines - i - 1]
             self.set_plotdata(name=self.numberoflines - i - 1, points=trace_pos, color=trace_color, width=1)
 
-        y = np.full([len(self.frequency_bins)], self.lineyvalues[0])
-        self.z = self.power_levels / 10
+        self.y = np.full([len(self.frequency_bins)], self.lineyvalues[0])
+        self.z = self.live_power_levels / 10
 
         goodcolours = np.empty([len(self.frequency_bins), 4])
         goodcolours[:, 3] = 1
@@ -144,48 +175,59 @@ class ThreeD(QtWidgets.QWidget):
         for i in range(len(self.frequency_bins)):
             goodcolours[i] = pg.glColor((8 - self.z[i], 8 * 1.4))
 
-        specanpts = np.vstack([self.x, y, self.z]).T
+        specanpts = np.vstack([self.x, self.y, self.z]).T
         self.set_plotdata(name=0, points=specanpts, color=goodcolours, width=1)
 
         ###
 
         if self.peak_search_enabled:
-            maxxindex=np.where(self.power_levels == np.amax(self.power_levels))
-            self.peaksphere.resetTransform()
-            self.peaksphere.scale(0.2, 0.2, 0.2)
-            self.peaksphere.translate(self.x[maxxindex], 10, np.max(self.z))
+            maxxindex=np.where(self.live_power_levels == np.amax(self.live_power_levels))
+            self.peak_search_marker.resetTransform()
+            self.peak_search_marker.scale(0.2, 0.2, 0.2)
+            self.peak_search_marker.translate(self.x[maxxindex], 10, np.max(self.z))
             
             
             self.peak_text.setData(
-            pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency"
+            
+            pos=(self.x[maxxindex][0], 10.0, 0.0), color=(255, 255, 255, 255), text=(self.engformat(self.peak_search_frequency) + "Hz")
                  )
-
-
-    
-
+            
+            
+            
+            
 
 
     def set_peak_search_enabled(self, is_enabled):
         self.peak_search_enabled = is_enabled
-        print ("Peak search enabled is " + str(is_enabled))
+        
     
     def set_peak_search_value(self, power, frequency):
         self.peak_search_power = power
         self.peak_search_frequency = frequency
+    
+    def update_live_power_levels(self, power_levels):
+        self.live_power_levels = power_levels
+
+    def update_frequency_bins(self, bins):
+        
+        self.frequency_bins = bins
+        #if self.traces == None:
+        #    self.initialise_traces
+        #print (self.traces)
 
 
-    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins, peak_search_enabled):
+    def update_widget_data(self, live_power_levels, max_hold_levels, frequency_bins, peak_search_enabled):
         if (
-            power_levels is not None
+            live_power_levels is not None
             and max_hold_levels is not None
             and frequency_bins is not None
         ):
-            self.power_levels = power_levels
+            self.live_power_levels = live_power_levels
             self.max_hold_levels = max_hold_levels
             self.frequency_bins = frequency_bins
             self.peak_search_enabled = peak_search_enabled
 
             self.y = np.zeros(len(self.frequency_bins))
             self.z = np.zeros(len(self.frequency_bins))
-            self.initialise_traces()
+            #self.initialise_traces()
  
