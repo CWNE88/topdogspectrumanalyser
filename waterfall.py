@@ -8,11 +8,16 @@ class Waterfall(QtWidgets.QWidget):
 
         self.widget = pg.GraphicsLayoutWidget(self)
         self.plot_item = self.widget.addPlot()
+
+
         self.image_item = pg.ImageItem()
         self.plot_item.addItem(self.image_item)
-
         self.plot_item.setLabel('left', 'History (Frames)')
         self.plot_item.setLabel('bottom', 'Frequency (MHz)')
+
+
+
+
 
         self.histogram_layout = pg.GraphicsLayoutWidget(self)
         self.histogram = pg.HistogramLUTItem()
@@ -22,25 +27,32 @@ class Waterfall(QtWidgets.QWidget):
         layout.addWidget(self.widget)
         layout.addWidget(self.histogram_layout)
 
-        layout.setStretch(0, 4)
+        layout.setStretch(0, 6)
         layout.setStretch(1, 1)
+        
 
         self.live_power_levels = None
         self.frequency_bins = None
         self.waterfall_array = None
         self.initialised = False
         self.history_amount = 500
-        #self.min_level = -80
-        #self.max_level = -60
+        self.min_level = -80
+        self.max_level = -60
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_plot)
 
         self.colourmap = pg.colormap.get('magma')
-        self.histogram.gradient.loadPreset("flame")
+        self.histogram.gradient.loadPreset("magma")
 
         # Set manual levels for the histogram (fixed range)
-        #self.histogram.setLevels(self.min_level, self.max_level)
+        self.histogram.setHistogramRange(self.min_level, self.max_level)
+        self.histogram.setLevels(self.min_level, self.max_level)
+
+
+
+
+
 
     def update_frequency_bins(self, freq_bins):
         self.frequency_bins = freq_bins
@@ -85,5 +97,4 @@ class Waterfall(QtWidgets.QWidget):
         #self.image_item.setImage(self.waterfall_array.T, autoLevels=False, levels=(self.min_level, self.max_level), lut=lut)
         self.image_item.setImage(self.waterfall_array.T, autoLevels=False, lut=lut)
 
-        # Set the histogram levels manually (fixed range)
-        #self.histogram.setLevels(self.min_level, self.max_level)
+

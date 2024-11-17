@@ -217,10 +217,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.get_current_widget_timer().stop()
         self.current_stacked_index = index
         self.stacked_widget.setCurrentIndex(index)
-        if self.stacked_widget==2:
-            self.three_d_widget.set_number_of_points(len(self.frequency_bins))
-            print (len(self.frequency_bins))
-            self.three_d_widget.initialise_traces()
+        
+        if self.current_stacked_index==2:
+            self.waterfall_widget.update_frequency_bins(self.frequency_bins)
+            self.waterfall_widget.initialise_waterfall()
             
         self.get_current_widget_timer().start(20)
         
@@ -341,13 +341,10 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.three_d_widget.initialise_traces()
                     self.three_d_widget.traces_initialised = True
                     
-
+                # If waterfall widget
                 if self.current_stacked_index == 2:
-                    #self.waterfall_widget.update_widget_data(self.live_power_levels, self.frequency_bins)
                     self.waterfall_widget.update_live_power_levels(self.live_power_levels)
 
-                
-                
 
  
     def closeEvent(self, event):
