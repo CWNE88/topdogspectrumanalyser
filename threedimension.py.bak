@@ -57,13 +57,13 @@ class ThreeD(QtWidgets.QWidget):
         self.widget.addItem(self.back_grid)
         
 
-        self.colourmap = pg.colormap.get('magma')
+
 
         self.bottom_grid = gl.GLGridItem()
         self.bottom_grid.translate(0, 0, -10)
         self.widget.addItem(self.bottom_grid)
 
-        self.numberoflines = 100
+        self.numberoflines = 40
 
         self.peak_text = gl.GLTextItem()
         self.peak_text.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency")
@@ -110,7 +110,6 @@ class ThreeD(QtWidgets.QWidget):
             self.widget.addItem(self.traces[i])
 
         self.traces_initialised = True
-        self.good_colours = np.empty((len(self.frequency_bins), 4))
         print ("self.traces_initialised = True")
 
     def start(self):
@@ -133,66 +132,69 @@ class ThreeD(QtWidgets.QWidget):
         self.peak_search_frequency = pk
         self.peak_search_power = pwr
 
+    def update(self):
 
-    def map_z_to_colour(self, z):
-        z_min, z_max = np.min(self.z), np.max(self.z)
-        normalised_z = (z - z_min) / (z_max - z_min)
-        lut = self.colourmap.getLookupTable(0.0, 1.0, 4)
-        idx = int(normalised_z * (len(lut) - 1))
-        rgb_colour = lut[idx][:3]  # Retrieve RGB values
-        rgba_colour = np.append(rgb_colour, 255)  # Add alpha channel (fully opaque)
-        return rgba_colour
+        #print (self.widget.opts["azimuth"])
+        if self.widget.opts["azimuth"] > 90 and not self.side_grid_translated:
+            print ("over 90")
+            self.side_grid.translate(20, 0, 0)
+            self.side_grid_translated = True
 
-    def update(self) -> None:
+
+
+
         
+        # = QtGui.QVector3D(1.616751790046692, -0.9432722926139832, 0.0)
+
+
+
+
         if self.frequency_bins is None or self.live_power_levels is None:
             return
-        
+
         if np.array_equal(self.live_power_levels, self.last_live_power_levels):
             return
-        
+
         self.last_live_power_levels = self.live_power_levels.copy()
+
         
-        # Update traces
-        for i in range(self.numberoflines - 1):
+
+        for i in range(self.numberoflines-1):
             trace = self.traces[self.numberoflines - i - 2]
             trace_pos = trace.pos
             trace_color = trace.color
             trace_pos[:, 1] = self.lineyvalues[self.numberoflines - i - 1]
             self.set_plotdata(name=self.numberoflines - i - 1, points=trace_pos, color=trace_color, width=1)
-        
-        # Update main trace
-        self.y = np.full_like(self.frequency_bins, self.lineyvalues[0])
-        #self.z = self.live_power_levels / 10
-        clipped = np.clip(self.live_power_levels, -70, None)
 
-        self.z = (clipped - (-100)) / 50 * 20 - 20
+        self.y = np.full([len(self.frequency_bins)], self.lineyvalues[0])
+        self.z = self.live_power_levels / 10
 
-    
+        goodcolours = np.empty([len(self.frequency_bins), 4])
+        goodcolours[:, 3] = 1
         
         for i in range(len(self.frequency_bins)):
-            z = self.z[i]
-            colour = self.map_z_to_colour(z)
+            goodcolours[i] = pg.glColor((8 - self.z[i], 8 * 1.4))
 
-            self.good_colours[i] = colour
-        
-        # Update main trace data
-        specan_pts = np.vstack((self.x, self.y, self.z)).T
-        #self.set_plotdata(name=0, points=specan_pts, color=np.pad(self.good_colours, ((0,0),(0,1)), mode='constant', constant_values=255), width=1)
-        self.set_plotdata(name=0, points=specan_pts, color=self.good_colours, width=1)
+        specanpts = np.vstack([self.x, self.y, self.z]).T
+        self.set_plotdata(name=0, points=specanpts, color=goodcolours, width=1)
 
+        ###
 
-        # Update peak search marker
         if self.peak_search_enabled:
-            maxx_index = np.argmax(self.live_power_levels)
+            maxxindex=np.where(self.live_power_levels == np.amax(self.live_power_levels))
             self.peak_search_marker.resetTransform()
             self.peak_search_marker.scale(0.2, 0.2, 0.2)
-            self.peak_search_marker.translate(self.x[maxx_index], 10, np.max(self.z))
+            self.peak_search_marker.translate(self.x[maxxindex], 10, np.max(self.z))
+            
+            
             self.peak_text.setData(
-                pos=(self.x[maxx_index], 10.0, 0.0),
-                color=(255, 255, 255, 255),
-                text=f"{self.engformat(self.peak_search_frequency)}Hz",
-            )
+            
+            pos=(self.x[maxxindex][0], 10.0, 0.0), color=(255, 255, 255, 255), text=(self.engformat(self.peak_search_frequency) + "Hz")
+                 )
+            
+            
+            
+            
 
 
     def set_peak_search_enabled(self, is_enabled):
@@ -207,8 +209,13 @@ class ThreeD(QtWidgets.QWidget):
         self.live_power_levels = power_levels
 
     def update_frequency_bins(self, bins):
-        self.frequency_bins = bins
         
+        self.frequency_bins = bins
+        #if self.traces == None:
+        #    self.initialise_traces
+        #print (self.traces)
+
+
     def update_widget_data(self, live_power_levels, max_hold_levels, frequency_bins, peak_search_enabled):
         if (
             live_power_levels is not None
@@ -219,3 +226,8 @@ class ThreeD(QtWidgets.QWidget):
             self.max_hold_levels = max_hold_levels
             self.frequency_bins = frequency_bins
             self.peak_search_enabled = peak_search_enabled
+
+            self.y = np.zeros(len(self.frequency_bins))
+            self.z = np.zeros(len(self.frequency_bins))
+            #self.initialise_traces()
+ 
