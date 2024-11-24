@@ -3,8 +3,9 @@ import subprocess
 import numpy as np
 import threading
 
+from frequencyselector import FrequencyRange
+
 class HackRFSweep:
-    
     def __init__(self):
         self.is_running = False
         self.sweep_complete = False
@@ -15,17 +16,16 @@ class HackRFSweep:
         self.thread = None
         self.stop_flag = threading.Event()  # Flag to signal the thread to stop
 
-
-    def setup(self, start_freq=2400, stop_freq=2500, bin_size=5000):
-        """Set up the sweep parameters."""
-        if start_freq >= stop_freq:
-            raise ValueError("Start frequency must be less than stop frequency.")
-        self.start_freq = int(start_freq//1e6)
-        self.stop_freq = int(stop_freq//1e6)
-        self.bin_size = int(bin_size)
-
-    def run(self):
+    def start(self, range: "FrequencyRange"):
         """Start the hackrf_sweep subprocess and process its output."""
+
+        if self.is_running:
+            self.stop()
+
+        self.start_freq = int(range.start / 1e6)
+        self.stop_freq = int(range.stop / 1e6)
+        self.bin_size = range.res_bw
+
         if self.process is None:
             cmdline = [
                 "hackrf_sweep",

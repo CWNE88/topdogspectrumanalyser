@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import datetime
+from typing import Literal, Union
 import numpy as np
 import pyqtgraph as pg
 from PyQt6 import QtWidgets, uic, QtCore
@@ -16,12 +17,23 @@ from PyQt6.QtWidgets import QStackedWidget
 from SignalProcessing import DSP as dsp
 import matplotlib as mpl
 from menu import MenuManager, MenuItem
-import cProfile
+from menu.keypad import Keypad
+
+from frequencyselector import FrequencyRange
 
 class MainWindow(QtWidgets.QMainWindow):
     menu: MenuManager = None
+    """The menu manager"""
+
+    frequency: FrequencyRange = FrequencyRange(start=115e6, stop=135e6, span=2e6)
+    """The current frequency range"""
+
+    keypad: Keypad = None
+    """Supports data entry for numerical values"""
 
     is_paused = False
+
+    frequency_entry_mode: Union[Literal['centre', 'start', 'stop', 'span'], None] = None
 
     def __init__(self):
         super().__init__()
@@ -29,10 +41,9 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("mainwindowhorizontal.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
-        self.start_freq = 115e6
-        self.stop_freq = 135e6
+        self.keypad = Keypad(self, self.on_keypad_change, self.on_frequency_select)
+
         self.bin_size = 10e3
-        self.centre_freq = None
         
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()
@@ -55,8 +66,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
         self.hackrf_sweep = HackRFSweep()
-        self.hackrf_sweep.setup(start_freq=self.start_freq, stop_freq=self.stop_freq, bin_size=self.bin_size)
-        self.hackrf_sweep.run()
 
         self.frequency_bins = None
         self.frequency_bins_changed = False
@@ -86,7 +95,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_data)
         self.timer.start(40)
         self.set_button_focus_policy(self)  # Avoids buttons keeping focus after pressing, so space bar works
-        self.connect_buttons()
 
         self.menu = MenuManager(self, self.on_menu_selection)
 
@@ -94,6 +102,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.res_bw = None
         self.span = None
         self.engformat = mpl.ticker.EngFormatter(places=2) 
+
+    def change_entry_mode(self, mode: Literal['start', 'stop', 'span']):
+        self.frequency_entry_mode = mode
+
+        if mode is None:
+            self.status_label.setText("")
+            return
+
+        self.status_label.setText(f"Set {mode} frequency")
+
+    def on_keypad_change(self, value: str | None):
+        self.input_value.setText(value if value != None else "")
+
+    def on_frequency_select(self, freq: int):
+        match self.frequency_entry_mode:
+            case 'centre':
+                self.frequency.set_centre(freq)
+            case 'start':
+                self.frequency.set_start(freq)
+            case 'stop':
+                self.frequency.set_stop(freq)
+            case 'span':
+                self.frequency.set_span(freq)
+        
+        self.update_frequency_values()
+        self.keypad.reset()
+        # dirty fucking hack
+        self.hackrf_sweep.start(self.frequency)
     
     def set_button_focus_policy(self, parent):
         for widget in parent.findChildren(QtWidgets.QPushButton):
@@ -118,6 +154,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.toggle_peak_search()
             case "btnMaxHold":
                 self.toggle_max_hold()
+            case 'btnCentreFrequency':
+                self.change_entry_mode('centre')
+            case 'btnStartFrequency':
+                self.change_entry_mode('start')
+            case 'btnStopFrequency':
+                self.change_entry_mode('stop')
+            case 'btnSpan':
+                self.change_entry_mode('span')
             case _:
                 print(f"Unhandled menu item: {item.id}")
 
@@ -140,6 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.graphical_display_window.show()
         
         self.menu.keyPressEvent(event)
+        self.keypad.keyPressEvent(event)
 
     def toggle_peak_search(self):
         self.peak_search_enabled = not self.peak_search_enabled
@@ -182,22 +227,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
             self.get_current_widget_timer().start(20)
             
-    def connect_buttons(self):
-        button_actions = {
-            "button_mode": lambda: self.handle_menu_button("Mode"),
-            "button_preset": lambda: self.preset(),
-            "button_max_hold": lambda: self.toggle_max_hold(),
-            "button_hold": lambda: self.toggle_hold(),
-            "button_peak_search": lambda: self.toggle_peak_search(),
-            "button_2d": lambda: self.set_display(0),
-            "button_3d": lambda: self.set_display(1),
-            "button_waterfall": lambda: self.set_display(2),
-            "button_boxes": lambda: self.set_display(3),
-            "button_vert_horiz": lambda: self.toggle_orientation(),
-            "button_export_image": lambda: self.export_image()
-        }
-
-    
     def initialise_labels(self):
         self.output_centre_freq = self.findChild(QtWidgets.QLabel, "output_centre_freq")
         self.output_sample_rate = self.findChild(QtWidgets.QLabel, "output_sample_rate")
@@ -210,8 +239,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.input_value = self.findChild(QtWidgets.QLabel, "input_value")
         self.label_sample_rage = self.findChild(QtWidgets.QLabel, "label_sample_rate")
         
-
-
     def set_display(self, index):        
         print ("in main set_display")
         self.get_current_widget_timer().stop()
@@ -242,23 +269,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status_label.setText("bin length" +(str(len(power_level_data))))
 
             # Set up self.frequency_bins if different from previous
-            if self.frequency_bins is None or self.start_freq != self.last_start_freq or self.stop_freq != self.last_stop_freq:
+            if self.frequency_bins is None or self.frequency.start != self.last_start_freq or self.frequency.stop != self.last_stop_freq:
                 
                 # Create new frequency bins
-                self.frequency_bins = np.linspace(self.start_freq, self.stop_freq, len(power_level_data))
-                self.last_start_freq = self.start_freq
-                self.last_stop_freq = self.stop_freq
-                self.span = self.stop_freq - self.start_freq
-                self.centre_freq = self.span/2 + self.start_freq
-                self.res_bw = (self.span / len(self.frequency_bins))
+                self.frequency_bins = np.linspace(self.frequency.start, self.frequency.stop, len(power_level_data))
+                self.last_start_freq = self.frequency.start
+                self.last_stop_freq = self.frequency.stop
+                # self.span = self.frequency - self.start_freq
+                # self.centre_freq = self.span/2 + self.start_freq
+                # self.res_bw = (self.span / len(self.frequency_bins))
                 self.frequency_bins_changed = True
 
                 # Update gui values
-                self.output_start_freq.setText(self.engformat(self.start_freq) + "Hz")
-                self.output_stop_freq.setText(self.engformat(self.stop_freq) + "Hz")
-                self.output_span.setText(self.engformat(self.span) + "Hz")
-                self.output_res_bw.setText(self.engformat(self.res_bw) + "Hz")
-                self.output_centre_freq.setText(self.engformat(self.centre_freq) + "Hz")
+                self.update_frequency_values()
 
                 ## TESTING
                 self.label_sample_rate.setText("Sweeps /s")
@@ -345,6 +368,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.current_stacked_index == 2:
                     self.waterfall_widget.update_live_power_levels(self.live_power_levels)
 
+    def update_frequency_values(self):
+        self.output_start_freq.setText(self.engformat(self.frequency.start) + "Hz")
+        self.output_stop_freq.setText(self.engformat(self.frequency.stop) + "Hz")
+        self.output_span.setText(self.engformat(self.frequency.span) + "Hz")
+        self.output_res_bw.setText(self.engformat(self.frequency.res_bw) + "Hz")
+        self.output_centre_freq.setText(self.engformat(self.frequency.centre) + "Hz")
 
  
     def closeEvent(self, event):

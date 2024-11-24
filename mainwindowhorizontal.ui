@@ -1293,7 +1293,7 @@ Horiz</string>
            <string>1</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="buttonminus">
+         <widget class="QPushButton" name="button_minus">
           <property name="geometry">
            <rect>
             <x>160</x>
