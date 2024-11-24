@@ -35,7 +35,7 @@ class Waterfall(QtWidgets.QWidget):
         self.frequency_bins = None
         self.waterfall_array = None
         self.initialised = False
-        self.history_amount = 500
+        self.history_amount = 900
         self.min_level = -80
         self.max_level = -60
 
