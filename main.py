@@ -100,26 +100,26 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def on_menu_selection(self, item: MenuItem):
-        #print (item.elementId)
-        if item.elementId == "button_hold":
-            self.toggle_hold()
-        elif item.elementId == "button_2d":
-            self.button_2d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
-            self.set_display(0)
-        elif item.elementId == "button_3d":
-            self.button_3d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
-            self.set_display(1)
-        elif item.elementId == "button_waterfall":
-            self.set_display(2)
-        elif item.elementId == "button_boxes":
-            self.set_display(3)
-        elif item.elementId == "button_peak_search":
-            self.toggle_peak_search()
-        elif item.elementId == "button_max_hold":
-            self.toggle_max_hold()
-
-    #def keyPressEvent(self, event: QKeyEvent):
-    #    self.menu.keyPressEvent(event)
+        match item.id:
+            case "btnHold":
+                self.toggle_hold()
+            case "btn2d":
+                self.button_2d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
+                self.set_display(0)
+            case "btn3d":
+                self.button_3d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
+                self.set_display(1)
+            case "btnWaterfall":
+                self.button_waterfall.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
+                self.set_display(2)
+            case "btnBoxes":
+                self.set_display(3)
+            case "btnPeakSearch":
+                self.toggle_peak_search()
+            case "btnMaxHold":
+                self.toggle_max_hold()
+            case _:
+                print(f"Unhandled menu item: {item.id}")
 
     def keyPressEvent(self, event: QKeyEvent):
         if event.modifiers() == Qt.KeyboardModifier.AltModifier and event.key() == Qt.Key.Key_Return:

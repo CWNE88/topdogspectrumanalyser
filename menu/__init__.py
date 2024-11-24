@@ -6,6 +6,11 @@ from PyQt6.QtGui import QKeyEvent, QKeySequence
 
 class MenuItem:
     """
+    Internal ID of the menu item
+    """
+    id: str = ""
+    
+    """
     Label of the menu item
     """
     name: str = ""
@@ -23,7 +28,8 @@ class MenuItem:
 
     key: QKeySequence = None
 
-    def __init__(self, manager: "MenuManager", elementId: str, key: str, name: str = "", children: list["MenuItem"] = []):
+    def __init__(self, id: str, manager: "MenuManager", elementId: str, key: str, name: str = "", children: list["MenuItem"] = []):
+        self.id = id
         self.manager = manager
         self.elementId = elementId
         self.name = name
@@ -40,71 +46,70 @@ class MenuManager:
         self.ui = ui
         self.on_selection = on_selection
 
-        self.menu = MenuItem(self, None, "root", None, [
-
-            MenuItem(self, "button_frequency", "f", "Frequency", [
-                MenuItem(self, None, None, "Centre\nFrequency"),
-                MenuItem(self, None, None, "Start\nFrequency"),
-                MenuItem(self, None, None, "Stop\nFrequency")
+        self.menu = MenuItem("root", self, None, "root", None, [
+            MenuItem("btnFrequency", self, "button_frequency", "f", "Frequency", [
+                MenuItem("btnCentreFrequency", self, None, None, "Centre\nFrequency"),
+                MenuItem("btnStartFrequency", self, None, None, "Start\nFrequency"),
+                MenuItem("btnStopFrequency", self, None, None, "Stop\nFrequency")
             ]),
-            MenuItem(self, "button_span", "s", "Span", [
-                MenuItem(self, None, None, "Full Span"),
-                MenuItem(self, None, None, "Zero Span")
+            MenuItem("btnSpan", self, "button_span", "s", "Span", [
+                MenuItem("btnFullSpan", self, None, None, "Full Span"),
+                MenuItem("btnZeroSpan", self, None, None, "Zero Span")
             ]),
-            MenuItem(self, "button_amplitude", "a", "Amplitude", [
-                MenuItem(self, None, None, "Reference\nLevel"),
-                MenuItem(self, None, None, "Attenuation\nAuto"),
-                MenuItem(self, None, None, "Log dB /\nDivision"),
-                MenuItem(self, None, None, "Lin / Log"),
-                MenuItem(self, None, None, "Units", [
-                    MenuItem(self, None, None, "dBm"),
-                    MenuItem(self, None, None, "dBµV"),
-                    MenuItem(self, None, None, "dBmV"),
-                    MenuItem(self, None, None, "Volts"),
-                    MenuItem(self, None, None, "Watts")
+            MenuItem("btnAmplitude", self, "button_amplitude", "a", "Amplitude", [
+                MenuItem("btnReferenceLevel", self, None, None, "Reference\nLevel"),
+                MenuItem("btnAutoAttenuation", self, None, None, "Attenuation\nAuto"),
+                MenuItem("btnLogDbPerDivision", self, None, None, "Log dB /\nDivision"),
+                MenuItem("btnLinLog", self, None, None, "Lin / Log"),
+                MenuItem("btnUnits", self, None, None, "Units", [
+                    MenuItem("btnUnitDbm", self, None, None, "dBm"),
+                    MenuItem("btnUnitMicroVolt", self, None, None, "dBµV"),
+                    MenuItem("btnUnitDbmv", self, None, None, "dBmV"),
+                    MenuItem("btnUnitVolts", self, None, None, "Volts"),
+                    MenuItem("btnUnitWatts", self, None, None, "Watts")
                 ]),
-                MenuItem(self, None, None, "Range\nLevel"),
-                MenuItem(self, None, None, "Ref Level\nOffset")
+                MenuItem("btnRangeLevel", self, None, None, "Range\nLevel"),
+                MenuItem("btnRefLevel", self, None, None, "Ref Level\nOffset")
                 ]),
 
-            MenuItem(self, "button_hold", "space", "Hold"),
+            MenuItem("btnHold", self, "button_hold", "space", "Hold"),
 
 
-            MenuItem(self, "button_mode", "ctrl+m", "Mode", [
-                MenuItem(self, None, None, "Wi-Fi", [
-                    MenuItem(self, None, None, "ISM\n2.4 GHz"),
-                    MenuItem(self, None, None, "UNII-1\n5 GHz"),
-                    MenuItem(self, None, None, "UNII-2A\n5 GHz"),
-                    MenuItem(self, None, None, "UNII-3\n5 GHz"),
-                    MenuItem(self, None, None, "UNII-5\n6 GHz"),
-                    MenuItem(self, None, None, "UNII-6\n6 GHz"),
-                    MenuItem(self, None, None, "UNII-7\n6 GHz"),
-                    MenuItem(self, None, None, "UNII-8\n6 GHz")
+            MenuItem("btnMode", self, "button_mode", "ctrl+m", "Mode", [
+                MenuItem("btnWifi", self, None, None, "Wi-Fi", [
+                    MenuItem("btnISM24", self, None, None, "ISM\n2.4 GHz"),
+                    MenuItem("btnUNII1", self, None, None, "UNII-1\n5 GHz"),
+                    MenuItem("btnUNII2A", self, None, None, "UNII-2A\n5 GHz"),
+                    MenuItem("btnUNII3", self, None, None, "UNII-3\n5 GHz"),
+                    MenuItem("btnUNII5", self, None, None, "UNII-5\n6 GHz"),
+                    MenuItem("btnUNII6", self, None, None, "UNII-6\n6 GHz"),
+                    MenuItem("btnUNII7", self, None, None, "UNII-7\n6 GHz"),
+                    MenuItem("btnUNII8", self, None, None, "UNII-8\n6 GHz")
                 ]),
-                MenuItem(self, None, None, "Aviation"),
-                MenuItem(self, None, None, "Digital"),
+                MenuItem("btnModeAviation", self, None, None, "Aviation"),
+                MenuItem("btnModeDigital", self, None, None, "Digital"),
             ]),
-            MenuItem(self, "button_preset", "r", "Preset"),
-            MenuItem(self, "button_max_hold", "x", "Max Hold"),
-            MenuItem(self, "button_peak_search", "p", "Peak Search"),
+            MenuItem("btnPreset", self, "button_preset", "r", "Preset"),
+            MenuItem("btnMaxHold", self, "button_max_hold", "x", "Max Hold"),
+            MenuItem("btnPeakSearch", self, "button_peak_search", "p", "Peak Search"),
             
             
-            MenuItem(self, "button_input_1", "i", "Input", [
-                MenuItem(self, None, None, "RTL\nSamples", [
-                    MenuItem(self, None, None, "Bias Tee", [
-                        MenuItem(self, None, None, "On"),
-                        MenuItem(self, None, None, "Off")
+            MenuItem("btnInput1", self, "button_input_1", "i", "Input", [
+                MenuItem("btnRtlSamples", self, None, None, "RTL\nSamples", [
+                    MenuItem("btnBiasTee", self, None, None, "Bias Tee", [
+                        MenuItem("btnBiasTeeOn", self, None, None, "On"),
+                        MenuItem("btnBiasTeeOff", self, None, None, "Off")
                     ]),
-                    MenuItem(self, None, None, "Gain", [
-                        MenuItem(self, None, None, "AGC"),
-                        MenuItem(self, None, None, "Medium"),
-                        MenuItem(self, None, None, "High")
+                    MenuItem("btnRtlSamplesGain", self, None, None, "Gain", [
+                        MenuItem("btnRtlSamplesAgc", self, None, None, "AGC"),
+                        MenuItem("btnRtlSamplesAgcMedium", self, None, None, "Medium"),
+                        MenuItem("btnRtlSamplesAgcHigh", self, None, None, "High")
                     ])
                 ]),
-                MenuItem(self, None, None, "HackRF\nSamples"),
-                MenuItem(self, None, None, "RTL\nSweep"),
-                MenuItem(self, None, None, "HackRF\nSweep"),
-                MenuItem(self, None, None, "Audio\nSamples"),
+                MenuItem("btnHackRfSamples", self, None, None, "HackRF\nSamples"),
+                MenuItem("btnRtlSweep", self, None, None, "RTL\nSweep"),
+                MenuItem("btnHackRfSweep", self, None, None, "HackRF\nSweep"),
+                MenuItem("btnAudioSamples", self, None, None, "Audio\nSamples"),
             ]),
             #########
 
@@ -112,22 +117,19 @@ class MenuManager:
             
             ##########
 
-            MenuItem(self, "button_2d", "2", "2D"),
-            MenuItem(self, "button_3d", "3", "3D"),
+            MenuItem("btn2d", self, "button_2d", "2", "2D"),
+            MenuItem("btn3d", self, "button_3d", "3", "3D"),
 
             # https://matplotlib.org/stable/users/explain/colors/colormaps.html
 
-            MenuItem(self, "button_waterfall", "4", "Waterfall", [
-                MenuItem(self, None, None, "Colour", [
-                    MenuItem(self, None, None, "Magma"),
-                    MenuItem(self, None, None, "Hot"),
-                    MenuItem(self, None, None, "Viridis")
+            MenuItem("btnWaterfall", self, "button_waterfall", "4", "Waterfall", [
+                MenuItem("btnWaterfallColour", self, None, None, "Colour", [
+                    MenuItem("btnWaterfallColourMagma", self, None, None, "Magma"),
+                    MenuItem("btnWaterfallColourHot", self, None, None, "Hot"),
+                    MenuItem("btnWaterfallColourViridis", self, None, None, "Viridis")
                 ])
             ]),
-                        
-                        
-            MenuItem(self, "button_boxes", "5", "Boxes"),
-
+            MenuItem("btnBoxes", self, "button_boxes", "5", "Boxes")
         ])
 
 

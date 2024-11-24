@@ -6,7 +6,6 @@ import pyqtgraph as pg
 import numpy as np
 import sys
 from numpy.fft import fft, ifft
-from rtlsdr import RtlSdr
 from pyqtgraph.Qt import mkQApp
 import time
 import matplotlib as mpl
