@@ -5,20 +5,20 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence
 
 class MenuItem:
+    id: str = ""
     """
     Internal ID of the menu item
     """
-    id: str = ""
     
+    name: str = ""
     """
     Label of the menu item
     """
-    name: str = ""
 
+    elementId: str = ""
     """
     Refers to the element in the UI that binds to this MenuItem.
     """
-    elementId: str = ""
 
     children: list["MenuItem"] = []
 
@@ -52,7 +52,8 @@ class MenuManager:
                 MenuItem("btnStartFrequency", self, None, None, "Start\nFrequency"),
                 MenuItem("btnStopFrequency", self, None, None, "Stop\nFrequency")
             ]),
-            MenuItem("btnSpan", self, "button_span", "s", "Span", [
+            MenuItem("btnSpanRoot", self, "button_span", "s", "Span", [
+                MenuItem("btnSpan", self, None, None, "Span"),
                 MenuItem("btnFullSpan", self, None, None, "Full Span"),
                 MenuItem("btnZeroSpan", self, None, None, "Zero Span")
             ]),
@@ -117,19 +118,19 @@ class MenuManager:
             
             ##########
 
-            MenuItem("btn2d", self, "button_2d", "2", "2D"),
-            MenuItem("btn3d", self, "button_3d", "3", "3D"),
+            MenuItem("btn2d", self, "button_2d", "ctrl+2", "2D"),
+            MenuItem("btn3d", self, "button_3d", "ctrl+3", "3D"),
 
             # https://matplotlib.org/stable/users/explain/colors/colormaps.html
 
-            MenuItem("btnWaterfall", self, "button_waterfall", "4", "Waterfall", [
+            MenuItem("btnWaterfall", self, "button_waterfall", "ctrl+4", "Waterfall", [
                 MenuItem("btnWaterfallColour", self, None, None, "Colour", [
                     MenuItem("btnWaterfallColourMagma", self, None, None, "Magma"),
                     MenuItem("btnWaterfallColourHot", self, None, None, "Hot"),
                     MenuItem("btnWaterfallColourViridis", self, None, None, "Viridis")
                 ])
             ]),
-            MenuItem("btnBoxes", self, "button_boxes", "5", "Boxes")
+            MenuItem("btnBoxes", self, "button_boxes", "ctrl+5", "Boxes")
         ])
 
 
@@ -175,6 +176,10 @@ class MenuManager:
             element = ui.findChild(QWidget, item.elementId)
 
         if isinstance(element, QPushButton):
+            try:
+                element.pressed.disconnect()
+            except:
+                pass
             element.pressed.connect(self.on_action(item))
 
         if item.children:

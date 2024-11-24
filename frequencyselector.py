@@ -1,9 +1,31 @@
 class FrequencyRange:
-    def __init__(self, start=None, stop=None, centre=None, span=None):
+    start: float
+    """
+    start frequency in Hz
+    """
+    stop: float
+    """
+    stop frequency in Hz
+    """
+    centre: float
+    """
+    centre frequency in Hz
+    """
+    span: float
+    """
+    span (bandwidth) in Hz
+    """
+    res_bw: float
+    """
+    Bandwidth of each bin in Hz
+    """
+
+    def __init__(self, start=None, stop=None, centre=None, span=None, res_bw=10000):
         self.start = start
         self.stop = stop
         self.centre = centre
         self.span = span
+        self.res_bw = res_bw
         self.update_frequencies()
 
     def update_frequencies(self):
@@ -23,6 +45,9 @@ class FrequencyRange:
         elif self.span is not None and self.stop is not None:
             self.start = self.stop - self.span
             # Centre remains unchanged
+
+        # calc res bw
+        # self.res_bw = self.span / self.res_bw
 
     def set_start(self, start):
         self.start = start
