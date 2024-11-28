@@ -90,14 +90,15 @@ class Keypad:
         # that was pressed
 
         button_index = event.key() - Qt.Key.Key_0
-        if button_index >= 0 and button_index < 8:
+        if button_index >= 0 and button_index <= 9:
             self.handle_data_character(button_index)()
             return
 
-        if event.key() == Qt.Key.Key_Minus:
+        if event.key() == Qt.Key.Key_Minus or event.key() == Qt.Key.Key_Backspace:
             self.handle_data_character("-")()
             return
 
         if event.key() == Qt.Key.Key_Period:
             self.handle_data_character(".")()
             return
+
