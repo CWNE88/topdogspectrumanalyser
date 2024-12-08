@@ -1,0 +1,10 @@
+
+QToolButton, QPushButton {
+    font-size: 15pt;
+    font-weight: bold;
+}
+
+QToolButton#button_preset {
+    background-color: forestgreen;
+    color: #eee;
+}

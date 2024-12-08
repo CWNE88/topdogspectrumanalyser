@@ -19,7 +19,7 @@ pyrtlsdr==0.3.0
 python-dateutil==2.9.0.post0
 QSpectrumAnalyzer==2.1.0
 Qt.py==1.4.1
-scipy==1.14.1
+#scipy==1.14.1
 setuptools==75.1.0
 SimpleSoapy==1.5.1
 SimpleSpectral==1.0.0

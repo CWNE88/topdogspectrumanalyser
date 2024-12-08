@@ -1,6 +1,6 @@
 from typing import Callable
 from PyQt6.QtCore import QObject
-from PyQt6.QtWidgets import QWidget, QPushButton
+from PyQt6.QtWidgets import QWidget, QPushButton, QAbstractButton
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence
 
@@ -153,7 +153,14 @@ class MenuManager:
             match = item.key.matches(event.key() | event.modifiers().value)
 
             if match == QKeySequence.SequenceMatch.ExactMatch:
-                self.on_action(item)()
+                if item.elementId is not None:
+                    elem = self.ui.findChild(QAbstractButton, item.elementId)
+                    if elem:
+                        elem.pressed.emit()
+                        if elem.isCheckable():
+                            elem.setChecked(True)
+                    else:
+                        self.on_action(item)()
                 return
 
 
@@ -175,7 +182,7 @@ class MenuManager:
         if item.elementId:
             element = ui.findChild(QWidget, item.elementId)
 
-        if isinstance(element, QPushButton):
+        if isinstance(element, QAbstractButton):
             try:
                 element.pressed.disconnect()
             except:
