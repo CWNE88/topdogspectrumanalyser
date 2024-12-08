@@ -1,12 +1,15 @@
-from typing import Callable
+from typing import Callable, TYPE_CHECKING, Literal, Union
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QPushButton, QToolButton, QAbstractButton
 from PyQt6.QtGui import QKeyEvent, QKeySequence
 from PyQt6.QtCore import Qt
 
+if TYPE_CHECKING:
+    import main
+
 class Keypad:
     data_buttons: list[QPushButton] = []
-    ui: QObject = None
+    ui: 'main.MainWindow' = None
 
     button_mhz: QPushButton = None
     button_dot: QPushButton = None
@@ -19,7 +22,7 @@ class Keypad:
     on_change: Callable[[str], None] = None
     on_frequency_select: Callable[[int], None] = None
 
-    def __init__(self, ui: QObject, on_change: Callable[[str], None], on_frequency_select: Callable[[int], None]):
+    def __init__(self, ui: 'main.MainWindow', on_change: Callable[[str], None], on_frequency_select: Callable[[int], None]):
         self.ui = ui
         self.on_change = on_change
         self.on_frequency_select = on_frequency_select
@@ -85,7 +88,7 @@ class Keypad:
         return handle_button_inner
 
 
-    def keyPressEvent(self, event: QKeyEvent):
+    def keyPressEvent(self, event: QKeyEvent, mode: Union[Literal['centre', 'start', 'stop', 'span'], None]):
         # find menu item that corresponds to the key
         # that was pressed
 
@@ -101,4 +104,20 @@ class Keypad:
         if event.key() == Qt.Key.Key_Period:
             self.handle_data_character(".")()
             return
+
+        if event.key() == Qt.Key.Key_M and mode is not None and self.data_input != "":
+            self.button_mhz.pressed.emit()
+            return True
+
+        if event.key() == Qt.Key.Key_G and mode is not None and self.data_input != "":
+            self.button_ghz.pressed.emit()
+            return True
+        
+        if event.key() == Qt.Key.Key_K and mode is not None and self.data_input != "":
+            self.button_khz.pressed.emit()
+            return True
+        
+        if event.key() == Qt.Key.Key_H and mode is not None and self.data_input != "":
+            self.button_hz.pressed.emit()
+            return True
 

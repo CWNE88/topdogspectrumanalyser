@@ -351,7 +351,7 @@
          <property name="geometry">
           <rect>
            <x>330</x>
-           <y>170</y>
+           <y>200</y>
            <width>151</width>
            <height>141</height>
           </rect>
@@ -449,7 +449,7 @@ Hold</string>
          <property name="geometry">
           <rect>
            <x>490</x>
-           <y>170</y>
+           <y>200</y>
            <width>221</width>
            <height>141</height>
           </rect>
@@ -736,7 +736,7 @@ fall</string>
          <property name="geometry">
           <rect>
            <x>330</x>
-           <y>10</y>
+           <y>40</y>
            <width>381</width>
            <height>141</height>
           </rect>
@@ -1453,9 +1453,9 @@ Horiz</string>
          <property name="geometry">
           <rect>
            <x>330</x>
-           <y>330</y>
+           <y>360</y>
            <width>381</width>
-           <height>271</height>
+           <height>241</height>
           </rect>
          </property>
          <property name="title">
@@ -1464,7 +1464,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_7">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>10</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1486,7 +1486,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_8">
           <property name="geometry">
            <rect>
-            <x>90</x>
+            <x>80</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1505,7 +1505,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_9">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>150</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1562,7 +1562,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_5">
           <property name="geometry">
            <rect>
-            <x>90</x>
+            <x>80</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1581,7 +1581,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_6">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>150</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1600,7 +1600,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_4">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>10</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1622,7 +1622,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_0">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>10</x>
             <y>190</y>
             <width>61</width>
             <height>41</height>
@@ -1644,7 +1644,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_2">
           <property name="geometry">
            <rect>
-            <x>90</x>
+            <x>80</x>
             <y>140</y>
             <width>61</width>
             <height>41</height>
@@ -1663,7 +1663,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_3">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>150</x>
             <y>140</y>
             <width>61</width>
             <height>41</height>
@@ -1682,7 +1682,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_dot">
           <property name="geometry">
            <rect>
-            <x>90</x>
+            <x>80</x>
             <y>190</y>
             <width>61</width>
             <height>41</height>
@@ -1701,7 +1701,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_data_1">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>10</x>
             <y>140</y>
             <width>61</width>
             <height>41</height>
@@ -1723,7 +1723,7 @@ Horiz</string>
          <widget class="QToolButton" name="button_minus">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>150</x>
             <y>190</y>
             <width>61</width>
             <height>41</height>

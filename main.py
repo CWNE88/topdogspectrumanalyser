@@ -193,9 +193,11 @@ class MainWindow(QtWidgets.QMainWindow):
             
             # Show the new window
             self.graphical_display_window.show()
+
+        if self.keypad.keyPressEvent(event, self.frequency_entry_mode):
+            return
         
         self.menu.keyPressEvent(event)
-        self.keypad.keyPressEvent(event)
 
     def toggle_peak_search(self):
         self.peak_search_enabled = not self.peak_search_enabled
@@ -226,12 +228,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.is_paused:
             print("Animation paused")
             self.status_label.setText("Animation pause")
-            self.button_hold.setStyleSheet("background-color: #ff2222; color: white; font-weight: bold;")
             self.get_current_widget_timer().stop()
         else:
             print("Animation resumed")
             self.status_label.setText("Animation resumed")
-            self.button_hold.setStyleSheet("background-color: #222222; color: white; font-weight: bold;")
             self.get_current_widget_timer().start(20)
             
     def initialise_labels(self):
