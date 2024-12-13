@@ -10,7 +10,7 @@ class Boxes(QtWidgets.QMainWindow):
         super().__init__()
 
         self.view = gl.GLViewWidget()
-        self.view.opts['azimuth'] = 0
+        self.view.opts['azimuth'] = 90
         self.view.opts['elevation'] = 20
         self.view.opts['fov'] = 110
         self.setCentralWidget(self.view)
@@ -21,8 +21,8 @@ class Boxes(QtWidgets.QMainWindow):
         grid.setSpacing(x=1, y=1)
         self.view.addItem(grid)
 
-        self.frequency_bins = 2020
-        self.n_bins = 2020
+        self.frequency_bins = 2004
+        self.n_bins = 2004
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_visualisation)
@@ -33,12 +33,7 @@ class Boxes(QtWidgets.QMainWindow):
         self.view.addItem(self.box_item)
         self.init_boxes()
 
-
-
-
-
-
-
+        self.power_levels = None
 
     def init_boxes(self):
         self.n_bins = self.frequency_bins
@@ -55,8 +50,8 @@ class Boxes(QtWidgets.QMainWindow):
             # Define vertices for the box
             v_start = i * 8  # Starting index for the current box
         
-            depth1=0
-            depth2=0.5
+            depth1 = 0
+            depth2 = 0.5
             self.vertices[v_start:v_start + 8] = [
                 [box_x1, depth2, 0],   # 0
                 [box_x2, depth2, 0],   # 1
@@ -94,56 +89,48 @@ class Boxes(QtWidgets.QMainWindow):
         self.box_item.setMeshData(meshdata=mesh_data)
 
     def update_visualisation(self):
-        heights = self.power_levels/50
-        heights += 2
-        colour_values = heights / 10
-        alpha = np.ones_like(heights)  # Alpha channel
+        """Optimized update for visualization."""
+        if self.live_power_levels is None:
+            return
 
-        
+        # Calculate the heights based on live power levels
+        heights = self.live_power_levels / 50 + 2  # Adjust scaling as needed
+        colour_scale_factor = heights / 10  # Color scale factor based on height
 
-        # Update heights
-
-
-
-
-
+        # Vectorized updates for vertices (height of boxes)
         self.vertices[4::8, 2] = heights
         self.vertices[5::8, 2] = heights
         self.vertices[6::8, 2] = heights
         self.vertices[7::8, 2] = heights
 
-        # Update colours in a single operation
-        self.vertex_colours[4::8, 0] = colour_values
-        self.vertex_colours[5::8, 0] = colour_values
-        self.vertex_colours[6::8, 0] = colour_values
-        self.vertex_colours[7::8, 0] = colour_values
-        self.vertex_colours[4::8, 1] = 0  # Red
-        self.vertex_colours[5::8, 1] = 0  # Red
-        self.vertex_colours[6::8, 1] = 0  # Red
-        self.vertex_colours[7::8, 1] = 0  # Red
-        self.vertex_colours[4::8, 2] = (10 - heights) / 10  # Green
-        self.vertex_colours[5::8, 2] = (10 - heights) / 10  # Green
-        self.vertex_colours[6::8, 2] = (10 - heights) / 10  # Green
-        self.vertex_colours[7::8, 2] = (10 - heights) / 10  # Green
-        self.vertex_colours[4::8, 3] = alpha  # Alpha channel
+        # Vectorized updates for vertex colors (apply color scale)
+        self.vertex_colours[4::8, 0] = colour_scale_factor  # Red channel
+        self.vertex_colours[5::8, 0] = colour_scale_factor  # Red channel
+        self.vertex_colours[6::8, 0] = colour_scale_factor  # Red channel
+        self.vertex_colours[7::8, 0] = colour_scale_factor  # Red channel
+
+        # Green channel is always 0 (black bottom)
+        self.vertex_colours[4::8, 1] = 0
+        self.vertex_colours[5::8, 1] = 0
+        self.vertex_colours[6::8, 1] = 0
+        self.vertex_colours[7::8, 1] = 0
+
+        # Blue channel, inverse of height for a gradient effect
+        self.vertex_colours[4::8, 2] = (10 - heights) / 10
+        self.vertex_colours[5::8, 2] = (10 - heights) / 10
+        self.vertex_colours[6::8, 2] = (10 - heights) / 10
+        self.vertex_colours[7::8, 2] = (10 - heights) / 10
+
+        # Set alpha values for visibility
+        alpha = np.ones_like(heights)
+        self.vertex_colours[4::8, 3] = alpha
         self.vertex_colours[5::8, 3] = alpha
         self.vertex_colours[6::8, 3] = alpha
         self.vertex_colours[7::8, 3] = alpha
 
-        # Update the mesh data in a single call
+        # Set updated mesh data once
         self.box_item.setMeshData(vertexes=self.vertices, vertexColors=self.vertex_colours, faces=self.faces)
-    
-    def update_widget_data(self, power_levels, max_hold_levels, frequency_bins):
-        if (
-            power_levels is not None
-            and max_hold_levels is not None
-            and frequency_bins is not None
-        ):
-            self.power_levels = power_levels
-            self.max_hold_levels = max_hold_levels
-            self.frequency_bins = frequency_bins
 
-            self.y = np.zeros(len(self.frequency_bins))
-            self.z = np.zeros(len(self.frequency_bins))
-#            self.update_visualisation()
- 
+    def update_live_power_levels(self, pwr_lvls):
+        """Update live power levels and trigger visual update."""
+        self.live_power_levels = pwr_lvls
