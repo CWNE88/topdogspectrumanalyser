@@ -1,6 +1,6 @@
 from typing import Callable
 from PyQt6.QtCore import QObject
-from PyQt6.QtWidgets import QPushButton, QToolButton, QAbstractButton
+from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtGui import QKeyEvent, QKeySequence
 from PyQt6.QtCore import Qt
 
@@ -24,13 +24,13 @@ class Keypad:
         self.on_change = on_change
         self.on_frequency_select = on_frequency_select
 
-        self.data_buttons = [ui.findChild(QAbstractButton, f"button_data_{i}") for i in range(0,10)]
-        self.button_mhz = ui.findChild(QAbstractButton, "button_mhz")
-        self.button_dot = ui.findChild(QAbstractButton, "button_dot")
-        self.button_ghz = ui.findChild(QAbstractButton, "button_ghz")
-        self.button_khz = ui.findChild(QAbstractButton, "button_khz")
-        self.button_hz = ui.findChild(QAbstractButton, "button_hz")
-        self.button_minus = ui.findChild(QAbstractButton, "button_minus")
+        self.data_buttons = [ui.findChild(QPushButton, f"button_data_{i}") for i in range(0,10)]
+        self.button_mhz = ui.findChild(QPushButton, "button_mhz")
+        self.button_dot = ui.findChild(QPushButton, "button_dot")
+        self.button_ghz = ui.findChild(QPushButton, "button_ghz")
+        self.button_khz = ui.findChild(QPushButton, "button_khz")
+        self.button_hz = ui.findChild(QPushButton, "button_hz")
+        self.button_minus = ui.findChild(QPushButton, "button_minus")
 
         self.bind_ui()
 

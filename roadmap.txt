@@ -1,6 +1,5 @@
-# Major
 Source selection (already started)
-Frequency manager logic  (already started - frequencyselector.py)
+Frequency manager logic  (already started)
 Data entry for variables at current menu point (centre frequency, span, etc)
 
 # Features - less major
@@ -9,14 +8,12 @@ Markers
 min hold
 average
 amp - ref level
-3d Logo at startup
 
 # Bugs
 audio input
-markers on 2d and 3d
-waterfall histogram auto level bouncing
+markers
+waterfall histogram frequency instead of bin value
 
-## Possibly releasable at this point
 
 # future
 mode selection (wifi, etc)
@@ -25,7 +22,7 @@ spectral density
 handoff to gqrx
 Orientation change to vertical
 rtl_tcp input
-soapy input (could be a cunt, or not)
+soapy input 
 
 
 # future major... one day... maybe

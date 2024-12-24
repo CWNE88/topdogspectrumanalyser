@@ -12,7 +12,6 @@ import twodimension
 import threedimension
 import waterfall
 import logo
-import boxes
 from PyQt6.QtWidgets import QStackedWidget
 from SignalProcessing import DSP as dsp
 import matplotlib as mpl
@@ -35,45 +34,32 @@ class MainWindow(QtWidgets.QMainWindow):
 
     frequency_entry_mode: Union[Literal['centre', 'start', 'stop', 'span'], None] = None
 
-    button_2d: QtWidgets.QToolButton = None
-    button_3d: QtWidgets.QToolButton = None
-    button_waterfall: QtWidgets.QToolButton = None
-    button_boxes: QtWidgets.QToolButton = None
-
     def __init__(self):
         super().__init__()
 
         uic.loadUi("mainwindowhorizontal.ui", self)
-
-        try:
-            with open("ui.css", "r") as f:
-                self.setStyleSheet(f.read())
-        except FileNotFoundError:
-            pass
-        
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         self.keypad = Keypad(self, self.on_keypad_change, self.on_frequency_select)
 
-        self.bin_size = 10e3
-
+        self.bin_size = 50e3
+        
         self.two_d_widget = twodimension.TwoD()
         self.three_d_widget = threedimension.ThreeD()
         self.waterfall_widget = waterfall.Waterfall()
-        self.boxes_widget = boxes.Boxes()
         self.logo_widget = logo.Logo()
 
         self.stacked_widget = QStackedWidget(self)
         self.stacked_widget.addWidget(self.two_d_widget)
         self.stacked_widget.addWidget(self.three_d_widget)
         self.stacked_widget.addWidget(self.waterfall_widget)
-        self.stacked_widget.addWidget(self.boxes_widget)
+        #self.stacked_widget.addWidget(self.boxes_surface)  # 
         self.stacked_widget.addWidget(self.logo_widget)
 
         graphical_display_widget = self.findChild(QtWidgets.QWidget, "graphical_display")
         graphical_display_widget.layout().addWidget(self.stacked_widget)
 
-        self.current_stacked_index = 4
+        self.current_stacked_index = 3
         self.get_current_widget_timer().start(20)
         self.stacked_widget.setCurrentIndex(self.current_stacked_index)
         
@@ -152,10 +138,13 @@ class MainWindow(QtWidgets.QMainWindow):
             case "btnHold":
                 self.toggle_hold()
             case "btn2d":
+                self.button_2d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
                 self.set_display(0)
             case "btn3d":
+                self.button_3d.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
                 self.set_display(1)
             case "btnWaterfall":
+                self.button_waterfall.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
                 self.set_display(2)
             case "btnBoxes":
                 self.set_display(3)
@@ -171,10 +160,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.change_entry_mode('stop')
             case 'btnSpan':
                 self.change_entry_mode('span')
+            case 'btnISM24':
+                self.frequency.start=2.4e9
+                self.frequency.stop=2.5e9
+                
+            
             case _:
                 print(f"Unhandled menu item: {item.id}")
-
-        self.update()
 
     def keyPressEvent(self, event: QKeyEvent):
         if event.modifiers() == Qt.KeyboardModifier.AltModifier and event.key() == Qt.Key.Key_Return:
@@ -202,20 +194,24 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.peak_search_enabled:
             print ("Peak search enabled")
             self.status_label.setText("Peak search enabled")
+            self.button_peak_search.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
         else:
             print ("Peak search disabled")
             self.status_label.setText("Peak search disabled")
+            self.button_peak_search.setStyleSheet("background-color: #ffffff; color: black; font-weight: bold;")
 
     def toggle_max_hold(self):
         self.max_hold_enabled = not self.max_hold_enabled
         if self.max_hold_enabled:
             print ("Max hold enabled")
             self.status_label.setText("Max hold enabled")
+            self.button_max_hold.setStyleSheet("background-color: #666666; color: white; font-weight: bold;")
             self.max_power_levels = self.live_power_levels
             self.two_d_widget.set_max_hold_enabled (True)
         else:
             print ("Max hold disabled")
             self.status_label.setText("Max hold disabled")
+            self.button_max_hold.setStyleSheet("background-color: #ffffff; color: black; font-weight: bold;")
             self.max_power_levels = None
             
             
@@ -264,8 +260,8 @@ class MainWindow(QtWidgets.QMainWindow):
             0: self.two_d_widget.timer,
             1: self.three_d_widget.timer,
             2: self.waterfall_widget.timer,
-            3: self.boxes_widget.timer,
-            4: self.logo_widget.timer
+            #3: self.surface_widget.timer,
+            3: self.logo_widget.timer
         }
         return widget_timers.get(self.current_stacked_index)
 
@@ -375,6 +371,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.current_stacked_index == 2:
                     self.waterfall_widget.update_live_power_levels(self.live_power_levels)
 
+                # If boxes widget
+                if self.current_stacked_index == 3:
+                    self.boxes_widget.update_live_power_levels(self.live_power_levels)
+                
     def update_frequency_values(self):
         self.output_start_freq.setText(self.engformat(self.frequency.start) + "Hz")
         self.output_stop_freq.setText(self.engformat(self.frequency.stop) + "Hz")

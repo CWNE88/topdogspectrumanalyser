@@ -45,7 +45,6 @@
               <widget class="QLabel" name="label_centre_freq">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -74,7 +73,6 @@
               <widget class="QLabel" name="label_span">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -103,7 +101,6 @@
               <widget class="QLabel" name="label_start_freq">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -132,7 +129,6 @@
               <widget class="QLabel" name="label_stop_freq">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -161,7 +157,6 @@
               <widget class="QLabel" name="label_video_bw">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -190,7 +185,6 @@
               <widget class="QLabel" name="label_sample_rate">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -219,7 +213,6 @@
               <widget class="QLabel" name="label_res_bw">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -248,7 +241,6 @@
               <widget class="QLabel" name="label_gain">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -277,7 +269,6 @@
               <widget class="QLabel" name="label_sample_size">
                <property name="font">
                 <font>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -336,7 +327,6 @@
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -359,7 +349,7 @@
          <property name="title">
           <string>Marker</string>
          </property>
-         <widget class="QToolButton" name="buttonmarker1">
+         <widget class="QPushButton" name="buttonmarker1">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -370,7 +360,6 @@
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -381,7 +370,7 @@
            <string>Marker</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="buttonmarker2">
+         <widget class="QPushButton" name="buttonmarker2">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -395,7 +384,7 @@
 Right</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_peak_search">
+         <widget class="QPushButton" name="button_peak_search">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -406,7 +395,6 @@ Right</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -414,11 +402,8 @@ Right</string>
            <string>Peak
 Search</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
          </widget>
-         <widget class="QToolButton" name="button_max_hold">
+         <widget class="QPushButton" name="button_max_hold">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -429,7 +414,6 @@ Search</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -440,12 +424,9 @@ Search</string>
            <string>Max
 Hold</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
          </widget>
         </widget>
-        <widget class="QGroupBox" name="groupcontrol">
+        <widget class="QGroupBox" name="groupdisplay">
          <property name="geometry">
           <rect>
            <x>490</x>
@@ -457,10 +438,7 @@ Hold</string>
          <property name="title">
           <string>Display</string>
          </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <widget class="QToolButton" name="button_3d">
+         <widget class="QPushButton" name="button_3d">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -471,21 +449,14 @@ Hold</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
            <string>3D</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
          </widget>
-         <widget class="QToolButton" name="button_2d">
+         <widget class="QPushButton" name="button_2d">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -496,27 +467,14 @@ Hold</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
            <string>2D</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-          <property name="autoRaise">
-           <bool>false</bool>
-          </property>
          </widget>
-         <widget class="QToolButton" name="button_boxes">
+         <widget class="QPushButton" name="button_surface">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -527,21 +485,14 @@ Hold</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Boxes</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
+           <string>Surface</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="buttoncontrol6">
+         <widget class="QPushButton" name="button_display_6">
           <property name="geometry">
            <rect>
             <x>150</x>
@@ -551,10 +502,10 @@ Hold</string>
            </rect>
           </property>
           <property name="text">
-           <string>Display</string>
+           <string/>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_waterfall">
+         <widget class="QPushButton" name="button_waterfall">
           <property name="geometry">
            <rect>
             <x>150</x>
@@ -565,7 +516,6 @@ Hold</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -573,17 +523,8 @@ Hold</string>
            <string>Water
 fall</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
          </widget>
-         <widget class="QToolButton" name="button_instrument_10">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+         <widget class="QPushButton" name="button_display_5">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -608,7 +549,6 @@ fall</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -643,7 +583,6 @@ fall</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -668,7 +607,6 @@ fall</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -699,7 +637,6 @@ fall</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -721,7 +658,6 @@ fall</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -744,448 +680,31 @@ fall</string>
          <property name="title">
           <string>Instrument</string>
          </property>
-         <widget class="QToolButton" name="button_preset">
+         <widget class="QPushButton" name="button_preset">
           <property name="geometry">
            <rect>
-            <x>10</x>
+            <x>20</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
            </rect>
           </property>
-          <property name="palette">
-           <palette>
-            <active>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Button">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Light">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>55</red>
-                <green>255</green>
-                <blue>17</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Midlight">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>41</red>
-                <green>218</green>
-                <blue>8</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Dark">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Mid">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>19</red>
-                <green>121</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Text">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="BrightText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ButtonText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Shadow">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>141</red>
-                <green>218</green>
-                <blue>127</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>220</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </active>
-            <inactive>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Button">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Light">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>55</red>
-                <green>255</green>
-                <blue>17</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Midlight">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>41</red>
-                <green>218</green>
-                <blue>8</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Dark">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Mid">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>19</red>
-                <green>121</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Text">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="BrightText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ButtonText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Shadow">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>141</red>
-                <green>218</green>
-                <blue>127</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>220</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </inactive>
-            <disabled>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Button">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Light">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>55</red>
-                <green>255</green>
-                <blue>17</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Midlight">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>41</red>
-                <green>218</green>
-                <blue>8</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Dark">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Mid">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>19</red>
-                <green>121</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Text">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="BrightText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ButtonText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>14</red>
-                <green>91</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Shadow">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>28</red>
-                <green>182</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>220</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="ToolTipText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>0</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </disabled>
-           </palette>
-          </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
-            <kerning>false</kerning>
            </font>
           </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
+          <property name="styleSheet">
+           <string notr="true">background-color: #008000; color: white; font-weight: bold</string>
           </property>
           <property name="text">
            <string>Preset</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="buttonconfig">
+         <widget class="QPushButton" name="buttonconfig">
           <property name="geometry">
            <rect>
-            <x>170</x>
+            <x>160</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1193,7 +712,6 @@ fall</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1201,10 +719,10 @@ fall</string>
            <string>Config</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_export_image">
+         <widget class="QPushButton" name="button_export_image">
           <property name="geometry">
            <rect>
-            <x>240</x>
+            <x>230</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1212,7 +730,6 @@ fall</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1221,13 +738,10 @@ fall</string>
 Image</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_i8">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+         <widget class="QPushButton" name="button_i8">
           <property name="geometry">
            <rect>
-            <x>170</x>
+            <x>160</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1237,10 +751,10 @@ Image</string>
            <string/>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_input_2">
+         <widget class="QPushButton" name="button_input_2">
           <property name="geometry">
            <rect>
-            <x>80</x>
+            <x>90</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1248,7 +762,6 @@ Image</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1260,13 +773,10 @@ Image</string>
 2</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_i9">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+         <widget class="QPushButton" name="button_i9">
           <property name="geometry">
            <rect>
-            <x>240</x>
+            <x>230</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1276,10 +786,10 @@ Image</string>
            <string/>
           </property>
          </widget>
-         <widget class="QToolButton" name="buttoninstrument7">
+         <widget class="QPushButton" name="buttoninstrument7">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1287,7 +797,6 @@ Image</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1295,10 +804,10 @@ Image</string>
            <string>Save</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_mode">
+         <widget class="QPushButton" name="button_mode">
           <property name="geometry">
            <rect>
-            <x>80</x>
+            <x>90</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1306,7 +815,6 @@ Image</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1317,10 +825,10 @@ Image</string>
            <string>Mode</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_input_1">
+         <widget class="QPushButton" name="button_input_1">
           <property name="geometry">
            <rect>
-            <x>10</x>
+            <x>20</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1328,7 +836,6 @@ Image</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1340,10 +847,10 @@ Image</string>
 1</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_vert_horiz">
+         <widget class="QPushButton" name="button_vert_horiz">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1351,7 +858,6 @@ Image</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1360,6 +866,48 @@ Image</string>
 Horiz</string>
           </property>
          </widget>
+        </widget>
+        <widget class="QPushButton" name="button_frequency">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>50</y>
+           <width>158</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="toolTipDuration">
+          <number>1</number>
+         </property>
+         <property name="statusTip">
+          <string/>
+         </property>
+         <property name="whatsThis">
+          <string/>
+         </property>
+         <property name="accessibleDescription">
+          <string/>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
+         </property>
+         <property name="text">
+          <string>Frequency</string>
+         </property>
         </widget>
         <widget class="QPushButton" name="button_up">
          <property name="geometry">
@@ -1372,7 +920,6 @@ Horiz</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1381,6 +928,48 @@ Horiz</string>
          </property>
          <property name="text">
           <string>Up</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="button_span">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>120</y>
+           <width>158</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
+         </property>
+         <property name="text">
+          <string>Span</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="button_amplitude">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>190</y>
+           <width>158</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
+         </property>
+         <property name="text">
+          <string>Amplitude</string>
          </property>
         </widget>
         <widget class="QPushButton" name="button_soft_4">
@@ -1394,7 +983,6 @@ Horiz</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1416,7 +1004,6 @@ Horiz</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1438,7 +1025,6 @@ Horiz</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1461,7 +1047,7 @@ Horiz</string>
          <property name="title">
           <string>Data</string>
          </property>
-         <widget class="QToolButton" name="button_data_7">
+         <widget class="QPushButton" name="button_data_7">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1472,7 +1058,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1483,7 +1068,7 @@ Horiz</string>
            <string>7</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_8">
+         <widget class="QPushButton" name="button_data_8">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1494,7 +1079,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1502,7 +1086,7 @@ Horiz</string>
            <string>8</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_9">
+         <widget class="QPushButton" name="button_data_9">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1513,7 +1097,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1521,10 +1104,10 @@ Horiz</string>
            <string>9</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_ghz">
+         <widget class="QPushButton" name="button_ghz">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>40</y>
             <width>61</width>
             <height>41</height>
@@ -1532,7 +1115,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1540,10 +1122,10 @@ Horiz</string>
            <string>GHz</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_mhz">
+         <widget class="QPushButton" name="button_mhz">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>90</y>
             <width>61</width>
             <height>41</height>
@@ -1551,7 +1133,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1559,7 +1140,7 @@ Horiz</string>
            <string>MHz</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_5">
+         <widget class="QPushButton" name="button_data_5">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1570,7 +1151,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1578,7 +1158,7 @@ Horiz</string>
            <string>5</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_6">
+         <widget class="QPushButton" name="button_data_6">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1589,7 +1169,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1597,7 +1176,7 @@ Horiz</string>
            <string>6</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_4">
+         <widget class="QPushButton" name="button_data_4">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1608,7 +1187,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1619,7 +1197,7 @@ Horiz</string>
            <string>4</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_0">
+         <widget class="QPushButton" name="button_data_0">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1630,7 +1208,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1641,7 +1218,7 @@ Horiz</string>
            <string>0</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_2">
+         <widget class="QPushButton" name="button_data_2">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1652,7 +1229,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1660,7 +1236,7 @@ Horiz</string>
            <string>2</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_3">
+         <widget class="QPushButton" name="button_data_3">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1671,7 +1247,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1679,7 +1254,7 @@ Horiz</string>
            <string>3</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_dot">
+         <widget class="QPushButton" name="button_dot">
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -1690,7 +1265,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1698,7 +1272,7 @@ Horiz</string>
            <string>.</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_data_1">
+         <widget class="QPushButton" name="button_data_1">
           <property name="geometry">
            <rect>
             <x>20</x>
@@ -1709,7 +1283,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1720,7 +1293,7 @@ Horiz</string>
            <string>1</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_minus">
+         <widget class="QPushButton" name="button_minus">
           <property name="geometry">
            <rect>
             <x>160</x>
@@ -1731,7 +1304,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1739,10 +1311,10 @@ Horiz</string>
            <string>-</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_khz">
+         <widget class="QPushButton" name="button_khz">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>140</y>
             <width>61</width>
             <height>41</height>
@@ -1750,7 +1322,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1758,10 +1329,10 @@ Horiz</string>
            <string>kHz</string>
           </property>
          </widget>
-         <widget class="QToolButton" name="button_hz">
+         <widget class="QPushButton" name="button_hz">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>300</x>
             <y>190</y>
             <width>61</width>
             <height>41</height>
@@ -1769,7 +1340,6 @@ Horiz</string>
           </property>
           <property name="font">
            <font>
-            <weight>75</weight>
             <italic>false</italic>
             <bold>true</bold>
            </font>
@@ -1790,7 +1360,6 @@ Horiz</string>
          </property>
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -1837,121 +1406,6 @@ Horiz</string>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="widget" native="true">
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>40</y>
-           <width>181</width>
-           <height>221</height>
-          </rect>
-         </property>
-         <widget class="QPushButton" name="button_frequency">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>158</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="toolTipDuration">
-           <number>1</number>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-          <property name="whatsThis">
-           <string/>
-          </property>
-          <property name="accessibleDescription">
-           <string/>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
-          </property>
-          <property name="text">
-           <string>Frequency</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="button_span">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>70</y>
-            <width>158</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
-          </property>
-          <property name="text">
-           <string>Span</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="button_amplitude">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>130</y>
-            <width>158</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: #664228; color: white; font-weight: bold</string>
-          </property>
-          <property name="text">
-           <string>Amplitude</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </widget>
        </widget>
       </item>
      </layout>
@@ -1964,7 +1418,7 @@ Horiz</string>
      <x>0</x>
      <y>0</y>
      <width>1572</width>
-     <height>37</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

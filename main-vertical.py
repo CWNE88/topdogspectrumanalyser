@@ -38,7 +38,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        uic.loadUi("mainwindowhorizontal.ui", self)
+        uic.loadUi("mainwindowvertical.ui", self)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         self.keypad = Keypad(self, self.on_keypad_change, self.on_frequency_select)
