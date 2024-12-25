@@ -78,6 +78,24 @@ X,Max hold
 Z,Zero span
 
 
+Issues
+
+Source selection
+
+When frequency changes, the plots fail.
+Possible solution is a flag to say frequency has changed, and to reset frequency bins at that time
+
+Surface plot not yet integrated.
+
+GUI buttons shading not right when selecting display.
+
+Max hold in 2d plot has remnant of previous max hold when activated again.
+
+Peak search for max hold not working.
+
+Colour map option in waterfall not working.
+
+
 
 
 
