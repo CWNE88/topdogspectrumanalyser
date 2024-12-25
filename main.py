@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QMainWindow):
     menu: MenuManager = None
     """The menu manager"""
 
-    frequency: FrequencyRange = FrequencyRange(start=115e6, stop=135e6, span=2e6)
+    frequency: FrequencyRange = FrequencyRange(start=25e6, stop=35e6, span=2e6)
     """The current frequency range"""
 
     keypad: Keypad = None
