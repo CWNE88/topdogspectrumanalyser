@@ -41,5 +41,57 @@ Disadvantages:
 The relevant backend can be chosen for the device required, and the method required.
 The data is returned from the Sweep class to include the frequency range and power values.
 
+Shortcut keys
+
+
+A,Amplitude
+D,Delta Markers
+Down,Down
+F,Frequency
+F1,Soft Key 1
+F2,Soft Key 2
+F3,Soft Key 3
+F4,Soft Key 4
+F5,Soft Key 5
+F6,Soft Key 6
+F7,Soft Key 7
+F8,Soft Key 8
+G,GHz
+H,Hz
+K,kHz
+M,MHz
+N,Next Peak
+O,Orientation
+P,Peak Search
+R,pReset
+S,Span
+Space,Hold
+Up,Up
+X,Max hold
+Z,Zero span
+
+
+Issues
+
+Source selection
+
+When frequency changes, the plots fail.
+Possible solution is a flag to say frequency has changed, and to reset frequency bins at that time
+
+Surface plot not yet integrated.
+
+GUI buttons shading not right when selecting display.
+
+Max hold in 2d plot has remnant of previous max hold when activated again.
+
+Peak search for max hold not working.
+
+Colour map option in waterfall not working.
+
+
+
+
+
+
 
 
