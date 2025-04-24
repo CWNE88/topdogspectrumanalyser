@@ -12,7 +12,7 @@ wifi_channels = [
     {'channel': 'wifi_ism_channel10', 'range': (2.582e9, 2.602e9), 'centre_frequency': 2.592e9, 'dfs': False},
     {'channel': 'wifi_ism_channel11', 'range': (2.602e9, 2.622e9), 'centre_frequency': 2.612e9, 'dfs': False},
     {'channel': 'wifi_ism_channel12', 'range': (2.622e9, 2.642e9), 'centre_frequency': 2.632e9, 'dfs': False},
-    {'channel': 'wifi_ism_channel13', 'range': (2.642e9, 2.662e9), 'centre_frequency': 2.652e9, 'dfs': False}, 
+    {'channel': 'wifi_ism_channel13', 'range': (2.642e9, 2.662e9), 'centre_frequency': 2.652e9, 'dfs': False},  # Channel 13 (depends on region)
     
     # 5 GHz channels (UNI1, UNI2, UNI2e, UNI3, etc.)
     # UNI1: Channels 36-48
@@ -49,7 +49,7 @@ wifi_channels = [
     {'channel': 'wifi_uni3_channel165', 'range': (5.825e9, 5.845e9), 'centre_frequency': 5.835e9, 'dfs': True},
     
     # 6 GHz channels (Wi-Fi 6E) - UNI6
-    # Channels 1 to 233 
+    # Channels 1 to 233 (depending on region and regulations)
     {'channel': 'wifi_uni6_channel1', 'range': (5.925e9, 5.945e9), 'centre_frequency': 5.935e9, 'dfs': False},
     {'channel': 'wifi_uni6_channel2', 'range': (5.945e9, 5.965e9), 'centre_frequency': 5.955e9, 'dfs': False},
     {'channel': 'wifi_uni6_channel3', 'range': (5.965e9, 5.985e9), 'centre_frequency': 5.975e9, 'dfs': False},

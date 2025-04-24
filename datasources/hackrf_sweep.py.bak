@@ -1,0 +1,28 @@
+import numpy as np
+from frequencyselector import FrequencyRange
+from . import SweepDataSource
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+class HackRFSweepDataSource(SweepDataSource):
+    def __init__(self, start_freq: int, stop_freq: int, bin_size: int):
+        super().__init__(start_freq, stop_freq, bin_size)
+        self.running = False
+        logging.debug(f"Initialised HackRFSweepDataSource with start_freq={start_freq}, stop_freq={stop_freq}, bin_size={bin_size}")
+
+    def start(self, frequency: FrequencyRange):
+        self.running = True
+        logging.debug("HackRF Sweep start (placeholder)")
+        raise NotImplementedError("HackRF Sweep not fully implemented")
+
+    def stop(self):
+        self.running = False
+        logging.debug("HackRF Sweep stopped")
+
+    def get_data(self) -> np.ndarray:
+        logging.debug("Returning zero data for HackRF Sweep")
+        return np.zeros(self.get_number_of_points())
+
+    def get_number_of_points(self) -> int:
+        return int((self.stop_freq - self.start_freq) / self.bin_size)

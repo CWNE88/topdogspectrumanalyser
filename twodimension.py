@@ -1,196 +1,111 @@
-#!/bin/python3
-import sys
 import numpy as np
-from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtWidgets import QWidget, QVBoxLayout
 import pyqtgraph as pg
+import logging
 
-class TwoD(QtWidgets.QWidget):
+# Configure logging to match main.py's usage
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+class TwoD(QWidget):
     def __init__(self):
         super().__init__()
-        print("TwoD init")
-        
-        # Plot data
+        self.plot_widget = pg.PlotWidget()
+        # Set appearance to match original
+        self.plot_widget.setBackground('k')  # Black background
+        self.plot_widget.setLabel('left', 'Power', units='dBm')  # White label by default
+        self.plot_widget.setLabel('bottom', 'Frequency', units='MHz')
+        self.plot_widget.showGrid(x=True, y=True)  # Grid enabled
+
+        # Plot lines with original colors
+        self.live_plot = self.plot_widget.plot(pen=pg.mkPen('g', width=2), name='Live')  # Green for live data
+        self.max_plot = self.plot_widget.plot(pen=pg.mkPen('y', width=2), name='Max Hold')  # Yellow for max hold
+        # Use a scatter plot for the peak marker to show a white downward triangle
+        self.peak_marker = self.plot_widget.plot(
+            pen=None, symbol='t', symbolPen=None, symbolBrush='w', symbolSize=10
+        )
+        self.max_peak_marker = self.plot_widget.plot(
+            pen=None, symbol='t', symbolPen=None, symbolBrush='w', symbolSize=10
+        )
+
+        # Use QVBoxLayout to avoid GraphicsLayoutWidget issues
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.plot_widget)
+        self.setLayout(self.layout)
+
         self.frequency_bins = None
-        self.live_power_levels = None
-        
-        self.max_hold_enabled = False
-        self.max_power_levels = None
-        
-        self.min_hold_enabled = False
-        self.min_power_levels = None
-        
-        self.average_enabled = False
-        self.average_power_levels = None
+        self.peak_search_enabled = False
+        self.max_peak_search_enabled = False
+        logging.debug("TwoD: Widget initialised")
 
-        self.peak_search_enabled = False        
-        self.peak_search_frequency = None
-        self.peak_search_power = None
-        self.peak_search_marker = None
-
-        self.max_peak_search_enabled = False    # True if self.max_hold_enabled and self.peak_search_enabled are true
-        self.max_peak_search_frequency = None
-        self.max_peak_search_power = None
-        self.max_peak_search_marker = None
-
-        self.peak_search_label = None
-        self.max_peak_search_label = None
-                
-
-        # Create the plot widget
-        self.widget = pg.PlotWidget()
-        self.widget.showGrid(x=True, y=True)
-        self.widget.setLabel('left', 'Amplitude (dBm)')
-        self.widget.setLabel('bottom', 'Frequency (MHz)')
-        self.widget.setYRange(-100, -10)
-
-
-        self.live_trace = self.widget.plot(pen='g', name='Current Power Levels')
-        self.max_hold_trace = self.widget.plot(pen='y', name='Max Hold Levels')
-        self.min_hold_trace = self.widget.plot(pen='b', name='Min Hold Levels')
-        
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.widget)
-
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.update_plot)
-
-    def update_frequency_bins(self, freq_bins):
+    def update_frequency_bins(self, freq_bins: np.ndarray):
+        """Update the frequency bins for the plot."""
         self.frequency_bins = freq_bins
+        min_freq = freq_bins[0] * 1e-6  # Convert Hz to MHz
+        max_freq = freq_bins[-1] * 1e-6
+        self.plot_widget.setXRange(min_freq, max_freq)
+        logging.debug(f"TwoD: Updated x-range to {min_freq:.2f}-{max_freq:.2f} MHz")
 
-    def update_live_power_levels(self, pwr_lvls):
-        self.live_power_levels = pwr_lvls
+    def set_peak_search_enabled(self, enabled: bool):
+        """Enable or disable peak search."""
+        self.peak_search_enabled = enabled
+        if not enabled:
+            self.peak_marker.setData([], [])
+        logging.debug(f"TwoD: Peak search {'enabled' if enabled else 'disabled'}")
 
-    def set_max_hold_enabled(self, max_hold):
-        self.max_hold_enabled = max_hold
+    def set_max_peak_search_enabled(self, enabled: bool):
+        """Enable or disable max hold."""
+        self.max_peak_search_enabled = enabled
+        if not enabled:
+            self.max_plot.setData([], [])  # Clear max hold plot when disabled
+            self.max_peak_marker.setData([], [])  # Clear max peak marker as well
+        logging.debug(f"TwoD: Max hold {'enabled' if enabled else 'disabled'}")
 
-    def update_max_power_levels(self, pwr_lvls):
-        self.max_power_levels = pwr_lvls
-    
-    def set_min_hold_enabled(self, min_hold):
-        self.min_hold_enabled = min_hold
-    
-    def update_min_hold_levels(self, pwr_lvls):
-        self.min_hold_levels = pwr_lvls
+    def update_widget_data(self, live_power_levels: np.ndarray, max_power_levels: np.ndarray, frequency_bins: np.ndarray):
+        """Update the 2D plot with live and max power levels."""
+        if live_power_levels is None or max_power_levels is None or frequency_bins is None:
+            logging.warning("TwoD: Received 'None' data")
+            return
 
-    def set_average_enabled(self, av):
-        self.average_enabled = av
-    
-    def update_average_power(self, pwr_lvls):
-        self.average_power_levels = pwr_lvls
+        if self.frequency_bins is None:
+            self.update_frequency_bins(frequency_bins)
 
-    def set_peak_search_enabled(self, pk_en):
-        self.peak_search_enabled = pk_en
+        freq_bins = frequency_bins * 1e-6  # Convert Hz to MHz
+        live_data = live_power_levels
+        max_data = max_power_levels
 
-    def set_peak_search_frequency_and_power(self, pk, pwr):
-        self.peak_search_frequency = pk
-        self.peak_search_power = pwr
+        if not np.all(np.isfinite(live_data)):
+            logging.warning("TwoD: live_data contains non-finite values")
+            return
+        if not np.all(np.isfinite(max_data)):
+            logging.warning("TwoD: max_data contains non-finite values")
+            return
+        if not np.all(np.isfinite(freq_bins)):
+            logging.warning("TwoD: freq_bins contains non-finite values")
+            return
 
-    def set_max_peak_search_enabled(self, max_pk_en):
-        self.max_peak_search_enabled = max_pk_en
+        # Always update the live plot (green)
+        self.live_plot.setData(freq_bins, live_data)
 
-    def set_max_peak_search_frequency_and_power(self, pk, pwr):
-        self.max_peak_search_frequency = pk
-        self.max_peak_search_power = pwr
-
-    def update_peak_search_marker(self):
-        
-        if self.peak_search_marker is None:
-            self.peak_search_marker = pg.ScatterPlotItem(
-                [self.peak_search_frequency / 1e6],  
-                [self.peak_search_power],            
-                symbol='t',
-                brush='w',
-                size=15
-            )
-            self.widget.addItem(self.peak_search_marker)
+        # Update max hold plot (yellow) only if enabled
+        if self.max_peak_search_enabled:
+            self.max_plot.setData(freq_bins, max_data)
         else:
-            self.peak_search_marker.setData(
-                [self.peak_search_frequency / 1e6],  
-                [self.peak_search_power]             
-                )
+            self.max_plot.setData([], [])  # Clear max hold plot if disabled
 
-    def update_max_peak_search_marker(self):
-        if self.max_peak_search_marker is None:
-            self.max_peak_search_marker = pg.ScatterPlotItem(
-                [self.max_peak_search_frequency / 1e6],  
-                [self.max_peak_search_power],            
-                symbol='t',
-                brush='w',
-                size=15
-            )
-            self.widget.addItem(self.max_peak_search_marker)
-        else:
-            self.max_peak_search_marker.setData(
-                [self.max_peak_search_frequency / 1e6],  
-                [self.max_peak_search_power]             
-                )
-
-    def update_plot(self):
-        if self.live_power_levels is not None and self.frequency_bins is not None:
-            self.live_trace.setData(self.frequency_bins / 1e6, self.live_power_levels)
-        else:
-            self.live_trace.clear() 
-            
-        if self.max_hold_enabled and self.max_power_levels is not None:
-            self.max_hold_trace.setData(self.frequency_bins / 1e6, self.max_power_levels)
-        else:
-            self.max_hold_trace.clear()
-            if self.max_peak_search_label is not None:
-                self.widget.removeItem(self.max_peak_search_label)
-                self.max_peak_search_label = None
-
+        # Update peak markers
         if self.peak_search_enabled:
-
-            peak_text = (
-                f"<span style='color: green;background-color: black;'>Peak</span> <br>"
-                f"<span style='color: white;background-color: black;'>{self.peak_search_frequency / 1e6:.2f} MHz</span><br>"
-                f"<span style='color: white; background-color: black;'>{self.peak_search_power:.2f} dB</span><br>"
-            )
-            if self.peak_search_label is None:
-                self.peak_search_label = pg.TextItem(peak_text)
-                self.peak_search_label.setHtml(peak_text)
-                self.widget.addItem(self.peak_search_label)
-            else:
-                self.peak_search_label.setHtml(peak_text)
-            ymin, ymax = self.widget.viewRange()[1]  # Get the y-axis range
-            y_90_percent = ymin + 0.9 * (ymax - ymin)
-            self.peak_search_label.setPos(self.peak_search_frequency / 1e6, y_90_percent)
-            
-            self.update_peak_search_marker()
-
-            if self.max_peak_search_enabled:
-                
-                max_peak_text = (
-                    f"<span style='color: yellow;background-color: black;'>Max Peak</span> <br>"
-                    f"<span style='color: white;background-color: black;'>{self.max_peak_search_frequency / 1e6:.2f} MHz</span><br>"
-                    f"<span style='color: white; background-color: black;'>{self.max_peak_search_power:.2f} dB</span><br>"
-                )
-                if self.max_peak_search_label is None:
-                    self.max_peak_search_label = pg.TextItem(max_peak_text)
-                    self.max_peak_search_label.setHtml(max_peak_text)
-                    self.widget.addItem(self.max_peak_search_label)
-                else:
-                    self.max_peak_search_label.setHtml(max_peak_text)
-                ymin, ymax = self.widget.viewRange()[1]  # Get the y-axis range
-                self.max_peak_search_label.setPos(self.max_peak_search_frequency / 1e6, ymin + (ymax - ymin))
-                
-                self.update_max_peak_search_marker()
-            else:
-                self.widget.removeItem(self.max_peak_search_label)
-                self.max_peak_search_label = None
-        
-        
+            peak_idx = np.argmax(live_data)
+            peak_freq = freq_bins[peak_idx]
+            self.peak_marker.setData([peak_freq], [live_data[peak_idx]])
         else:
-            if self.max_peak_search_label is not None:
-                self.widget.removeItem(self.max_peak_search_label)
-                self.max_peak_search_label = None
-                self.widget.removeItem(self.max_peak_search_marker)
-            
+            self.peak_marker.setData([], [])
 
-            else:
-                if self.peak_search_label is not None:
-                    self.widget.removeItem(self.peak_search_label)
-                    self.peak_search_label = None
-                    self.widget.removeItem(self.peak_search_marker)
-                    self.peak_search_marker = None
+        if self.max_peak_search_enabled:
+            max_peak_idx = np.argmax(max_data)
+            max_peak_freq = freq_bins[max_peak_idx]
+            self.max_peak_marker.setData([max_peak_freq], [max_data[max_peak_idx]])
+        else:
+            self.max_peak_marker.setData([], [])
 
+        #self.plot_widget.setYRange(-100, 0)  # Match original y-range
+        logging.debug("TwoD: Updated widget data")

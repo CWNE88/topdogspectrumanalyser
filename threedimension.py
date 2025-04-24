@@ -1,21 +1,18 @@
 #!/bin/python3
 from pyqtgraph.Qt import QtCore, QtGui
-from scipy import signal
 import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 import numpy as np
-import sys
-from numpy.fft import fft, ifft
-from pyqtgraph.Qt import mkQApp
-import time
-import matplotlib as mpl
-from matplotlib.ticker import EngFormatter
 from PyQt6 import QtWidgets
-import os
-import matplotlib.pyplot as plt
+import logging
+import time
+
+# Configure logging to match other widgets
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class ThreeD(QtWidgets.QWidget):
     def __init__(self):
+        """Initialise the 3D plot widget."""
         super().__init__()
 
         self.widget = gl.GLViewWidget()
@@ -33,188 +30,235 @@ class ThreeD(QtWidgets.QWidget):
         self.widget.opts["center"] = QtGui.QVector3D(1.616751790046692, -0.9432722926139832, 0.0)
 
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.widget)
 
         self.paused = False
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.update)
-
         self.peak_search_enabled = False
-        self.peak_marker = None
+        self.max_peak_search_enabled = False
 
-        self.side_grid = gl.GLGridItem()
-        self.side_grid.rotate(90, 0, 1, 0)
-        self.side_grid.translate(-10, 0, 0)
-        self.widget.addItem(self.side_grid)
-        self.side_grid_translated = False
+        # Single grid at y = 10, matching Visualizer
+        griditem = gl.GLGridItem()
+        griditem.setSize(20, 20)
+        griditem.setSpacing(2, 2)
+        griditem.rotate(90, 1, 0, 0)
+        griditem.translate(0, 10, 0)
+        self.widget.addItem(griditem)
 
+        # Centre frequency line and text
+        centre_text = gl.GLTextItem()
+        centre_text.setData(pos=(0.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Centre frequency")
+        self.widget.addItem(centre_text)
 
+        line_points = [(0, 10, 10), (0, 10, 0)]
+        line = gl.GLLinePlotItem(pos=line_points, color=(1, 1, 1, 1), width=2)
+        self.widget.addItem(line)
 
-        self.back_grid = gl.GLGridItem()
-        self.back_grid.rotate(90, 1, 0, 0)
-        self.back_grid.translate(0, -10, 0)
-        self.widget.addItem(self.back_grid)
-        
-
-        self.colourmap = pg.colormap.get('magma')
-
-        self.bottom_grid = gl.GLGridItem()
-        self.bottom_grid.translate(0, 0, -10)
-        self.widget.addItem(self.bottom_grid)
-
-        self.numberoflines = 100
-
+        # Peak text (will display power level)
         self.peak_text = gl.GLTextItem()
-        self.peak_text.setData(pos=(5.0, 10.0, 10.0), color=(255, 255, 255, 255), text="Peak frequency")
+        self.peak_text.setData(pos=(10.0, 10.0, 10.0), color=(255, 255, 255, 255), text="")
         self.widget.addItem(self.peak_text)
 
-        self.lineyvalues = np.linspace(10, -10, self.numberoflines)
+        self.number_of_lines = 25  # Reduced for performance, matching previous optimisation
 
+        self.line_y_values = np.linspace(10, -10, self.number_of_lines)
         self.traces = dict()
-        
         self.x = None
         self.y = None
         self.traces_initialised = False
-        self.last_live_power_levels = None
-        print ("3d init")
 
-        #peakpoints = gl.MeshData.sphere(rows=10, cols=10)
-        peakpoints = gl.MeshData.cylinder(rows=10, cols=20, radius = [0,1]) 
-        #self.peak_search_marker = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
-        self.peak_search_marker = gl.GLMeshItem(meshdata=peakpoints, smooth=True, color=(1, 1, 1, 1), shader='balloon')
-        self.peak_search_marker.resetTransform()
-        self.peak_search_marker.scale(0.1, 0.1, 0.1)
-        self.peak_search_marker.translate(2, 0, 0)
-        self.widget.addItem(self.peak_search_marker)
+        # Peak marker as a sphere, matching Visualizer
+        peak_points = gl.MeshData.sphere(rows=10, cols=10)
+        self.peak_sphere = gl.GLMeshItem(meshdata=peak_points, smooth=True, color=(1, 1, 1, 1), shader='balloon')
+        self.peak_sphere.resetTransform()
+        self.peak_sphere.scale(0.2, 0.2, 0.2)
+        self.peak_sphere.translate(2, 0, 0)
+        self.widget.addItem(self.peak_sphere)
 
-        self.engformat = mpl.ticker.EngFormatter(places=2) 
+        # Max hold trace
+        self.max_hold_trace = None
+        self.max_hold_z = None  # To store max hold z-values
+        self.good_colours = None
+        logging.debug("ThreeD: Widget initialised")
 
     def initialise_traces(self):
+        """Initialise the 3D trace lines for spectrum display."""
+        if self.frequency_bins is None or len(self.frequency_bins) == 0:
+            logging.warning("ThreeD: frequency_bins is None or empty, cannot initialise traces")
+            return
         
-    
-        print ("in initialise_traces")
-        
-        
-        self.x = np.linspace(10, -10, len(self.frequency_bins))
-        for i in range(self.numberoflines):
-            y_val = self.lineyvalues[i]
+        # Map frequency bins to x-axis range (-10 to 10)
+        freq_min = np.min(self.frequency_bins)
+        freq_max = np.max(self.frequency_bins)
+        if freq_max == freq_min:
+            freq_max = freq_min + 1.0  # Avoid division by zero
+        self.x = ((self.frequency_bins - freq_min) / (freq_max - freq_min)) * 20 - 10  # Scale to -10 to 10
+        self.good_colours = np.empty((len(self.frequency_bins), 4))
+        for i in range(self.number_of_lines):
+            y_val = self.line_y_values[i]
             z_val = np.zeros_like(self.frequency_bins)
-            specanpts = np.vstack([self.x, np.full_like(self.frequency_bins, y_val), z_val]).T
+            specan_pts = np.vstack([self.x, np.full_like(self.frequency_bins, y_val), z_val]).T
             self.traces[i] = gl.GLLinePlotItem(
-                pos=specanpts,
+                pos=specan_pts,
                 color=np.zeros([len(self.frequency_bins), 4]),
                 antialias=True,
                 mode="line_strip",
             )
             self.widget.addItem(self.traces[i])
 
+        # Initialise max hold trace
+        max_hold_pts = np.vstack([self.x, np.full_like(self.frequency_bins, self.line_y_values[0]), z_val]).T
+        self.max_hold_trace = gl.GLLinePlotItem(
+            pos=max_hold_pts,
+            color=(0.0, 1.0, 0.0, 0.3),  # Green with alpha, matching Visualizer
+            antialias=True,
+            mode="line_strip",
+            width=3  # Matching Visualizer
+        )
+        self.widget.addItem(self.max_hold_trace)
+        self.max_hold_z = z_val.copy()  # Initialise max hold z-values
+
         self.traces_initialised = True
-        self.good_colours = np.empty((len(self.frequency_bins), 4))
-        print ("self.traces_initialised = True")
+        logging.debug("ThreeD: Traces initialised")
 
-    def start(self):
-        if (sys.flags.interactive != 1) or not hasattr(QtCore, "PYQT_VERSION"):
-            QtGui.QGuiApplication.instance().exec()
+    def set_plotdata(self, name, points, colour, width):
+        """Set data for a specific trace."""
+        if name == "max_hold":
+            self.max_hold_trace.setData(pos=points, color=colour, width=width)
+        else:
+            self.traces[name].setData(pos=points, color=colour, width=width)
 
-    def set_plotdata(self, name, points, color, width):
-        self.traces[name].setData(pos=points, color=color, width=width)
+    def set_peak_search_enabled(self, is_enabled):
+        """Enable or disable peak search marker."""
+        self.peak_search_enabled = is_enabled
+        if not is_enabled:
+            self.peak_sphere.resetTransform()
+            self.peak_sphere.translate(0, 0, -100)  # Move off-screen
+            self.peak_text.setData(pos=(0, 0, -100), text="")
+        logging.debug(f"ThreeD: Peak search {'enabled' if is_enabled else 'disabled'}")
 
-    def set_number_of_points(self, number):
-        self.number_of_points = number
+    def set_max_peak_search_enabled(self, is_enabled):
+        """Enable or disable max hold trace."""
+        self.max_peak_search_enabled = is_enabled
+        if not is_enabled:
+            self.max_hold_trace.setData(pos=np.array([]), color=(0, 0, 0, 0))
+            if self.max_hold_z is not None:
+                # Reset max hold z-values when disabled
+                self.max_hold_z = np.zeros_like(self.max_hold_z)
+        elif self.max_hold_z is not None and self.live_power_levels is not None:
+            # Reset max hold z-values when re-enabled, matching Visualizer
+            self.max_hold_z = np.zeros_like(self.max_hold_z)
+            self.update_max_hold(self.live_power_levels)
+        logging.debug(f"ThreeD: Max hold {'enabled' if is_enabled else 'disabled'}")
 
-    def set_maxholddata(self, points, width):
-        self.maxtrace.setData(pos=points, color=[0.0, 1.0, 0.0, 0.3], width=width)
+    def update_frequency_bins(self, bins):
+        """Update frequency bins."""
+        if bins is not None and len(bins) > 0:
+            if not np.all(np.isfinite(bins)):
+                logging.error("ThreeD: frequency_bins contains non-finite values")
+                return
+            self.frequency_bins = bins
+            self.traces_initialised = False  # Force reinitialization of traces
+            if self.good_colours is None or len(self.good_colours) != len(bins):
+                self.good_colours = np.empty((len(bins), 4))
+            if self.max_hold_z is None or len(self.max_hold_z) != len(bins):
+                self.max_hold_z = np.zeros(len(bins))
+            self.initialise_traces()
+            logging.debug(f"ThreeD: Updated frequency bins, {len(bins)} points")
+        else:
+            logging.warning("ThreeD: Frequency bins are None or empty")
 
-    def set_peak_search_enabled(self, pk_en):
-        self.peak_search_enabled = pk_en
-
-    def set_peak_search_frequency_and_power(self, pk, pwr):
-        self.peak_search_frequency = pk
-        self.peak_search_power = pwr
-
-
-    def map_z_to_colour(self, z):
-        z_min, z_max = np.min(self.z), np.max(self.z)
-        normalised_z = (z - z_min) / (z_max - z_min)
-        lut = self.colourmap.getLookupTable(0.0, 1.0, 4)
-        idx = int(normalised_z * (len(lut) - 1))
-        rgb_colour = lut[idx][:3]  # Retrieve RGB values
-        rgba_colour = np.append(rgb_colour, 255)  # Add alpha channel (fully opaque)
-        return rgba_colour
-
-    def update(self) -> None:
-        
-        if self.frequency_bins is None or self.live_power_levels is None:
-            return
-        
-        if np.array_equal(self.live_power_levels, self.last_live_power_levels):
-            return
-        
-        self.last_live_power_levels = self.live_power_levels.copy()
-        
-        # Update traces
-        for i in range(self.numberoflines - 1):
-            trace = self.traces[self.numberoflines - i - 2]
-            trace_pos = trace.pos
-            trace_color = trace.color
-            trace_pos[:, 1] = self.lineyvalues[self.numberoflines - i - 1]
-            self.set_plotdata(name=self.numberoflines - i - 1, points=trace_pos, color=trace_color, width=1)
-        
-        # Update main trace
-        self.y = np.full_like(self.frequency_bins, self.lineyvalues[0])
-        #self.z = self.live_power_levels / 10
-        clipped = np.clip(self.live_power_levels, -70, None)
-
-        self.z = (clipped - (-100)) / 50 * 20 - 20
-
-    
-        
+    def update_max_hold(self, live_data):
+        """Update max hold z-values with new live data."""
         for i in range(len(self.frequency_bins)):
-            z = self.z[i]
-            colour = self.map_z_to_colour(z)
+            if self.max_hold_z[i] < live_data[i]:
+                self.max_hold_z[i] = live_data[i]
 
-            self.good_colours[i] = colour
-        
-        # Update main trace data
+    def update_widget_data(self, live_power_levels, max_power_levels, frequency_bins):
+        """Update widget data and refresh the plot."""
+        start_time = time.time()
+
+        if live_power_levels is None or max_power_levels is None or frequency_bins is None:
+            logging.warning("ThreeD: Received 'None' data in one or more variables")
+            return
+
+        if not np.all(np.isfinite(live_power_levels)) or not np.all(np.isfinite(max_power_levels)):
+            logging.warning("ThreeD: Power levels contain non-finite values")
+            return
+
+        if not np.all(np.isfinite(frequency_bins)):
+            logging.warning("ThreeD: frequency_bins contains non-finite values")
+            return
+
+        self.live_power_levels = live_power_levels
+        self.max_hold_levels = max_power_levels
+
+        if self.frequency_bins is None or len(self.frequency_bins) != len(frequency_bins):
+            self.update_frequency_bins(frequency_bins)
+
+        if not self.traces_initialised:
+            self.initialise_traces()
+            if not self.traces_initialised:
+                return
+
+        # Update traces
+        for i in range(self.number_of_lines - 1):
+            trace = self.traces[self.number_of_lines - i - 2]
+            trace_pos = trace.pos
+            trace_colour = trace.color
+            trace_pos[:, 1] = self.line_y_values[self.number_of_lines - i - 1]
+            self.set_plotdata(name=self.number_of_lines - i - 1, points=trace_pos, colour=trace_colour, width=1)
+
+        # Process live data with logarithmic scaling, matching Visualizer
+        self.y = np.full_like(self.frequency_bins, self.line_y_values[0])
+        # Normalise power levels to fit z-axis range (0 to 8)
+        min_power = np.min(live_power_levels)
+        max_power = np.max(live_power_levels)
+        if max_power == min_power:
+            max_power = min_power + 1.0  # Avoid division by zero
+        self.z = ((live_power_levels - min_power) / (max_power - min_power)) * 8  # Scale to 0-8
+
+        # Colour mapping, matching Visualizer
+        for i in range(len(self.frequency_bins)):
+            self.good_colours[i] = pg.glColor((8 - self.z[i], 8 * 1.4))
+            self.good_colours[i][3] = 1  # Ensure alpha is 1
+
+        # Update main trace
         specan_pts = np.vstack((self.x, self.y, self.z)).T
-        #self.set_plotdata(name=0, points=specan_pts, color=np.pad(self.good_colours, ((0,0),(0,1)), mode='constant', constant_values=255), width=1)
-        self.set_plotdata(name=0, points=specan_pts, color=self.good_colours, width=1)
+        self.set_plotdata(name=0, points=specan_pts, colour=self.good_colours, width=5)  # Width 5, matching Visualizer
 
+        # Update max hold trace
+        if self.max_peak_search_enabled:
+            max_z = ((max_power_levels - min_power) / (max_power - min_power)) * 8
+            self.update_max_hold(max_z)
+            max_hold_pts = np.vstack((self.x, np.full_like(self.frequency_bins, self.line_y_values[0]), self.max_hold_z)).T
+            self.set_plotdata(name="max_hold", points=max_hold_pts, colour=(0.0, 1.0, 0.0, 0.3), width=3)
+        else:
+            self.max_hold_trace.setData(pos=np.array([]), color=(0, 0, 0, 0))
 
         # Update peak search marker
         if self.peak_search_enabled:
-            maxx_index = np.argmax(self.live_power_levels)
-            self.peak_search_marker.resetTransform()
-            self.peak_search_marker.scale(0.2, 0.2, 0.2)
-            self.peak_search_marker.translate(self.x[maxx_index], 10, np.max(self.z))
-            self.peak_text.setData(
-                pos=(self.x[maxx_index], 10.0, 0.0),
-                color=(255, 255, 255, 255),
-                text=f"{self.engformat(self.peak_search_frequency)}Hz",
-            )
+            data_to_search = self.max_hold_z if self.max_peak_search_enabled else self.z
+            if data_to_search is not None:
+                maxx_index = np.argmax(data_to_search)
+                self.peak_sphere.resetTransform()
+                self.peak_sphere.scale(0.2, 0.2, 0.2)
+                z_val = np.max(data_to_search)
+                self.peak_sphere.translate(self.x[maxx_index], 10, z_val)
+                # Display peak power level, matching Visualizer
+                self.peak_text.setData(
+                    pos=(10.0, 10.0, 10.0),
+                    color=(255, 255, 255, 255),
+                    text=f"{self.live_power_levels[maxx_index]:.2f} dBm"
+                )
+            else:
+                self.peak_sphere.resetTransform()
+                self.peak_sphere.translate(0, 0, -100)
+                self.peak_text.setData(pos=(0, 0, -100), text="")
+        else:
+            self.peak_sphere.resetTransform()
+            self.peak_sphere.translate(0, 0, -100)
+            self.peak_text.setData(pos=(0, 0, -100), text="")
 
-
-    def set_peak_search_enabled(self, is_enabled):
-        self.peak_search_enabled = is_enabled
-        
-    
-    def set_peak_search_value(self, power, frequency):
-        self.peak_search_power = power
-        self.peak_search_frequency = frequency
-    
-    def update_live_power_levels(self, power_levels):
-        self.live_power_levels = power_levels
-
-    def update_frequency_bins(self, bins):
-        self.frequency_bins = bins
-        
-    def update_widget_data(self, live_power_levels, max_hold_levels, frequency_bins, peak_search_enabled):
-        if (
-            live_power_levels is not None
-            and max_hold_levels is not None
-            and frequency_bins is not None
-        ):
-            self.live_power_levels = live_power_levels
-            self.max_hold_levels = max_hold_levels
-            self.frequency_bins = frequency_bins
-            self.peak_search_enabled = peak_search_enabled
+        elapsed_time = time.time() - start_time
+        logging.debug(f"ThreeD: Updated widget data in {elapsed_time*1000:.2f} ms")

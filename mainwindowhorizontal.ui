@@ -426,7 +426,7 @@ Hold</string>
           </property>
          </widget>
         </widget>
-        <widget class="QGroupBox" name="groupdisplay">
+        <widget class="QGroupBox" name="groupcontrol">
          <property name="geometry">
           <rect>
            <x>490</x>
@@ -492,7 +492,7 @@ Hold</string>
            <string>Surface</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_display_6">
+         <widget class="QPushButton" name="buttoncontrol6">
           <property name="geometry">
            <rect>
             <x>150</x>
@@ -502,7 +502,7 @@ Hold</string>
            </rect>
           </property>
           <property name="text">
-           <string/>
+           <string>Display</string>
           </property>
          </widget>
          <widget class="QPushButton" name="button_waterfall">
@@ -524,7 +524,7 @@ Hold</string>
 fall</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="button_display_5">
+         <widget class="QPushButton" name="button_instrument_10">
           <property name="geometry">
            <rect>
             <x>80</x>
