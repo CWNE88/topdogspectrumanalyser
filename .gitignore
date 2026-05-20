@@ -12,3 +12,6 @@ build/
 .eggs/
 *.so
 *.log
+*.AppImage
+.claude/
+BUTTON_MENU_MAP.txt
