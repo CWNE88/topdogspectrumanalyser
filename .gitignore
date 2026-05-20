@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+forappimage/
+temp/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+*.log
+*.AppImage
+.claude/
+BUTTON_MENU_MAP.txt
