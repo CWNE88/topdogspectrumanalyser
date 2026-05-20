@@ -1,0 +1,22 @@
+{
+  "rtl_samples": {
+    "centre": 202840000.0,
+    "span": 2400000.0
+  },
+  "hackrf_samples": {
+    "centre": 720000000,
+    "span": 20000000.0
+  },
+  "hackrf_sweep": {
+    "centre": 115000000.0,
+    "span": 40000000.0
+  },
+  "microphone_samples": {
+    "centre": 11025.0,
+    "span": 22050.0
+  },
+  "rtl_sweep": {
+    "centre": 100300000.0,
+    "span": 20000000.0
+  }
+}

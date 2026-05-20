@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=MyApp 
+Exec=AppRun 
+Icon=tdnsa
+Type=Application
+Categories=Utility;
+

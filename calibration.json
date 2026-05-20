@@ -1,0 +1,20 @@
+{
+  "rtl_samples": {
+    "offset_db": -0.8087054556396822,
+    "measured_db": 45.80870545563968,
+    "reference_db": 45.0,
+    "cal_freq_hz": 100300000.0
+  },
+  "hackrf_sweep": {
+    "offset_db": 88.8801754496871,
+    "measured_db": -43.880175449687094,
+    "reference_db": 45.0,
+    "cal_freq_hz": 100300000.0
+  },
+  "rtl_sweep": {
+    "offset_db": 31.27999973297119,
+    "measured_db": 13.720000267028809,
+    "reference_db": 45.0,
+    "cal_freq_hz": 100300000.0
+  }
+}

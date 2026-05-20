@@ -1,0 +1,12 @@
+#!/bin/bash
+
+HERE="$(dirname "$(readlink -f "$0")")"
+
+PYTHON=$(which python3 2>/dev/null || which python3.13 2>/dev/null)
+
+export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
+export PATH="$HERE/usr/bin:$PATH"
+export PYTHONPATH="$HERE/usr:$HERE/usr/lib/python3.13/site-packages"
+
+# Run the main Python script
+exec "$PYTHON" "$HERE/usr/bin/main.py"

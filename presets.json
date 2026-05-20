@@ -1,0 +1,419 @@
+{
+  "1": {
+    "name": "2.4 GHz",
+    "settings": {
+      "source_type": "hackrf_sweep",
+      "freq_start": 2395000000.0,
+      "freq_stop": 2495000000.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "off",
+      "avg_n": 1,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 0,
+      "analysis_mode": "fft",
+      "display_format": 0,
+      "duty_cycle_enabled": false,
+      "fft_size": null,
+      "window_type": null,
+      "sweep_bin_size": 50000,
+      "peak_search_enabled": false,
+      "max_hold_enabled": true,
+      "two_d_fill_type": "solid",
+      "two_d_colour": "blue",
+      "nice_fill_enabled": true,
+      "nice_fill_colour": "green",
+      "nice_iir_mode": "light",
+      "nice_line_bold": false,
+      "three_d_history_lines": 300,
+      "three_d_grid_visible": true,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "2": {
+    "name": "Radio",
+    "settings": {
+      "source_type": "rtl_samples",
+      "freq_start": 96800000.0,
+      "freq_stop": 99200000.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "exp",
+      "avg_n": 8,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 0,
+      "fft_size": 1024,
+      "window_type": null,
+      "peak_search_enabled": false,
+      "max_hold_enabled": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "3": {
+    "name": "Microphone",
+    "settings": {
+      "source_type": "microphone_samples",
+      "freq_start": 0.0,
+      "freq_stop": 22050.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": true,
+      "avg_mode": "off",
+      "avg_n": 1,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 0,
+      "analysis_mode": "fft",
+      "display_format": 0,
+      "duty_cycle_enabled": false,
+      "fft_size": 1024,
+      "window_type": "hanning",
+      "peak_search_enabled": false,
+      "max_hold_enabled": false,
+      "three_d_history_lines": 300,
+      "three_d_grid_visible": true,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "4": {
+    "name": "434",
+    "settings": {
+      "source_type": "rtl_samples",
+      "freq_start": 432800000.0,
+      "freq_stop": 435200000.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "off",
+      "avg_n": 1,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 2,
+      "analysis_mode": "fft",
+      "display_format": 2,
+      "duty_cycle_enabled": false,
+      "fft_size": 1024,
+      "window_type": null,
+      "peak_search_enabled": false,
+      "max_hold_enabled": true,
+      "three_d_history_lines": 300,
+      "three_d_grid_visible": true,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "5": {
+    "name": "UHF CB",
+    "settings": {
+      "source_type": "rtl_samples",
+      "freq_start": 475800000.0,
+      "freq_stop": 478200000.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "exp",
+      "avg_n": 4,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 0,
+      "fft_size": 1024,
+      "window_type": null,
+      "peak_search_enabled": true,
+      "max_hold_enabled": true,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "6": {
+    "name": "3D Audio",
+    "settings": {
+      "source_type": "microphone_samples",
+      "freq_start": 0.0,
+      "freq_stop": 22050.0,
+      "ref_level": 45.0,
+      "range_db": 50,
+      "log_scale": true,
+      "log_freq": true,
+      "avg_mode": "exp",
+      "avg_n": 2,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 3,
+      "analysis_mode": "fft",
+      "display_format": 3,
+      "duty_cycle_enabled": false,
+      "fft_size": 1024,
+      "window_type": "hanning",
+      "sweep_bin_size": null,
+      "peak_search_enabled": false,
+      "max_hold_enabled": false,
+      "wf_floor": -100.0,
+      "wf_ceiling": -20.0,
+      "wf_time_span": 60.0,
+      "wf_colourmap": "magma",
+      "two_d_fill_type": "off",
+      "two_d_colour": "green",
+      "nice_fill_enabled": true,
+      "nice_fill_colour": "green",
+      "nice_iir_mode": "light",
+      "nice_line_bold": false,
+      "three_d_history_lines": 100,
+      "three_d_grid_visible": false,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  },
+  "7": {
+    "name": "Digital Radio",
+    "settings": {
+      "source_type": "rtl_samples",
+      "freq_start": 196644800.0,
+      "freq_stop": 198692800.0,
+      "ref_level": 0.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "lin",
+      "avg_n": 64,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 0,
+      "analysis_mode": "fft",
+      "display_format": 0,
+      "duty_cycle_enabled": true,
+      "fft_size": 1024,
+      "window_type": null,
+      "peak_search_enabled": false,
+      "max_hold_enabled": true,
+      "three_d_history_lines": 300,
+      "three_d_grid_visible": true,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": true,
+          "position": 196880320.0
+        },
+        "F2": {
+          "enabled": true,
+          "position": 198426560.0
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": "F2"
+    }
+  },
+  "8": {
+    "name": "Aircraft",
+    "settings": {
+      "source_type": "hackrf_samples",
+      "freq_start": 115000000.0,
+      "freq_stop": 135000000.0,
+      "ref_level": 125.0,
+      "range_db": 100.0,
+      "log_scale": true,
+      "log_freq": false,
+      "avg_mode": "off",
+      "avg_n": 1,
+      "persistence_mode": "off",
+      "threshold_enabled": false,
+      "peak_threshold": -100.0,
+      "peak_excursion": 6.0,
+      "display_line_enabled": false,
+      "display_line_level": -50.0,
+      "display_mode": 2,
+      "analysis_mode": "fft",
+      "display_format": 2,
+      "duty_cycle_enabled": false,
+      "fft_size": 1024,
+      "window_type": null,
+      "sweep_bin_size": null,
+      "peak_search_enabled": true,
+      "max_hold_enabled": true,
+      "wf_floor": 19.0,
+      "wf_ceiling": 35.0,
+      "wf_time_span": 300,
+      "wf_colourmap": "magma",
+      "two_d_fill_type": "off",
+      "two_d_colour": "green",
+      "nice_fill_enabled": true,
+      "nice_fill_colour": "green",
+      "nice_iir_mode": "light",
+      "nice_line_bold": false,
+      "three_d_history_lines": 200,
+      "three_d_grid_visible": false,
+      "three_d_auto_rotate": false,
+      "markers": {
+        "F1": {
+          "enabled": false,
+          "position": null
+        },
+        "F2": {
+          "enabled": false,
+          "position": null
+        },
+        "P1": {
+          "enabled": false,
+          "position": null
+        },
+        "P2": {
+          "enabled": false,
+          "position": null
+        }
+      },
+      "active_marker": null
+    }
+  }
+}

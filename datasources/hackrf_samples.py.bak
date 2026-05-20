@@ -1,0 +1,341 @@
+import numpy as np
+import logging
+import threading
+import queue
+from hackrf import HackRF
+from utils.frequency_selector import FrequencyRange
+from .base import SampleDataSource
+
+logger = logging.getLogger(__name__)
+
+
+class HackrfSamplesDataSource(SampleDataSource):
+    """
+    High-performance HackRF sample source using buffered streaming.
+
+    Optimized for high sample rates with minimal GIL contention.
+    """
+
+    READ_CHUNK = 1048576 #262144  # HackRF-friendly buffer size (256KB)
+
+    def __init__(self, sample_rate: int, centre_freq: int):
+        super().__init__(sample_rate, centre_freq)
+
+        self.num_samples = 1024
+        self.device = None
+        self.running = False
+
+        self.last_sample_rate = sample_rate
+
+        self.lna_gain = 40
+        self.vga_gain = 40
+        self.amplifier = True
+        self.use_psd = False
+
+        # High-performance queue-based buffering (no manual locks needed)
+        self._sample_queue = queue.Queue(maxsize=50)  # ~50 chunks = ~13 seconds @ 20 MSPS
+        self._reader_thread = None
+
+        # FFT resources
+        self._window = None
+        self._freq_bins = None
+
+        # Slow DC tracker (prevents flicker)
+        self._dc_estimate = 0.0 + 0.0j
+        self._dc_alpha = 0.001  # smaller = slower, more stable
+
+        # Sample reservoir for fast consumption
+        self._reservoir = np.array([], dtype=np.complex64)
+
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
+
+    def start(self, frequency: FrequencyRange = None):
+        if frequency:
+            self.centre_freq = int(frequency.centre)
+            self.sample_rate = int(frequency.span)
+
+        if self.running:
+            return
+
+        self.device = HackRF()
+        self.device.set_sample_rate(self.sample_rate)
+        self.device.set_freq(self.centre_freq)
+        self.device.set_lna_gain(self.lna_gain)
+        self.device.set_vga_gain(self.vga_gain)
+
+        if self.amplifier:
+            self.device.enable_amp()
+
+        self._allocate_fft_resources()
+
+        # Clear queue and reservoir
+        while not self._sample_queue.empty():
+            try:
+                self._sample_queue.get_nowait()
+            except queue.Empty:
+                break
+        self._reservoir = np.array([], dtype=np.complex64)
+
+        self.running = True
+        self._reader_thread = threading.Thread(
+            target=self._reader_loop, daemon=True
+        )
+        self._reader_thread.start()
+
+    def stop(self):
+        self.running = False
+
+        if self._reader_thread:
+            self._reader_thread.join(timeout=1.0)
+            self._reader_thread = None
+
+        if self.device:
+            try:
+                self.device.close()
+            except Exception:
+                pass
+            self.device = None
+
+        # Clear queue
+        while not self._sample_queue.empty():
+            try:
+                self._sample_queue.get_nowait()
+            except queue.Empty:
+                break
+        self._reservoir = np.array([], dtype=np.complex64)
+
+    def is_running(self) -> bool:
+        return self.running
+
+    # ------------------------------------------------------------------
+    # Internal streaming (OPTIMIZED)
+    # ------------------------------------------------------------------
+
+    def _reader_loop(self):
+        """Continuously read large blocks from HackRF and queue them.
+
+        This runs in its own thread and has minimal GIL contention.
+        """
+        logger.debug("HackRF reader thread started")
+
+        while self.running:
+            try:
+                # This is the only heavy operation - reading from USB
+                # The HackRF library should release the GIL during USB transfer
+                samples = self.device.read_samples(self.READ_CHUNK)
+
+                if samples is None or len(samples) == 0:
+                    continue
+
+                # Non-blocking put - if queue is full, drop oldest chunk
+                try:
+                    self._sample_queue.put(samples, block=False)
+                except queue.Full:
+                    # Queue is full, drop this chunk (prevents backpressure)
+                    # This is better than blocking the reader thread
+                    try:
+                        self._sample_queue.get_nowait()  # Drop oldest
+                        self._sample_queue.put(samples, block=False)  # Add newest
+                    except (queue.Empty, queue.Full):
+                        pass
+
+            except Exception:
+                logger.exception("HackRF reader thread crashed")
+                self.running = False
+                break
+
+        logger.debug("HackRF reader thread stopped")
+
+    def _consume_samples(self, count: int) -> np.ndarray:
+        """Pull exactly `count` samples from the queue.
+
+        Uses a reservoir pattern to minimize queue operations.
+        """
+        # Keep filling reservoir until we have enough samples
+        while len(self._reservoir) < count:
+            try:
+                # Non-blocking get with short timeout
+                chunk = self._sample_queue.get(timeout=0.01)
+                self._reservoir = np.concatenate([self._reservoir, chunk])
+            except queue.Empty:
+                # Not enough samples yet, return what we have padded with zeros
+                if len(self._reservoir) == 0:
+                    return np.zeros(count, dtype=np.complex64)
+
+                result = np.zeros(count, dtype=np.complex64)
+                result[:len(self._reservoir)] = self._reservoir
+                self._reservoir = np.array([], dtype=np.complex64)
+                return result
+
+        # We have enough samples, return the requested count
+        result = self._reservoir[:count]
+        self._reservoir = self._reservoir[count:]
+
+        # Trim reservoir if it gets too large (keep max 2x READ_CHUNK)
+        if len(self._reservoir) > 2 * self.READ_CHUNK:
+            self._reservoir = self._reservoir[-self.READ_CHUNK:]
+
+        return result
+
+    # ------------------------------------------------------------------
+    # FFT helpers
+    # ------------------------------------------------------------------
+
+    def _allocate_fft_resources(self):
+        # Hann window, normalized to preserve power
+        window = np.hanning(self.num_samples).astype(np.float32)
+        window /= np.sqrt(np.mean(window ** 2))
+        self._window = window
+
+        self._freq_bins = (
+            np.fft.fftshift(
+                np.fft.fftfreq(self.num_samples, 1 / self.sample_rate)
+            )
+            + self.centre_freq
+        )
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def get_samples(self) -> np.ndarray:
+        if not self.running:
+            return np.zeros(self.num_samples, dtype=np.complex64)
+
+        return self._consume_samples(self.num_samples)
+
+    def get_power_levels(self) -> tuple[np.ndarray, np.ndarray]:
+        if not self.running or self._freq_bins is None:
+            # Return zeros with current freq bins (or placeholder if not allocated)
+            if self._freq_bins is not None:
+                return np.zeros(self.num_samples), self._freq_bins.copy()
+            else:
+                return np.zeros(self.num_samples), np.zeros(self.num_samples)
+
+        samples = self._consume_samples(self.num_samples)
+
+        # Check if we got real samples (not just zeros from underrun)
+        samples_power = np.mean(np.abs(samples) ** 2)
+        if samples_power < 1e-20:  # All zeros or nearly empty buffer
+            # Return last known good data to avoid flicker
+            return np.zeros(self.num_samples), self._freq_bins.copy()
+
+        # Slow DC removal (stable, no flicker)
+        mean = np.mean(samples)
+        self._dc_estimate = (
+            (1.0 - self._dc_alpha) * self._dc_estimate
+            + self._dc_alpha * mean
+        )
+        samples -= self._dc_estimate
+
+        # Windowing
+        samples *= self._window
+
+        spectrum = np.fft.fftshift(np.fft.fft(samples))
+
+        # Magnitude-based dB (much more stable for UI)
+        magnitude = np.abs(spectrum)
+
+        if self.use_psd:
+            psd = (magnitude ** 2) / (self.sample_rate * self.num_samples)
+            power_db = 10 * np.log10(psd + 1e-12)
+        else:
+            power_db = 20 * np.log10(magnitude + 1e-12)
+
+        return power_db, self._freq_bins
+
+    # ------------------------------------------------------------------
+    # Configuration
+    # ------------------------------------------------------------------
+
+    def set_num_samples(self, num_samples: int):
+        if num_samples <= 0:
+            raise ValueError("num_samples must be positive")
+
+        if num_samples == self.num_samples:
+            return
+
+        self.num_samples = num_samples
+        self._allocate_fft_resources()
+
+    @property
+    def sample_count(self) -> int:
+        """Get the number of samples used for FFT."""
+        return self.num_samples
+
+    @sample_count.setter
+    def sample_count(self, value: int):
+        """Set the number of samples used for FFT."""
+        self.set_num_samples(value)
+
+    def set_psd_mode(self, enabled: bool):
+        self.use_psd = enabled
+
+    # ------------------------------------------------------------------
+    # Frequency updates
+    # ------------------------------------------------------------------
+
+    def _flush_buffers(self):
+        """Clear the sample queue and reservoir to remove stale data."""
+        # Clear the queue of all old samples
+        while not self._sample_queue.empty():
+            try:
+                self._sample_queue.get_nowait()
+            except queue.Empty:
+                break
+
+        # Clear the reservoir
+        self._reservoir = np.array([], dtype=np.complex64)
+
+        logger.debug("Flushed sample buffers")
+
+    def update_centre_frequency(self, centre_freq: float):
+        centre_freq = int(centre_freq)
+        if centre_freq == self.centre_freq:
+            return
+
+        self.centre_freq = centre_freq
+
+        # Only update hardware if running, otherwise just store the value
+        if self.running and self.device:
+            # HackRF requires stop/start cycle for clean frequency changes
+            # Calling set_freq() while streaming causes stale data due to:
+            # 1. USB transfers already in flight at old frequency
+            # 2. Hardware buffering in the HackRF itself
+            # Save DC estimate to avoid flicker on restart
+            saved_dc = self._dc_estimate
+
+            self.stop()
+            self.start()
+
+            # Restore DC estimate for smoother transition
+            self._dc_estimate = saved_dc
+
+            logger.debug(f"Updated centre frequency to {centre_freq/1e6:.2f} MHz")
+        else:
+            logger.debug(f"Stored centre frequency {centre_freq/1e6:.2f} MHz (will apply on next start)")
+
+    def update_sample_rate(self, sample_rate: float):
+        sample_rate = int(sample_rate)
+
+        if sample_rate == self.last_sample_rate:
+            return
+
+        # Save DC estimate to avoid flicker on restart
+        saved_dc = self._dc_estimate
+
+        self.stop()
+        self.sample_rate = sample_rate
+        self.last_sample_rate = sample_rate
+        self.start()
+
+        # Restore DC estimate for smoother transition
+        self._dc_estimate = saved_dc
+
+    def update_frequency(self, sample_rate: float, centre_freq: float):
+        if int(sample_rate) != self.last_sample_rate:
+            self.update_sample_rate(sample_rate)
+        if int(centre_freq) != self.centre_freq:
+            self.update_centre_frequency(centre_freq)

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+forappimage/
+temp/
+gqrx-master/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+*.log

@@ -1,0 +1,163 @@
+Top Dog Spectrum Analyser — Menu Tree
+======================================
+[ ] = soft button submenu  |  * = dynamic (source-dependent)
+
+HARDWARE BUTTONS
+────────────────────────────────────────────────────────────────────
+
+[FREQUENCY]
+  ├── Centre Frequency
+  ├── Start Frequency
+  ├── Stop Frequency
+  ├── Centre Freq ÷ 2
+  └── Centre Freq × 2
+
+[SPAN]  * (contents depend on active source)
+  ├── (Sweep source)
+  │     ├── Span
+  │     └── Full Span
+  ├── (RTL Samples)
+  │     ├── 250 kHz | 1.024 MHz | 1.44 MHz | 1.8 MHz
+  │     │   2.0 MHz | 2.048 MHz | 2.4 MHz
+  │     └── Zero Span ──► Free Run | Rise | Fall | Trigger Level
+  ├── (HackRF Samples)
+  │     ├── 2 MHz | 4 MHz | 8 MHz | 10 MHz | 16 MHz | 20 MHz
+  │     └── Zero Span ──► Free Run | Rise | Fall | Trigger Level
+  ├── (Microphone Samples)
+  │     ├── 8 kHz | 11.025 kHz | 16 kHz | 22.05 kHz
+  │     │   44.1 kHz | 48 kHz | 96 kHz
+  │     └── Zero Span ──► Free Run | Rise | Fall | Trigger Level
+  └── (No source / Sweep)
+        └── Span
+
+[AMPLITUDE]
+  ├── Ref Level
+  ├── Scale
+  │     ├── Log
+  │     └── Linear
+  ├── Log dB/div
+  │     ├── 1 dB/div
+  │     ├── 2 dB/div
+  │     ├── 5 dB/div
+  │     ├── 10 dB/div
+  │     └── 20 dB/div
+  └── Trace Normalise
+
+[INPUT]  (key: I)
+  ├── RTL-SDR
+  │     ├── Samples
+  │     └── Sweep
+  ├── HackRF
+  │     ├── Samples
+  │     └── Sweep
+  └── Microphone         (starts immediately; channel via Analysis → FFT → Channel)
+
+[ANALYSIS]  (key: N)
+  ├── FFT
+  │     ├── Window
+  │     │     ├── Hamming
+  │     │     ├── Hanning
+  │     │     └── Rectangle
+  │     ├── Sample Size
+  │     │     ├── 512
+  │     │     ├── 1024
+  │     │     ├── 2048
+  │     │     └── 4096
+  │     └── Channel           (Microphone only)
+  │           ├── Mono
+  │           ├── Left
+  │           ├── Right
+  │           └── Stereo
+  ├── PSD (dB/Hz)
+  ├── Constellation
+  │     ├── Density
+  │     └── Scatter
+  └── Duty Cycle
+
+[MARKER]
+  ├── Mkr 1 Freq
+  ├── Mkr 2 Freq
+  ├── Mkr 1 Power
+  ├── Mkr 2 Power
+  ├── Mkr → Peak
+  ├── Next Peak
+  ├── Mkr → Centre
+  └── Clear All
+
+[TRACE]  (key: T)
+  ├── Live On/Off
+  ├── Averaging
+  │     ├── Average Off
+  │     ├── Exp ×2
+  │     ├── Exp ×4
+  │     ├── Exp ×8
+  │     ├── Exp ×16
+  │     ├── Lin ×4
+  │     ├── Lin ×16
+  │     └── Lin ×64
+  ├── Hold
+  │     ├── Max Hold
+  │     ├── Min Hold
+  │     └── Clear Hold
+  ├── Persistence
+  │     ├── Off
+  │     ├── Short
+  │     ├── Medium
+  │     └── Long
+  └── Memory
+        ├── Store A
+        ├── Show A
+        ├── Store B
+        ├── Show B
+        ├── A − B
+        └── Clear All
+
+[DISPLAY]  (key: D)
+  ├── Display Line
+  │     ├── On / Off
+  │     └── Level
+  ├── Pk Threshold
+  ├── Excursion
+  └── Log Freq
+
+[PRESET]
+  ├── Recall  ──► Slot 1 … Slot 8   (shows saved name or "Empty")
+  ├── Save    ──► Slot 1 … Slot 8
+  ├── Name    ──► Slot 1 … Slot 8   (then type name on keypad)
+  └── Delete  ──► Slot 1 … Slot 8
+
+────────────────────────────────────────────────────────────────────
+DISPLAY VIEW BUTTONS  (soft menu appears automatically on press)
+────────────────────────────────────────────────────────────────────
+
+[2D]        → soft menu: (blank — no options)
+[3D]        → soft menu: History Lines | Grid On/Off | Auto Rotate
+                           └── History Lines ──► 50 | 100 | 200 | 300 | 500 lines
+[WATERFALL] → soft menu: (blank — no options)
+[SURFACE]   → soft menu: History Lines | Auto Rotate
+                           └── History Lines ──► 10 | 25 | 50 | 100 | 200 lines
+
+────────────────────────────────────────────────────────────────────
+KEYPAD UNIT BUTTONS  (labels change with entry mode)
+────────────────────────────────────────────────────────────────────
+
+  Frequency / Span entry : GHz | MHz | kHz | Hz
+  Ref Level / Threshold  :  (blank) | (blank) | (blank) | dBm
+  Excursion              :  (blank) | (blank) | (blank) | dB
+  Preset Name            :  (blank) | (blank) | (blank) | OK
+
+────────────────────────────────────────────────────────────────────
+KEYBOARD SHORTCUTS
+────────────────────────────────────────────────────────────────────
+
+  F  — Frequency menu
+  S  — Span menu
+  A  — Amplitude menu
+  I  — Input menu
+  N  — Analysis menu
+  M  — Marker menu
+  T  — Trace menu
+  D  — Display menu
+  P  — Preset menu (button only)
+  Backspace — Go back one menu level
+  Alt+Enter — Pop display out to separate window

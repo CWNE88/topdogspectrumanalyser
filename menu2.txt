@@ -1,0 +1,317 @@
+======================================
+[ ] = soft button submenu  |  * = dynamic (source-dependent)
+
+HARDWARE BUTTONS
+────────────────────────────────────────────────────────────────────
+
+[FREQUENCY]
+  ├── Centre Frequency
+  ├── Start Frequency
+  ├── Stop Frequency
+  ├── Centre ÷ 2
+  └── Centre × 2
+
+[SPAN]
+  ├── Span
+  ├── Full Span
+  └── Zoom
+        ├── Zoom In
+        └── Zoom Out
+
+[AMPLITUDE]
+  ├── Ref Level
+  ├── Scale
+  │     ├── Log
+  │     └── Linear
+  ├── dB / div  * (Log mode only)
+  │     ├── 1 dB/div
+  │     ├── 2 dB/div
+  │     ├── 5 dB/div
+  │     ├── 10 dB/div
+  │     └── 20 dB/div
+  └── Trace Normalisation
+
+[INPUT]
+  ├── Source
+  │     ├── RTL-SDR
+  │     ├── HackRF
+  │     ├── Microphone
+  │     └── None
+  │
+  ├── Mode  *
+  │     ├── Samples
+  │     └── Sweep
+  │
+  ├── Sample Rate  * (Samples mode only)
+  │     ├── (RTL rates)
+  │     ├── (HackRF rates)
+  │     └── (Audio rates)
+  │
+  ├── Bandwidth
+  │     ├── Auto
+  │     └── Manual
+  │
+  └── Source Options  *
+        ├── (RTL: gain, bias tee — future)
+        ├── (HackRF: gain stages — future)
+        └── (Microphone)
+              ├── Mono
+              ├── Left
+              ├── Right
+              └── Stereo
+
+[ANALYSIS]
+  ├── View Mode
+  │     ├── FFT
+  │     ├── PSD (dB/Hz)
+  │     ├── Constellation
+  │     └── Duty Cycle
+  │
+  ├── FFT Settings
+  │     ├── Window
+  │     │     ├── Hamming
+  │     │     ├── Hanning
+  │     │     └── Rectangle
+  │     └── Size
+  │           ├── 512
+  │           ├── 1024
+  │           ├── 2048
+  │           └── 4096
+  │
+  └── Constellation Settings
+        ├── Density
+        └── Scatter
+
+[MARKER]
+  ├── Select Marker
+  │     ├── Marker 1
+  │     └── Marker 2
+  │
+  ├── Readout
+  │     ├── Frequency
+  │     └── Power
+  │
+  ├── Functions
+  │     ├── Peak Search
+  │     ├── Next Peak
+  │     ├── Move to Centre
+  │     └── Delta Mode (future)
+  │
+  └── Clear All
+
+[TRACE]
+  ├── Live On / Off
+  │
+  ├── Averaging
+  │     ├── Off
+  │     ├── Exp ×2
+  │     ├── Exp ×4
+  │     ├── Exp ×8
+  │     ├── Exp ×16
+  │     ├── Lin ×4
+  │     ├── Lin ×16
+  │     └── Lin ×64
+  │
+  ├── Hold
+  │     ├── Max Hold
+  │     ├── Min Hold
+  │     └── Clear
+  │
+  ├── Persistence
+  │     ├── Off
+  │     ├── Short
+  │     ├── Medium
+  │     └── Long
+  │
+  ├── Trace Memory
+  │     ├── Store A
+  │     ├── Show A
+  │     ├── Store B
+  │     ├── Show B
+  │     └── Clear
+  │
+  └── Maths
+        └── A − B
+
+[DISPLAY]
+  ├── Grid / Line
+  │     ├── On / Off
+  │     └── Level
+  │
+  ├── Peak Threshold
+  ├── Excursion
+  ├── Log Frequency Axis
+  └── Labels / Overlays (future)
+
+[PRESET]
+  ├── Recall  ──► Slot 1 … Slot 8
+  ├── Save    ──► Slot 1 … Slot 8
+  ├── Name    ──► Slot 1 … Slot 8
+  └── Delete  ──► Slot 1 … Slot 8
+
+────────────────────────────────────────────────────────────────────
+DISPLAY VIEW BUTTONS  (soft menu appears automatically on press)
+────────────────────────────────────────────────────────────────────
+
+[2D]        → soft menu: (none)
+
+[3D]        → soft menu: History Depth | Grid On/Off | Auto Rotate
+                           └── History Depth ──► 50 | 100 | 200 | 300 | 500
+
+[WATERFALL] → soft menu: (none)
+
+[SURFACE]   → soft menu: History Depth | Auto Rotate
+                           └── History Depth ──► 10 | 25 | 50 | 100 | 200
+
+────────────────────────────────────────────────────────────────────
+KEYPAD UNIT BUTTONS  (labels change with entry mode)
+────────────────────────────────────────────────────────────────────
+
+  Frequency / Span entry : GHz | MHz | kHz | Hz
+  Ref Level / Threshold  : (blank) | (blank) | (blank) | dBm
+  Excursion              : (blank) | (blank) | (blank) | dB
+  Preset Name            : (blank) | (blank) | (blank) | OK
+
+────────────────────────────────────────────────────────────────────
+KEYBOARD SHORTCUTS
+────────────────────────────────────────────────────────────────────
+
+  F  — Frequency menu
+  S  — Span menu
+  A  — Amplitude menu
+  I  — Input menu
+  N  — Analysis menu
+  M  — Marker menu
+  T  — Trace menu
+  D  — Display menu
+  P  — Preset menu
+  Backspace — Go back one menu level
+  Alt+Enter — Pop display out to separate window
+
+
+════════════════════════════════════════════════════════════════════
+DESIGN FEEDBACK  (Claude analysis — 2026-05-01)
+════════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────────
+1. THE SPAN PROBLEM — AND HOW menu2.txt ALREADY SOLVES IT
+──────────────────────────────────────────────────────────────────
+The current code's [SPAN] menu is source-dependent: sweep sources get
+Span + Full Span; sample sources get only "Sample Rate". That exposes
+a hardware implementation detail where a user expects a bandwidth
+control. It's the main friction point.
+
+The menu2.txt design moves Sample Rate into [INPUT] and gives [SPAN]
+a clean universal surface (Span + Full Span + Zoom). This is correct.
+A user never needs to think about sample rate from the Span button.
+
+The one thing this requires in code that doesn't exist yet:
+  When a user enters a span value on a sample source, the app must
+  automatically select the nearest valid sample rate, not just update
+  the frequency display object.
+
+  RTL Samples valid rates:  250k, 1.024M, 1.44M, 1.8M, 2.0M, 2.048M, 2.4M
+  HackRF Samples:           2M, 4M, 8M, 10M, 16M, 20M
+  Microphone:               8k, 11.025k, 16k, 22.05k, 44.1k, 48k, 96k
+
+  Snap rule: pick the smallest rate ≥ requested span. If requested
+  span exceeds max rate, clamp to max and show a status message.
+  Show "Span → 2.048 MHz (2.048 MS/s)" so the user knows the snap.
+
+Full Span on sample sources = select maximum sample rate, keep centre.
+Currently Full Span only works for sweep sources; this needs extending.
+
+No Auto/Manual mode toggle is needed. "Span" entry IS auto by
+definition. "Sample Rate" in INPUT gives the manual path for experts.
+
+──────────────────────────────────────────────────────────────────
+2. BROADER REDESIGN ASSESSMENT
+──────────────────────────────────────────────────────────────────
+The menu2.txt redesign is a more ambitious structural change. Overall
+assessment and notes per section:
+
+[SPAN] — Span / Full Span / Zoom
+  Good. Zoom In / Zoom Out is a nice quality-of-life addition.
+  Suggest keeping Zoom under a sub-button so top-level stays tight,
+  which this design already does. No issues.
+
+[INPUT] — Source / Mode / Sample Rate / Bandwidth / Source Options
+  This is a significant conceptual improvement over the current design
+  where source-switching is buried several levels deep in [INPUT 1].
+  Grouping Source + Mode + Sample Rate together is logical.
+
+  "Bandwidth > Auto / Manual" is ambiguous — this appears to overlap
+  with the Span concept. Clarify: does Bandwidth here mean IF filter
+  bandwidth (i.e. hardware bandwidth/sample rate), or RBW (resolution
+  bandwidth)? If it's sample rate under another name, remove it — it's
+  already handled in Sample Rate above. If it's a distinct concept,
+  it needs a clearer label.
+
+  Source Options → Microphone channel is good. RTL/HackRF gain control
+  marked as future is sensible.
+
+[ANALYSIS] — new button for FFT/PSD/Constellation/Duty Cycle
+  This is a clear improvement. Currently these are buried inside
+  [INPUT 1] → [RTL Samples] → FFT / PSD / Constellation, which is
+  confusing — why is an analysis mode inside an input menu?
+  Moving them to a dedicated [ANALYSIS] button is logical.
+
+  Note: this means adding/relabelling a physical front-panel button.
+  In the current layout, the "Input 1" button would become "Analysis"
+  or a new button would be needed. Worth confirming whether the UI
+  layout can accommodate this or if Input gets repurposed.
+
+  FFT Settings sub-section (Window / Size) is clean. Currently Window
+  and Sample Size are separate sub-items within FFT, which is the same
+  depth — no regression there.
+
+[MARKER] — cleaner grouping
+  Grouping Frequency/Power readout under a Readout sub-item adds a
+  level compared to the current flat list. Not sure that's worth it —
+  4 marker buttons at top level (F1/F2/P1/P2) is already scannable.
+  Could simplify: keep Mkr 1 Freq / Mkr 2 Freq / Mkr 1 Power /
+  Mkr 2 Power at top level with the function buttons, as currently.
+
+[TRACE] — consolidates Averaging, Hold, Persistence
+  Current design splits: Averaging is in [DISPLAY], Hold is in
+  [DISPLAY], Persistence is in [DISPLAY], Trace A/B is in [TRACE].
+  Putting them all under [TRACE] is more logical — these are all
+  data capture/comparison features, not display visual settings.
+  This is a good reorganisation.
+
+[DISPLAY] — slimmed down to purely visual settings
+  Good. Display Line, Threshold, Excursion, Log Freq Axis all belong
+  here. Removing Averaging/Hold/Persistence from here (moved to Trace)
+  makes this cleaner.
+
+──────────────────────────────────────────────────────────────────
+3. SUMMARY: WHAT TO DO FIRST (in order of value / effort)
+──────────────────────────────────────────────────────────────────
+A. Fix SPAN for sample sources (medium effort, high value)
+   Span entry auto-snaps to nearest sample rate. Full Span selects max.
+   Sample Rate stays in INPUT as secondary control.
+   This alone fixes the main UX complaint without any structural change.
+
+B. Move FFT/PSD/Constellation/Duty Cycle to an Analysis menu
+   (medium effort, high value — but may need button relabel on UI)
+   Currently the deepest / most confusing part of the menu.
+
+C. Move Averaging, Hold, Persistence from Display → Trace
+   (low effort, good value — these belong with trace, not display)
+
+D. [INPUT] restructure to Source / Mode / Sample Rate
+   (higher effort — changes how source switching works in code)
+   Only worth doing once A/B/C are done and if the current INPUT
+   structure is still confusing.
+
+E. Zoom in Span, Delta marker, future gain controls
+   (lower priority — useful but not the main friction)
+
+──────────────────────────────────────────────────────────────────
+4. ONE THING TO WATCH: BUTTON IDENTITY
+──────────────────────────────────────────────────────────────────
+The current physical buttons map to specific keyboard shortcuts
+(F, S, A, I, M, D, P). Any rename of a top-level button should
+also update its keyboard shortcut and the CLAUDE.md / menu.txt
+documentation. The menu2.txt redesign suggests N for Analysis,
+which is a free letter — good choice.
