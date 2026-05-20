@@ -268,6 +268,12 @@ class UISetup:
         mw.output_sample_size.setText("-")
         mw.output_gain.setText("-")
         if mw.current_source is None:
-            mw.status_label.setText("No source selected")
+            mw.status_label.setText(
+                "<span style='color:#4db8ff;'>Top Dog Spectrum Analyser<br>"
+                "Paul Stanley<br>"
+                "Copyright 2026</span><br><br>"
+                "<span style='color:#ffffff;'>Select input to begin</span>"
+            )
+            mw.status_label.setTextFormat(Qt.TextFormat.RichText)
         mw.input_value.setText("")
         logging.debug("Labels initialised")

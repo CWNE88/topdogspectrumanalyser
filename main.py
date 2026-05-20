@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
     def _initialise_ui(self) -> None:
         """Load and set up the UI file with error handling."""
         try:
-            loadUi("main_window_horizontal.ui", self)
+            loadUi("main_window.ui", self)
         except Exception as e:
             logging.critical(f"Failed to load UI: {e}")
             sys.exit(1)
