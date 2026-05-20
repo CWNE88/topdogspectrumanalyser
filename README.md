@@ -1,6 +1,12 @@
 # Top Dog Spectrum Analyser
 Python Spectrum Analyser using HackRF or RTL-SDR
 
+https://github.com/CWNE88/topdogspectrumanalyser/blob/master/screenshot1.png
+
+
+https://github.com/CWNE88/topdogspectrumanalyser/blob/master/screenshot2.png
+
+
 ** PROJECT IS STILL EXTREMELY EXPERIMENTAL **
 
 Required installs
