@@ -135,7 +135,10 @@ class PopoutWindow(QMainWindow):
                 event.accept()
                 return
 
-        super().keyPressEvent(event)
+        if self.parent_window:
+            self.parent_window.keyPressEvent(event)
+        else:
+            super().keyPressEvent(event)
 
     def closeEvent(self, event):
         """Handle window close event.

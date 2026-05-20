@@ -12,7 +12,7 @@ class ThreeD(QtWidgets.QWidget):
     X_RANGE        = (-10, 10)
     Y_RANGE        = (-10, 10)
     Z_SCALE        = 8
-    DEFAULT_GRID_Y = -10   # front face — where the newest trace lives
+    DEFAULT_GRID_Y = 10    # front face — where the newest trace lives
     NUMBER_OF_LINES = 300
     TRACE_WIDTH    = 5
     MAX_HOLD_WIDTH = 3
@@ -66,7 +66,7 @@ class ThreeD(QtWidgets.QWidget):
         self.y = None
         self.z = None
         self.line_y_values = np.linspace(
-            self.Y_RANGE[0], self.Y_RANGE[1], self.num_history_lines
+            self.Y_RANGE[1], self.Y_RANGE[0], self.num_history_lines
         )
         self.traces         = {}
         self.max_hold_trace = None
@@ -248,20 +248,23 @@ class ThreeD(QtWidgets.QWidget):
                 color=np.zeros((len(self.x), 4), dtype=float),
                 antialias=True, mode="line_strip"
             )
+
+        # Add oldest traces first so newest (index 0) is drawn last and appears on top
+        for i in range(self.num_history_lines - 1, -1, -1):
             self.widget.addItem(self.traces[i])
 
         front_y = np.full_like(self.x, self.line_y_values[0])
         pts_front = np.vstack([self.x, front_y, z_zero]).T
 
         self.max_hold_trace = gl.GLLinePlotItem(
-            pos=pts_front.copy(), color=self.MAX_HOLD_COLOUR,
+            pos=pts_front.copy(), color=(0, 0, 0, 0),
             antialias=True, mode="line_strip", width=self.MAX_HOLD_WIDTH
         )
         self.widget.addItem(self.max_hold_trace)
         self.max_hold_z = z_zero.copy()
 
         self.min_hold_trace = gl.GLLinePlotItem(
-            pos=pts_front.copy(), color=self.MIN_HOLD_COLOUR,
+            pos=pts_front.copy(), color=(0, 0, 0, 0),
             antialias=True, mode="line_strip", width=self.MAX_HOLD_WIDTH
         )
         self.widget.addItem(self.min_hold_trace)
@@ -411,7 +414,7 @@ class ThreeD(QtWidgets.QWidget):
         if n == self.num_history_lines:
             return
         self.num_history_lines = n
-        self.line_y_values = np.linspace(self.Y_RANGE[0], self.Y_RANGE[1], n)
+        self.line_y_values = np.linspace(self.Y_RANGE[1], self.Y_RANGE[0], n)
         self.max_hold_z = np.zeros(len(self.frequency_bins)) if self.frequency_bins is not None else None
         self.traces_initialised = False
         if self.frequency_bins is not None and len(self.frequency_bins) > 0:
@@ -450,8 +453,10 @@ class ThreeD(QtWidgets.QWidget):
         frequency_bins:   np.ndarray,
         min_power_levels  = None,
     ) -> None:
-        if live_power_levels is None or max_power_levels is None or frequency_bins is None:
+        if live_power_levels is None or frequency_bins is None:
             return
+        if max_power_levels is None:
+            max_power_levels = live_power_levels
 
         if isinstance(live_power_levels, tuple):
             live_power_levels = live_power_levels[0]
@@ -518,7 +523,7 @@ class ThreeD(QtWidgets.QWidget):
         # auto-rotate
         if self.auto_rotate:
             self.widget.opts['azimuth'] = (self.widget.opts['azimuth'] + 0.1) % 360
-            self.widget.update()
+        self.widget.update()
 
         # peak search
         if self.peak_search_enabled:

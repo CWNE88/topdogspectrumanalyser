@@ -580,6 +580,8 @@ class MainWindow(QMainWindow):
             # OpenGL widgets must be cloned — they cannot be reparented safely
             clone = self.popout_window.create_clone_widget(clone_class)
             self.popout_clone_widget = clone
+            if hasattr(clone, 'set_amplitude'):
+                clone.set_amplitude(self.ref_level, self.range_db)
             widget.hide()
         else:
             self.popout_window.set_widget(widget, self.stacked_widget)
